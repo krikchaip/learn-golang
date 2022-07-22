@@ -1,6 +1,4 @@
-package main
-
-import "fmt"
+package hello
 
 // ?? UppercaseFunction -> public function ??
 // alternative: `Hello(name string, language string)`
@@ -29,8 +27,4 @@ func greetingPrefix(language string) (prefix string) {
 		prefix = englishHelloPrefix
 	}
 	return
-}
-
-func main() {
-	fmt.Println(Hello("world", ""))
 }
