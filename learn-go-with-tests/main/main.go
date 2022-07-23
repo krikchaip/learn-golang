@@ -7,6 +7,6 @@ import (
 )
 
 func main() {
-	fmt.Println(hello.Hello("world", ""))
-	fmt.Println(integers.Add(2, 5))
+	fmt.Println("01-hello:", hello.Hello("Winner", hello.French))
+	fmt.Println("02-integers:", integers.Add(2, 5))
 }
