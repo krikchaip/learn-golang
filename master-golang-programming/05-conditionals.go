@@ -24,4 +24,45 @@ func main() {
 	} else {
 		fmt.Printf("%d km in miles is %.4f\n", km, float64(km)/1.609)
 	}
+
+	// ?? FOR loop variants (there's only FOR loop in go. No WHILE, DO-WHILE)
+
+	for i := 0; i < 10; i++ {
+		// do something
+	}
+
+	// ** the last term can be omitted
+	for i := 0; i < 10; {
+		// do something
+		i++
+	}
+
+	// ** WHILE loop
+	i := 3
+	cond := func() bool { return false }
+
+	for i >= 0 {
+		// do something
+		i--
+	}
+
+	for cond() {
+		// do something
+	}
+
+	// ** infinite loop (FOR without conditions)
+	expo2 := 2
+	for {
+		expo2 *= 2
+		if expo2 >= 1024 {
+			fmt.Println(expo2)
+			break
+		}
+	}
+
+	// ** iterating over an array/slice
+	xs := []string{"W", "I", "N", "N", "E", "R"}
+	for i, char := range xs {
+		fmt.Printf("i: %v, char: %v\n", i, char)
+	}
 }
