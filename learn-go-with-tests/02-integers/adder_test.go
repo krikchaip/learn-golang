@@ -14,9 +14,11 @@ func TestAdder(t *testing.T) {
 	}
 }
 
-// ** IMPORTANT: you must add the `Output: ...` comment
-// ** in order to make it run together with tests
+// ?? run `godoc -http=:PORT` to see the doc
 func ExampleAdd() {
 	sum := Add(1, 5)
+
+	// ** IMPORTANT: you must add the `Output: ...` comment
+	// ** in order to make it run together with tests
 	fmt.Println(sum) // Output: 6
 }
