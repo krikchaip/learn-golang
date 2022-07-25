@@ -1,6 +1,9 @@
 package iteration
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestRepeat(t *testing.T) {
 	assertEqual := func(t testing.TB, expected, actual string) {
@@ -21,6 +24,14 @@ func TestRepeat(t *testing.T) {
 		expected := "aaaaa"
 		assertEqual(t, expected, repeated)
 	})
+}
+
+func ExampleRepeat() {
+	fmt.Println(Repeat("Winner", 2))
+	fmt.Printf("%q", Repeat("Bullshit", 0))
+	// Output:
+	// WinnerWinner
+	// ""
 }
 
 // ?? run `go test -bench=.` to see the result
