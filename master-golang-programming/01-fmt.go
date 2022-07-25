@@ -3,13 +3,13 @@ package main
 import "fmt"
 
 func main() {
-	// ?? fmt.Println() writes to standard output with a new line character ??
+	// ?? fmt.Println() writes to standard output with a new line character
 	fmt.Println("Hello Go World!")
 
 	name, age := "Andrei", 35
 	fmt.Println(name, "is", age, "years old.")
 
-	// ?? fmt.Printf() prints out to stdout according to a format specifier called VERB ??
+	// ?? fmt.Printf() prints out to stdout according to a format specifier called VERB
 	a, b, c, grades := 10, 15.5, "Gophers", []int{10, 20, 30}
 	const pi float64 = 3.14159265359
 
@@ -52,7 +52,7 @@ func main() {
 	// %x -> base 16
 	fmt.Printf("101 in base 16 is %x\n", 101) // => 101 in base 16 is 65
 
-	// ?? fmt.Sprintf() returns a string. Uses the same verbs as fmt.Printf() ??
+	// ?? fmt.Sprintf() returns a string. Uses the same verbs as fmt.Printf()
 	s := fmt.Sprintf("a is %d, b is %f, c is %s \n", a, b, c)
 	fmt.Println(s) // a is 10, b is 15.500000, c is Gophers
 }

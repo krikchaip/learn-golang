@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-// ?? `int` is the underlying type of a defined type `Speed` ??
+// ?? `int` is the underlying type of a defined type `Speed`
 type Speed int
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	var x int = 1
 
-	// ** this will produce an error because they're different type **
+	// ** this will produce an error because they're different type
 	// fmt.Println(s1 - x)
 
 	// ** a type can be converted into another type if both types

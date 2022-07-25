@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	// ?? Constants need to be initialized when declared ??
+	// ?? Constants need to be initialized when declared
 	const days int = 7 // typed constant
 	const pi = 3.14    // untyped constant
 
@@ -20,18 +20,18 @@ func main() {
 		max2 //in a grouped constants, a constant repeats the previous one -> 500
 	)
 
-	// ** You cannot initiate a constant at runtime (constants belong to compile-time) **
+	// ** You cannot initiate a constant at runtime (constants belong to compile-time)
 	// const power = math.Pow(2, 3) // error, functions calls belong to runtime
 
-	// ** No Array or Struct constants **
+	// ** No Array or Struct constants
 	// const y [2]int = {5, 6}
 	// const y = [2]int{5, 6}
 
-	// ** You cannot use a variable to initialize a constant **
+	// ** You cannot use a variable to initialize a constant
 	// t := 5
 	// const tc = t // error, variables belong to runtime and you cannot initialize a const to runtime values
 
-	// ** You can use a function like len() to initialize a const if it has as argument **
+	// ** You can use a function like len() to initialize a const if it has as argument
 	const l1 = len("Hello") // OK
 	// str := "Hello"; const l2 = len(str) // error, str is a variable and belongs to runtime
 
