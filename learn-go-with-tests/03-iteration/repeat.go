@@ -1,8 +1,14 @@
 package iteration
 
+import "strings"
+
 func Repeat(char string, times int) (repeated string) {
-	for i := 0; i < times; i++ {
-		repeated += char
-	}
+	// ?? old version
+	// for i := 0; i < times; i++ {
+	// 	repeated += char
+	// }
+
+	// ?? refactored
+	repeated = strings.Repeat(char, times)
 	return
 }
