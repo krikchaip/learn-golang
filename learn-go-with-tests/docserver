@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+if [[ -z "$(command -v godoc)" ]]; then
+  echo "Please install godoc first, run:"
+  echo "  $ go install golang.org/x/tools/cmd/godoc@latest"
+
+  # command not found
+  exit 127
+fi
+
+# switch to main module
+cd main || exit
+
+PORT="${GODOC_PORT:=5555}"
+echo "Running godoc on http://localhost:${PORT}"
+
+"$(go env GOBIN)"/godoc -http=:$PORT
