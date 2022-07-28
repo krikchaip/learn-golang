@@ -18,7 +18,8 @@ func main() {
 	// ?? creating a slice using the `new` built-in function
 	// ** returns a pointer to T
 	nums2 := new([]int)
-	fmt.Println(nums2) // => &[]
+	fmt.Println(nums2)                    // => &[]
+	fmt.Printf("%#v, %T\n", nums2, nums2) // => &[]int(nil), *[]int
 
 	// ?? declaring a slice using a slice literal
 	ds := []int{2, 3, 4, 5}
