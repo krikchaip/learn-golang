@@ -1,8 +1,9 @@
 go 1.18
 
 use (
-	./main
 	./01-hello
 	./02-integers
 	./03-iteration
+	./04-arrays-slices
+	./main
 )
