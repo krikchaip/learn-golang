@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type names []string   // defined type
 type uintarr = []uint // type alias
@@ -52,6 +55,9 @@ func main() {
 
 	// ** do this instead
 	fmt.Println(SliceEquals(n, ds)) // true
+
+	// ** or this
+	fmt.Println(reflect.DeepEqual(n, ds)) // true
 }
 
 func SliceEquals[T comparable](xs, ys []T) bool {
