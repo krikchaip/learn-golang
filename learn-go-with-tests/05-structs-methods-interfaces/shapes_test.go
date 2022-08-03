@@ -1,6 +1,10 @@
 package structs_methods_interfaces
 
-import "testing"
+import (
+	"fmt"
+	"reflect"
+	"testing"
+)
 
 func TestPerimeter(t *testing.T) {
 	rectangle := Rectangle{10., 10.}
@@ -14,8 +18,11 @@ func TestPerimeter(t *testing.T) {
 }
 
 func TestArea(t *testing.T) {
-	assert := func(t testing.TB, got, want float64) {
+	assert := func(t testing.TB, shape Shape, want float64) {
 		t.Helper()
+
+		// ?? calling interface method
+		got := shape.Area()
 
 		// ?? use %g instead of %f when printing a higher-precision floating point number
 		if got != want {
@@ -23,22 +30,26 @@ func TestArea(t *testing.T) {
 		}
 	}
 
-	t.Run("rectangles", func(t *testing.T) {
-		rectangle := Rectangle{Width: 12.0, Height: 6.0}
+	// ?? table driven tests
+	areaTests := []struct {
+		shapeWithArea Shape
+		areaWanted    float64
+	}{
+		{Rectangle{Width: 12.0, Height: 6.0}, 72.0},
+		{Circle{10.0}, 314.1592653589793},
+	}
 
-		got := rectangle.Area()
-		want := 72.
+	for _, row := range areaTests {
+		shape := row.shapeWithArea
+		want := row.areaWanted
 
-		assert(t, got, want)
-	})
+		testName :=
+			fmt.Sprintf("%s%v", reflect.TypeOf(shape).Name(), shape) +
+				" -> " +
+				fmt.Sprintf("%g", want)
 
-	t.Run("circles", func(t *testing.T) {
-		circle := Circle{10.0}
-
-		got := circle.Area()
-		want := 314.1592653589793
-
-		assert(t, got, want)
-	})
-
+		t.Run(testName, func(t *testing.T) {
+			assert(t, shape, want)
+		})
+	}
 }
