@@ -34,7 +34,8 @@ func (w *Wallet) Withdraw(amount Bitcoin) error {
 	fmt.Printf("address of wallet in Withdraw is %p \n", w)
 
 	if amount > w.balance {
-		return errors.New("oh no") // ** like `new Error(msg)` in Javascript
+		// ** like `new Error(msg)` in Javascript
+		return errors.New("cannot withdraw, insufficient funds")
 	}
 
 	w.balance -= amount // alternative: (*w).balance
