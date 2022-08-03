@@ -4,8 +4,15 @@ import "fmt"
 
 type Bitcoin int
 
+// ?? implement `fmt.Stringer` interface on `Bitcoin`
+// ?? this will be called when used with the `%s` format string
+// ?? ref: https://pkg.go.dev/fmt#Stringer
+func (b Bitcoin) String() string {
+	return fmt.Sprintf("%d BTC", b)
+}
+
 type Wallet struct {
-	// private outside `pointers_errors` package
+	// ** private outside `pointers_errors` package
 	balance Bitcoin
 }
 
