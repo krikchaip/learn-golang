@@ -1,6 +1,9 @@
 package pointers_errors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Bitcoin int
 
@@ -24,4 +27,17 @@ func (w *Wallet) Deposit(amount Bitcoin) {
 func (w *Wallet) Balance() Bitcoin {
 	fmt.Printf("address of wallet in Balance is %p \n", w)
 	return w.balance // alternative: (*w).balance
+}
+
+// ?? `error` is a built-in interface for handling errors
+func (w *Wallet) Withdraw(amount Bitcoin) error {
+	fmt.Printf("address of wallet in Withdraw is %p \n", w)
+
+	if amount > w.balance {
+		return errors.New("oh no") // ** like `new Error(msg)` in Javascript
+	}
+
+	w.balance -= amount // alternative: (*w).balance
+
+	return nil
 }
