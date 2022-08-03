@@ -32,16 +32,17 @@ func TestArea(t *testing.T) {
 
 	// ?? table driven tests
 	areaTests := []struct {
-		shapeWithArea Shape
-		areaWanted    float64
+		shape   Shape
+		hasArea float64
 	}{
-		{Rectangle{Width: 12.0, Height: 6.0}, 72.0},
-		{Circle{10.0}, 314.1592653589793},
+		{Rectangle{12.0, 6.0}, 72.0},                          // short-form
+		{Circle{Radius: 10.0}, 314.1592653589793},             // initialze struct explicitly
+		{shape: Triangle{Base: 12, Height: 6}, hasArea: 36.0}, // all combined
 	}
 
 	for _, row := range areaTests {
-		shape := row.shapeWithArea
-		want := row.areaWanted
+		shape := row.shape
+		want := row.hasArea
 
 		testName :=
 			fmt.Sprintf("%s%v", reflect.TypeOf(shape).Name(), shape) +
