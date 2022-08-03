@@ -6,29 +6,6 @@ import (
 )
 
 func TestWallet(t *testing.T) {
-	assertBalance := func(t testing.TB, got, want Bitcoin) {
-		t.Helper()
-
-		// ** this will call got.String() and want.String() internally
-		if got != want {
-			t.Errorf("got %s want %s", got, want)
-		}
-	}
-
-	assertError := func(t testing.TB, err error, want string) {
-		t.Helper()
-
-		if err == nil {
-			// ** stop the current test and exit process
-			t.Fatal("wanted an error but didn't get one")
-			return
-		}
-
-		if got := err.Error(); got != want {
-			t.Errorf("got %q want %q", got, want)
-		}
-	}
-
 	t.Run("deposit", func(t *testing.T) {
 		wallet := Wallet{}
 		wallet.Deposit(Bitcoin(10))
@@ -53,7 +30,31 @@ func TestWallet(t *testing.T) {
 		wallet := Wallet{startingBalance}
 		err := wallet.Withdraw(Bitcoin(100))
 
-		assertError(t, err, "cannot withdraw, insufficient funds")
+		assertError(t, err, ErrInsufficientFunds)
 		assertBalance(t, wallet.Balance(), startingBalance)
 	})
+}
+
+func assertBalance(t testing.TB, got, want Bitcoin) {
+	t.Helper()
+
+	// ** this will call got.String() and want.String() internally
+	if got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+}
+
+func assertError(t testing.TB, err, want error) {
+	t.Helper()
+
+	if err == nil {
+		// ** stop the current test and exit process
+		t.Fatal("wanted an error but didn't get one")
+		return
+	}
+
+	// ?? `error` is comparable 🤔
+	if err != want {
+		t.Errorf("got %q want %q", err, want)
+	}
 }
