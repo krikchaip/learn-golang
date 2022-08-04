@@ -4,10 +4,10 @@ import "testing"
 
 func TestSearch(t *testing.T) {
 	// ?? map.key type must be conforms `comparable`
-	dictionary := map[string]string{"test": "this is just a test"}
+	dictionary := Dictionary{"test": "this is just a test"}
 
 	given := "test"
-	got := Search(dictionary, given)
+	got := dictionary.Search(given)
 	want := "this is just a test"
 
 	assertStrings(t, got, want, given)
