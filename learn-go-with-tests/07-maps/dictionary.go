@@ -4,7 +4,10 @@ import (
 	"errors"
 )
 
-var ErrNotFound = errors.New("could not find the word you were looking for")
+var (
+	ErrNotFound   = errors.New("could not find the word you were looking for")
+	ErrWordExists = errors.New("cannot add word because it already exists")
+)
 
 type Dictionary map[string]string
 
@@ -22,6 +25,17 @@ func (d Dictionary) Search(word string) (string, error) {
 }
 
 // ** you can MUTATE a map without passing an address to it like structs
-func (d Dictionary) Add(word, definition string) {
-	d[word] = definition
+func (d Dictionary) Add(word, definition string) error {
+	_, err := d.Search(word)
+
+	if exists := err == nil; exists {
+		return ErrWordExists
+	}
+
+	if err == ErrNotFound {
+		d[word] = definition
+		return nil
+	}
+
+	return err
 }
