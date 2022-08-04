@@ -24,19 +24,12 @@ func TestSearch(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
+	word, definition := "test", "this is just a test"
+
 	dictionary := Dictionary{}
-	dictionary.Add("test", "this is just a test")
+	dictionary.Add(word, definition)
 
-	got, err := dictionary.Search("test")
-	want := "this is just a test"
-
-	if err != nil {
-		t.Fatal("should find added word:", err)
-	}
-
-	if got != want {
-		t.Errorf("got %q want %q", got, want)
-	}
+	assertDefinition(t, dictionary, word, definition)
 }
 
 func assertStrings(t testing.TB, got, want, given string) {
@@ -55,5 +48,19 @@ func assertError(t testing.TB, got, want error) {
 
 	if got != want {
 		t.Errorf("got error %q want %q", got, want)
+	}
+}
+
+func assertDefinition(t testing.TB, dictionary Dictionary, word, definition string) {
+	t.Helper()
+
+	got, err := dictionary.Search(word)
+
+	if err != nil {
+		t.Fatal("should find added word:", err)
+	}
+
+	if got != definition {
+		t.Errorf("got %q want %q", got, definition)
 	}
 }
