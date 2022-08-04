@@ -17,13 +17,9 @@ func TestSearch(t *testing.T) {
 	t.Run("unknown word", func(t *testing.T) {
 		given := "unknown"
 		_, err := dictionary.Search(given)
-		want := "could not find the word you were looking for"
+		want := ErrNotFound
 
-		if err == nil {
-			t.Fatal("expected to get an error but got none.")
-		}
-
-		assertStrings(t, err.Error(), want, given)
+		assertError(t, err, want)
 	})
 }
 
@@ -31,5 +27,17 @@ func assertStrings(t testing.TB, got, want, given string) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got %q want %q given %q", got, want, given)
+	}
+}
+
+func assertError(t testing.TB, got, want error) {
+	t.Helper()
+
+	if got == nil {
+		t.Fatal("expected to get an error but got none.")
+	}
+
+	if got != want {
+		t.Errorf("got error %q want %q", got, want)
 	}
 }

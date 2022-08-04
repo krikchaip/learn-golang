@@ -4,6 +4,8 @@ import (
 	"errors"
 )
 
+var ErrNotFound = errors.New("could not find the word you were looking for")
+
 type Dictionary map[string]string
 
 func (d Dictionary) Search(word string) (string, error) {
@@ -11,7 +13,7 @@ func (d Dictionary) Search(word string) (string, error) {
 	val, exists := d[word]
 
 	if !exists {
-		return "", errors.New("could not find the word you were looking for")
+		return "", ErrNotFound
 	}
 
 	return val, nil
