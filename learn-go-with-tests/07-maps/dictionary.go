@@ -1,10 +1,5 @@
 package maps
 
-const (
-	ErrNotFound   = DictionaryErr("could not find the word you were looking for")
-	ErrWordExists = DictionaryErr("cannot add word because it already exists")
-)
-
 type Dictionary map[string]string
 
 func (d Dictionary) Search(word string) (string, error) {
@@ -36,8 +31,18 @@ func (d Dictionary) Add(word, definition string) error {
 	return err
 }
 
+func (d Dictionary) Update(word, definition string) {
+	d[word] = definition
+}
+
 type DictionaryErr string
 
+// ** error type can be anything as long as Error() is implemented
 func (e DictionaryErr) Error() string {
 	return string(e)
 }
+
+const (
+	ErrNotFound   = DictionaryErr("could not find the word you were looking for")
+	ErrWordExists = DictionaryErr("cannot add word because it already exists")
+)
