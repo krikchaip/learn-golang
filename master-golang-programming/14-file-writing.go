@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"log"
 	"os"
 )
@@ -25,11 +26,34 @@ func main() {
 
 	nWritten, err := file.Write(bytes)
 	handleErr(err)
-	log.Printf("Bytes written: %d\n", nWritten) // 2022/08/06 01:21:19 Bytes written: 39
+	log.Printf("Bytes written: %d\n", nWritten) // 39
 
 	// ?? WRITE bytes to file - the convenient way
 	err = os.WriteFile(filename, bytes, 0644)
 	handleErr(err)
+
+	// ?? WRITE bytes to file - using buffer
+	buffer := bufio.NewWriter(file) // ** first, create a buffer writer to file
+
+	// ** writing the bytes slice to a buffer IN MEMORY
+	nWritten, err = buffer.Write([]byte{'a', 'b', 'c'})
+	handleErr(err)
+	log.Printf("Bytes written to buffer (not file): %d\n", nWritten) // 3
+
+	// ?? checking available buffer (default max = 4096bytes)
+	log.Printf("Bytes available in buffer: %d\n", buffer.Available()) // 4093
+
+	// ** writing a string to a buffer IN MEMORY
+	nWritten, err = buffer.WriteString("\nJust a random string")
+	handleErr(err)
+	log.Printf("Bytes written to buffer (not file): %d\n", nWritten) // 21
+
+	// ?? checking how much data is stored in buffer,
+	// ?? just waiting to be written to disk.
+	log.Printf("Bytes buffered: %d\n", buffer.Buffered()) // 24
+
+	// ** FLUSH bytes written in buffer to the file
+	buffer.Flush()
 }
 
 func handleErr(err error) {
