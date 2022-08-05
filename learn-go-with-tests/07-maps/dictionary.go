@@ -46,6 +46,10 @@ func (d Dictionary) Update(word, definition string) error {
 	return err
 }
 
+func (d Dictionary) Delete(word string) {
+	delete(d, word)
+}
+
 type DictionaryErr string
 
 // ** error type can be anything as long as Error() is implemented
@@ -53,6 +57,7 @@ func (e DictionaryErr) Error() string {
 	return string(e)
 }
 
+// ?? error constants pattern
 const (
 	ErrNotFound         = DictionaryErr("could not find the word you were looking for")
 	ErrWordExists       = DictionaryErr("cannot add word because it already exists")
