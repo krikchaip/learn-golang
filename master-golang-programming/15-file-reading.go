@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -19,14 +23,62 @@ func main() {
 	log.Printf("Number of bytes read: %d\n", nRead) // 2
 	log.Printf("Data read: %s\n", bytes)            // EI
 
-	// ?? READ whole file into memory
+	// ?? READ the whole file into memory
 	content, _ := os.ReadFile(public(".gitkeep"))
 	log.Printf("%s\n", content) // EIEI ... YOU ARE PRANKED!
 
-	// ?? READ til end, start from current file pointer
+	// ?? READ til the end, start from current file pointer
 	// ** continue reading from byte 3 and so on (because we read 2bytes before)
 	content, _ = io.ReadAll(file)
 	log.Printf("%s\n", content) // EI ... YOU ARE PRANKED!
+
+	// ?? RESET file cursor position to START
+	// ** by calling io.ReadAll @line29, the file cursor has already moved to EOF.
+	file.Seek(0, io.SeekStart)
+
+	// ?? READ a file LINE by LINE - using Scanner
+	scanner := bufio.NewScanner(file)
+
+	// ** the default scanner is bufio.ScanLines
+	// ** and that means it will scan a file line by line.
+	// scanner.Split(bufio.ScanLines)
+
+	// ** read the first line
+	if !scanner.Scan() {
+		handleErr(scanner.Err())
+	}
+
+	// ?? get the data from the last scanner.Scan()
+	log.Println(scanner.Text()) // EIEI ... YOU ARE PRANKED!
+
+	// ** skip CSV header
+	if !scanner.Scan() {
+		handleErr(scanner.Err())
+	}
+
+	var students []Student
+
+	// ?? read the whole remaining part of the file
+	for ok := scanner.Scan(); ok; ok = scanner.Scan() {
+		if !ok {
+			handleErr(scanner.Err())
+			break
+		}
+
+		texts := strings.Split(scanner.Text(), ",")
+
+		name := texts[0]
+		age, _ := strconv.ParseUint(texts[1], 10, 32)
+		grade, _ := strconv.ParseFloat(texts[2], 32)
+
+		students = append(students, Student{
+			name,
+			uint(age),
+			float32(grade),
+		})
+	}
+
+	log.Println(students)
 }
 
 func handleErr(err error) {
@@ -45,4 +97,20 @@ func public(path string) string {
 	}
 
 	return "./public" + path
+}
+
+// implements Stringer interface
+type Student struct {
+	name  string
+	age   uint
+	grade float32
+}
+
+func (s Student) String() string {
+	return fmt.Sprintf(
+		"Student{name:%s,age:%d,grade:%.1f}",
+		s.name,
+		s.age,
+		s.grade,
+	)
 }
