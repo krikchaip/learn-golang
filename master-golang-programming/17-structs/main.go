@@ -43,10 +43,46 @@ func main() {
 
 	_, _ = john, jane
 
-	// ?? structs are like arrays, their value is atomic
+	// ** A struct is like an array, its value is atomic
 	book_d := book_a // book_d is an ACTUAL COPY of book_a with different memory location
 	book_d.title = "BULLSHIT!"
 
 	fmt.Printf("%+v\n", book_a) // {title:The Divine Comedy author:Dante Aligheri year:1320 pages:100}
 	fmt.Printf("%+v\n", book_d) // {title:BULLSHIT! author:Dante Aligheri year:1320 pages:100}
+
+	// ?? anonymous struct
+	diana := struct {
+		first, last string
+		age         int
+	}{"Diana", "Muller", 30}
+
+	// ** alternative declaration (gofmt will automatically format this one)
+	// diana := struct{ first, last string; age int }{"Diana", "Muller", 30}
+
+	fmt.Printf("%#v\n", diana) // struct { first string; last string; age int }{first:"Diana", last:"Muller", age:30}
+	fmt.Printf("%+v\n", diana) // {first:Diana last:Muller age:30}
+
+	// ?? anonymous struct fields
+	book_e := struct {
+		string
+		float64
+		bool
+	}{"The 1984", 10.2, false}
+
+	fmt.Printf("%#v\n", book_e) // struct { string; float64; bool }{string:"The 1984", float64:10.2, bool:false}
+	fmt.Printf("%+v\n", book_e) // {string:The 1984 float64:10.2 bool:false}
+
+	fmt.Println(book_e.string)  // The 1984
+	fmt.Println(book_e.float64) // 10.2
+	fmt.Println(book_e.bool)    // false
+
+	// ?? hybrid struct fields
+	winner := struct {
+		name   string
+		salary int
+		bool
+	}{"Winner", 5000, false}
+
+	fmt.Printf("%#v\n", winner) // struct { name string; salary int; bool }{name:"Winner", salary:5000, bool:false}
+	fmt.Printf("%+v\n", winner) // {name:Winner salary:5000 bool:false}
 }
