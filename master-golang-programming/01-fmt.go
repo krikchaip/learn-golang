@@ -12,6 +12,7 @@ func main() {
 	// ?? fmt.Printf() prints out to stdout according to a format specifier called VERB
 	a, b, c, grades := 10, 15.5, "Gophers", []int{10, 20, 30}
 	const pi float64 = 3.14159265359
+	student := Student{"Winner", 26}
 
 	// %d -> decimal
 	// %f -> float
@@ -25,11 +26,16 @@ func main() {
 	fmt.Printf("%q\n", c) // => "Gophers"
 
 	// %v -> value (any)
-	fmt.Printf("%v\n", grades) // => [10 20 30]
+	fmt.Printf("%v\n", grades)  // => [10 20 30]
+	fmt.Printf("%v\n", student) // => {Winner 26}
+
+	// %+v -> like %v but add struct field names
+	fmt.Printf("%+v\n", student) // => {name:Winner age:26}
 
 	// %#v -> a Go-syntax representation of the value
-	fmt.Printf("%#v\n", grades) // => []int{10, 20, 30}
-	fmt.Printf("%#v\n", b)      // => 15.5
+	fmt.Printf("%#v\n", grades)  // => []int{10, 20, 30}
+	fmt.Printf("%#v\n", b)       // => 15.5
+	fmt.Printf("%#v\n", student) // => main.Student{name:"Winner", age:26}
 
 	// %T -> value Type
 	fmt.Printf("b is %T. grades is %T\n", b, grades) // => b is float64. grades is []int
@@ -55,4 +61,9 @@ func main() {
 	// ?? fmt.Sprintf() returns a string. Uses the same verbs as fmt.Printf()
 	s := fmt.Sprintf("a is %d, b is %f, c is %s \n", a, b, c)
 	fmt.Println(s) // a is 10, b is 15.500000, c is Gophers
+}
+
+type Student struct {
+	name string
+	age  int
 }
