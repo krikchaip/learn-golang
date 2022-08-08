@@ -10,12 +10,23 @@ type Shape interface {
 	Perimeter() float64
 }
 
+type Object interface {
+	Volume() float64
+}
+
+// ?? Embedded Interface - like TypeA & TypeB in Typescript :)
+type Geometry interface {
+	Shape  // includes every Shape's methods
+	Object // includes every Object's methods
+	GetColor() string
+}
+
 // implements: Shape
 type Rectangle struct {
 	Width, Height float64
 }
 
-// implements: Shape
+// implements: Geometry
 type Circle struct {
 	Radius float64
 }
@@ -39,6 +50,11 @@ func (c Circle) Perimeter() float64 {
 // ** Circle is the only struct that implements this method
 func (c Circle) Volume() float64 {
 	return 4 / 3 * math.Pi * math.Pow(c.Radius, 3)
+}
+
+// ** also this method...
+func (c Circle) GetColor() string {
+	return "red"
 }
 
 func main() {
@@ -75,7 +91,7 @@ func main() {
 	}
 
 	// ?? Type Switches statement
-	switch shape := s.(type) {
+	switch shape := s.(type) { // or switch s.(type) instead if you don't want to introduce a new variable
 	case Rectangle:
 		fmt.Println("shape is a Rectangle.")
 	case Circle: // <- will match this case
