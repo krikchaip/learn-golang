@@ -1,4 +1,4 @@
-go 1.18
+go 1.19
 
 use (
 	./01-hello
@@ -8,5 +8,6 @@ use (
 	./05-structs-methods-interfaces
 	./06-pointers-errors
 	./07-maps
+	./08-dependency-injection
 	./main
 )
