@@ -12,9 +12,10 @@ type Sleeper interface {
 	Sleep()
 }
 
+// ?? comment on one of the implementations below and see the test output
 func Countdown(w io.Writer, s Sleeper) {
-	// realCountdown(w, s)
-	fakeCountdown(w, s)
+	realCountdown(w, s)
+	// fakeCountdown(w, s)
 }
 
 func realCountdown(w io.Writer, s Sleeper) {
