@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestCountdown(t *testing.T) {
@@ -51,6 +52,18 @@ func TestCountdown(t *testing.T) {
 	})
 }
 
+func TestConfigurableSleeper(t *testing.T) {
+	sleepTime := 5 * time.Second
+	spyTime := &SpyTime{}
+
+	sleeper := countdown.ConfigurableSleeper{sleepTime, spyTime.SleepFn}
+	sleeper.Sleep()
+
+	if spyTime.durationSlept != sleepTime {
+		t.Errorf("should have slept for %v but slept for %v", sleepTime, spyTime.durationSlept)
+	}
+}
+
 // implements: countdown.Sleeper
 type SpySleeper struct {
 	Calls int
@@ -78,3 +91,13 @@ const (
 	Write = "write"
 	Sleep = "sleep"
 )
+
+// ** this struct does not implement countdown.Sleeper!!
+// ** pay attention to the signature of SpyTime.SleepFn
+type SpyTime struct {
+	durationSlept time.Duration
+}
+
+func (s *SpyTime) SleepFn(duration time.Duration) {
+	s.durationSlept = duration
+}
