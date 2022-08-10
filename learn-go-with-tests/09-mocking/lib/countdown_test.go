@@ -15,19 +15,24 @@ func (ss *SpySleeper) Sleep() {
 }
 
 func TestCountdown(t *testing.T) {
-	buffer := &bytes.Buffer{}
-	sleeper := &SpySleeper{}
+	// ** eventhough we switch the implementation of Countdown
+	// ** to the fake one, this test would still pass.
+	t.Run("don't check the timing order", func(t *testing.T) {
+		buffer := &bytes.Buffer{}
+		sleeper := &SpySleeper{}
 
-	Countdown(buffer, sleeper)
+		Countdown(buffer, sleeper)
 
-	got := buffer.String()
-	want := "3\n2\n1\nGo!"
+		got := buffer.String()
+		want := "3\n2\n1\nGo!"
 
-	if got != want {
-		t.Errorf("got %q but want %q", got, want)
-	}
+		if got != want {
+			t.Errorf("got %q but want %q", got, want)
+		}
 
-	if sleeper.Calls != 3 {
-		t.Errorf("not enough calls to sleeper, want 3 got %d", sleeper.Calls)
-	}
+		if sleeper.Calls != 3 {
+			t.Errorf("not enough calls to sleeper, want 3 got %d", sleeper.Calls)
+		}
+	})
+
 }
