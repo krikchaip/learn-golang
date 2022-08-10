@@ -2,8 +2,11 @@ package concurrency_test
 
 import (
 	concurrency "10-concurrency/lib"
+	"fmt"
 	"reflect"
+	"strconv"
 	"testing"
+	"time"
 )
 
 func TestCheckWebsites(t *testing.T) {
@@ -29,4 +32,32 @@ func TestCheckWebsites(t *testing.T) {
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("wanted %v, got %v", want, got)
 	}
+}
+
+func BenchmarkCheckWebsites(b *testing.B) {
+	// ?? SLOW-ASS website checker 😈
+	slowWc := func(_ string) bool {
+		time.Sleep(20 * time.Millisecond)
+		return true
+	}
+	urls := generateUrls(100)
+
+	// ?? reset time-spend from previous statements before start measuring
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		concurrency.CheckWebsites(slowWc, urls)
+	}
+}
+
+func generateUrls(total int) (urls []string) {
+	urls = make([]string, total)
+	digits := fmt.Sprintf("%d", len(strconv.Itoa(total)))
+
+	for i := 0; i < len(urls); i++ {
+		n := fmt.Sprintf("%0"+digits+"d", i+1)
+		urls[i] = "GENERATED_URL_" + n
+	}
+
+	return
 }
