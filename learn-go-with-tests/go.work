@@ -9,5 +9,6 @@ use (
 	./06-pointers-errors
 	./07-maps
 	./08-dependency-injection
+	./09-mocking
 	./main
 )
