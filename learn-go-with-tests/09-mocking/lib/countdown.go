@@ -20,7 +20,7 @@ func realCountdown(w io.Writer, s Sleeper) {
 		s.Sleep()
 	}
 
-	fmt.Fprint(w, finalWord)
+	fmt.Fprintln(w, finalWord)
 }
 
 // ** this won't break the test eventhough the implementation is wrong!
@@ -33,5 +33,5 @@ func fakeCountdown(w io.Writer, s Sleeper) {
 		fmt.Fprintln(w, i)
 	}
 
-	fmt.Fprint(w, finalWord)
+	fmt.Fprintln(w, finalWord)
 }

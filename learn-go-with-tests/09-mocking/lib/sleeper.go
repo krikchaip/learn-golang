@@ -8,11 +8,12 @@ type Sleeper interface {
 
 // implements: countdown.Sleeper
 type SecondSleeper struct {
-	Duration time.Duration
+	// # of second
+	Duration int64
 }
 
 func (ss SecondSleeper) Sleep() {
-	time.Sleep(ss.Duration * time.Second)
+	time.Sleep(time.Duration(ss.Duration) * time.Second)
 }
 
 // implements: countdown.Sleeper
