@@ -1,7 +1,7 @@
 package main
 
 import (
-	integers "02-integers"
+	integers "02-integers/lib"
 	"fmt"
 )
 
