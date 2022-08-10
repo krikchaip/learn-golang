@@ -8,10 +8,6 @@ import (
 const finalWord = "Go!"
 const countdownStart = 3
 
-type Sleeper interface {
-	Sleep()
-}
-
 // ?? comment on one of the implementations below and see the test output
 func Countdown(w io.Writer, s Sleeper) {
 	realCountdown(w, s)

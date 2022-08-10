@@ -1,6 +1,7 @@
-package countdown
+package countdown_test
 
 import (
+	countdown "09-mocking/lib"
 	"bytes"
 	"reflect"
 	"testing"
@@ -13,7 +14,7 @@ func TestCountdown(t *testing.T) {
 		buffer := &bytes.Buffer{}
 		sleeper := &SpySleeper{}
 
-		Countdown(buffer, sleeper)
+		countdown.Countdown(buffer, sleeper)
 
 		got := buffer.String()
 		want := "3\n2\n1\nGo!"
@@ -31,7 +32,7 @@ func TestCountdown(t *testing.T) {
 		writer := &SpyCountdownOperations{}
 		sleeper := writer
 
-		Countdown(writer, sleeper)
+		countdown.Countdown(writer, sleeper)
 
 		got := writer.Calls // ??  or sleeper.Calls
 		want := []string{
