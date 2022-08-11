@@ -1,7 +1,7 @@
 package concurrency_test
 
 import (
-	concurrency "10-concurrency/lib"
+	concurrency "10-concurrency"
 	"fmt"
 	"reflect"
 	"strconv"
