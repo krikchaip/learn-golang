@@ -38,10 +38,28 @@ func TestWalk(t *testing.T) {
 					Age  int
 					City string
 				}
-			}{"Chris", struct {
-				Age  int
-				City string
-			}{33, "London"}},
+			}{
+				"Chris", struct {
+					Age  int
+					City string
+				}{33, "London"},
+			},
+			Result: []string{"Chris", "London"},
+		},
+		{
+			Name: "pointers to things",
+			X: &struct {
+				Name    string
+				Profile struct {
+					Age  int
+					City string
+				}
+			}{
+				"Chris", struct {
+					Age  int
+					City string
+				}{33, "London"},
+			},
 			Result: []string{"Chris", "London"},
 		},
 	}
