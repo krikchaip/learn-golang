@@ -90,5 +90,9 @@ func v4(x any, fn func(string)) {
 		for iter.Next() {
 			v4(iter.Value().Interface(), fn)
 		}
+	case reflect.Chan:
+		for item, ok := val.Recv(); ok; item, ok = val.Recv() {
+			v4(item.Interface(), fn)
+		}
 	}
 }

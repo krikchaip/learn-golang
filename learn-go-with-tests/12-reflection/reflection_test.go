@@ -97,6 +97,37 @@ func TestWalk(t *testing.T) {
 			Result: []string{"Bar", "Boz"},
 			// Result: []string{"Boz", "Bar"},
 		},
+		{
+			Name: "channels",
+			X: func() chan struct {
+				Age  int
+				City string
+			} {
+				ch := make(chan struct {
+					Age  int
+					City string
+				})
+
+				go func() {
+					ch <- struct {
+						Age  int
+						City string
+					}{33, "Berlin"}
+					ch <- struct {
+						Age  int
+						City string
+					}{34, "Katowice"}
+
+					// ** don't forget to close the channel after finished !
+					close(ch)
+				}()
+
+				return ch
+			}(),
+			// ** [WARNING] this will not always guarantee order
+			Result: []string{"Berlin", "Katowice"},
+			// Result: []string{"Katowice", "Berlin"},
+		},
 	}
 
 	for _, test := range cases {
