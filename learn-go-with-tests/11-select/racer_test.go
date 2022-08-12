@@ -40,16 +40,19 @@ func TestRacer_robust(t *testing.T) {
 		}
 	})
 
-	t.Run("returns an error if it takes longer than 10s", func(t *testing.T) {
-		serverA := makeDelayedServer(11 * time.Second)
-		serverB := makeDelayedServer(12 * time.Second)
+	t.Run("returns an error if it doesn't respond within the specified time", func(t *testing.T) {
+		timeout := 10 * time.Millisecond
+
+		serverA := makeDelayedServer(11 * time.Millisecond)
+		serverB := makeDelayedServer(12 * time.Millisecond)
 
 		defer func() {
 			serverA.Close()
 			serverB.Close()
 		}()
 
-		_, err := racer.Racer(serverA.URL, serverB.URL)
+		// ?? to reduce testing time, we test the configurable one instead
+		_, err := racer.ConcurrentRace(serverA.URL, serverB.URL, timeout)
 
 		if err == nil {
 			t.Errorf("expected an error but didn't get one")

@@ -9,15 +9,15 @@ import (
 var tenSecondTimeout = 10 * time.Second
 
 func Racer(a, b string) (winner string, err error) {
-	// winner, err = sequentRace(a, b, tenSecondTimeout)
-	winner, err = concurrentRace(a, b, tenSecondTimeout)
+	// winner, err = SequentRace(a, b, tenSecondTimeout)
+	winner, err = ConcurrentRace(a, b, tenSecondTimeout)
 	return
 }
 
 // ** [NOT RECOMMENDED]
 // **   - testing the speeds one after another
 // **   - we measure the response times outselves
-func sequentRace(a, b string, timeout time.Duration) (winner string, err error) {
+func SequentRace(a, b string, timeout time.Duration) (winner string, err error) {
 	durationA := measureTime(func() {
 		http.Get(a)
 	})
@@ -54,7 +54,7 @@ func measureTime(f func()) time.Duration {
 // ?? [RECOMMENDED]
 // ??   - checking both urls at the same time
 // ??   - we just only want to know which one comes back first
-func concurrentRace(a, b string, timeout time.Duration) (winner string, err error) {
+func ConcurrentRace(a, b string, timeout time.Duration) (winner string, err error) {
 	select { // ** similar to Promise.race in Javascript 👍🏻
 	case <-ping(a):
 		return a, nil
