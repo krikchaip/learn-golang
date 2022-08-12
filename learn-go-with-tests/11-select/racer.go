@@ -1,33 +1,46 @@
 package racer
 
 import (
+	"errors"
 	"net/http"
 	"time"
 )
 
-func Racer(a, b string) (winner string) {
-	// winner = sequentRace(a, b)
-	winner = concurrentRace(a, b)
+func Racer(a, b string) (winner string, err error) {
+	winner, err = sequentRace(a, b)
+	// winner, err = concurrentRace(a, b)
 	return
 }
 
 // ** [NOT RECOMMENDED]
 // **   - testing the speeds one after another
 // **   - we measure the response times outselves
-func sequentRace(a, b string) (winner string) {
+func sequentRace(a, b string) (winner string, err error) {
 	durationA := measureTime(func() {
 		http.Get(a)
 	})
+
+	if durationA > 10*time.Second {
+		err = errors.New("timeout!")
+		return
+	}
 
 	durationB := measureTime(func() {
 		http.Get(b)
 	})
 
-	if durationA > durationB {
-		return b
-	} else {
-		return a
+	if durationA+durationB > 10*time.Second {
+		err = errors.New("timeout!")
+		return
 	}
+
+	if durationA > durationB {
+		winner = b
+	} else {
+		winner = a
+	}
+
+	return
 }
 
 func measureTime(f func()) time.Duration {
