@@ -7,7 +7,8 @@ import "reflect"
 func Walk(x any, fn func(string)) {
 	// v1(x, fn)
 	// v2(x, fn)
-	v3(x, fn)
+	// v3(x, fn)
+	v4(x, fn)
 }
 
 func v1(x any, fn func(string)) {
@@ -17,7 +18,7 @@ func v1(x any, fn func(string)) {
 	// ?? assumes that struct x has atleast one field
 	field := val.Field(0)
 
-	// ?? assumes that the `field` has a type of string
+	// ?? assumes that the `field` has a type of string and get the value
 	fn(field.String())
 }
 
@@ -64,6 +65,25 @@ func v3(x any, fn func(string)) {
 			fn(field.String())
 		case reflect.Struct:
 			v3(field.Interface(), fn)
+		}
+	}
+}
+
+func v4(x any, fn func(string)) {
+	val := reflect.ValueOf(x)
+
+	switch val.Kind() {
+	case reflect.Pointer:
+		v4(val.Elem().Interface(), fn)
+	case reflect.String:
+		fn(val.String())
+	case reflect.Slice:
+		for i := 0; i < val.Len(); i++ {
+			v4(val.Index(i).Interface(), fn)
+		}
+	case reflect.Struct:
+		for i := 0; i < val.NumField(); i++ {
+			v4(val.Field(i).Interface(), fn)
 		}
 	}
 }
