@@ -1,6 +1,8 @@
 package reflection
 
-import "reflect"
+import (
+	"reflect"
+)
 
 // takes a struct x and calls fn for all strings fields
 // found inside recursively.
@@ -93,6 +95,11 @@ func v4(x any, fn func(string)) {
 	case reflect.Chan:
 		for item, ok := val.Recv(); ok; item, ok = val.Recv() {
 			v4(item.Interface(), fn)
+		}
+	case reflect.Func:
+		results := val.Call(nil) // ** calling with empty arguments
+		for _, r := range results {
+			v4(r.Interface(), fn)
 		}
 	}
 }

@@ -128,6 +128,37 @@ func TestWalk(t *testing.T) {
 			Result: []string{"Berlin", "Katowice"},
 			// Result: []string{"Katowice", "Berlin"},
 		},
+		{
+			Name: "with function",
+			X: func() (
+				*struct {
+					Name    string
+					Profile struct {
+						Age  int
+						City string
+					}
+				},
+				[]string,
+			) {
+				return &struct {
+						Name    string
+						Profile struct {
+							Age  int
+							City string
+						}
+					}{
+						"Winner",
+						struct {
+							Age  int
+							City string
+						}{
+							26, "Bangkok",
+						},
+					},
+					[]string{"Mom", "Dad"}
+			},
+			Result: []string{"Winner", "Bangkok", "Mom", "Dad"},
+		},
 	}
 
 	for _, test := range cases {
