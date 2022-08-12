@@ -6,21 +6,23 @@ import (
 	"time"
 )
 
+var tenSecondTimeout = 10 * time.Second
+
 func Racer(a, b string) (winner string, err error) {
-	// winner, err = sequentRace(a, b)
-	winner, err = concurrentRace(a, b)
+	// winner, err = sequentRace(a, b, tenSecondTimeout)
+	winner, err = concurrentRace(a, b, tenSecondTimeout)
 	return
 }
 
 // ** [NOT RECOMMENDED]
 // **   - testing the speeds one after another
 // **   - we measure the response times outselves
-func sequentRace(a, b string) (winner string, err error) {
+func sequentRace(a, b string, timeout time.Duration) (winner string, err error) {
 	durationA := measureTime(func() {
 		http.Get(a)
 	})
 
-	if durationA > 10*time.Second {
+	if durationA > timeout {
 		err = fmt.Errorf("timed out waiting for %s", a)
 		return
 	}
@@ -29,7 +31,7 @@ func sequentRace(a, b string) (winner string, err error) {
 		http.Get(b)
 	})
 
-	if durationA+durationB > 10*time.Second {
+	if durationA+durationB > timeout {
 		err = fmt.Errorf("timed out waiting for %s and %s", a, b)
 		return
 	}
@@ -52,13 +54,13 @@ func measureTime(f func()) time.Duration {
 // ?? [RECOMMENDED]
 // ??   - checking both urls at the same time
 // ??   - we just only want to know which one comes back first
-func concurrentRace(a, b string) (winner string, err error) {
+func concurrentRace(a, b string, timeout time.Duration) (winner string, err error) {
 	select { // ** similar to Promise.race in Javascript 👍🏻
 	case <-ping(a):
 		return a, nil
 	case <-ping(b):
 		return b, nil
-	case <-time.After(10 * time.Second): // ** both a and b are racing against a 10s timer
+	case <-time.After(timeout): // ** both a and b are racing against a timeout
 		return "", fmt.Errorf("timed out waiting for %s and %s", a, b)
 	}
 }
