@@ -77,13 +77,18 @@ func v4(x any, fn func(string)) {
 		v4(val.Elem().Interface(), fn)
 	case reflect.String:
 		fn(val.String())
-	case reflect.Slice:
+	case reflect.Array, reflect.Slice: // ** switch-case union
 		for i := 0; i < val.Len(); i++ {
 			v4(val.Index(i).Interface(), fn)
 		}
 	case reflect.Struct:
 		for i := 0; i < val.NumField(); i++ {
 			v4(val.Field(i).Interface(), fn)
+		}
+	case reflect.Map:
+		iter := val.MapRange()
+		for iter.Next() {
+			v4(iter.Value().Interface(), fn)
 		}
 	}
 }

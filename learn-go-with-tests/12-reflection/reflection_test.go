@@ -75,6 +75,25 @@ func TestWalk(t *testing.T) {
 			},
 			Result: []string{"London", "Reykjavík"},
 		},
+		{
+			Name: "arrays",
+			X: [2]struct {
+				Age  int
+				City string
+			}{
+				{33, "London"},
+				{34, "Reykjavík"},
+			},
+			Result: []string{"London", "Reykjavík"},
+		},
+		{
+			Name: "maps",
+			X: map[string]string{
+				"Foo": "Bar",
+				"Baz": "Boz",
+			},
+			Result: []string{"Bar", "Boz"},
+		},
 	}
 
 	for _, test := range cases {
