@@ -16,12 +16,15 @@ func CheckWebsites(wc WebsiteChecker, urls []string) map[string]bool {
 	for _, url := range urls {
 		// ?? run this anonymous function in a separate process
 		go func(u string) {
-			resultChannel <- result{u, wc(u)} // ?? send statement
+			// ?? send statement (await receiver, "blocking call")
+			resultChannel <- result{u, wc(u)}
 		}(url)
 	}
 
 	for range urls {
-		r := <-resultChannel // ?? receive expression (await resultChannel, "blocking call")
+		// ?? receive expression (await sender, "blocking call")
+		r := <-resultChannel
+
 		results[r.string] = r.bool
 	}
 
