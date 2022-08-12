@@ -21,7 +21,7 @@ func TestRacer_flaky(t *testing.T) {
 	}
 }
 
-// ** [RECOMMENDED] using a mock HTTP server instead
+// ?? [RECOMMENDED] using a mock HTTP server instead
 func TestRacer_robust(t *testing.T) {
 	slowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(20 * time.Millisecond)

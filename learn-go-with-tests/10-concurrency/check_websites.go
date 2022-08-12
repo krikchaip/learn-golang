@@ -21,7 +21,7 @@ func CheckWebsites(wc WebsiteChecker, urls []string) map[string]bool {
 	}
 
 	for range urls {
-		r := <-resultChannel // ?? receive expression
+		r := <-resultChannel // ?? receive expression (await resultChannel, "blocking call")
 		results[r.string] = r.bool
 	}
 
