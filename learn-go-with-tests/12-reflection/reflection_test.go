@@ -39,7 +39,8 @@ func TestWalk(t *testing.T) {
 					City string
 				}
 			}{
-				"Chris", struct {
+				"Chris",
+				struct {
 					Age  int
 					City string
 				}{33, "London"},
@@ -55,12 +56,24 @@ func TestWalk(t *testing.T) {
 					City string
 				}
 			}{
-				"Chris", struct {
+				"Chris",
+				struct {
 					Age  int
 					City string
 				}{33, "London"},
 			},
 			Result: []string{"Chris", "London"},
+		},
+		{
+			Name: "slices",
+			X: []struct {
+				Age  int
+				City string
+			}{
+				{33, "London"},
+				{34, "Reykjavík"},
+			},
+			Result: []string{"London", "Reykjavík"},
 		},
 	}
 

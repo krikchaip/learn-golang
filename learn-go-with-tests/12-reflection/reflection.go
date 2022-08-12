@@ -48,6 +48,14 @@ func v3(x any, fn func(string)) {
 		val = val.Elem()
 	}
 
+	// ?? handle when x is a slice of `any`
+	if val.Kind() == reflect.Slice {
+		for i := 0; i < val.Len(); i++ {
+			v3(val.Index(i).Interface(), fn)
+		}
+		return
+	}
+
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 
