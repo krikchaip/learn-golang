@@ -1,14 +1,14 @@
 package racer
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
 	"time"
 )
 
 func Racer(a, b string) (winner string, err error) {
-	winner, err = sequentRace(a, b)
-	// winner, err = concurrentRace(a, b)
+	// winner, err = sequentRace(a, b)
+	winner, err = concurrentRace(a, b)
 	return
 }
 
@@ -21,7 +21,7 @@ func sequentRace(a, b string) (winner string, err error) {
 	})
 
 	if durationA > 10*time.Second {
-		err = errors.New("timeout!")
+		err = fmt.Errorf("timed out waiting for %s", a)
 		return
 	}
 
@@ -30,7 +30,7 @@ func sequentRace(a, b string) (winner string, err error) {
 	})
 
 	if durationA+durationB > 10*time.Second {
-		err = errors.New("timeout!")
+		err = fmt.Errorf("timed out waiting for %s and %s", a, b)
 		return
 	}
 
@@ -52,12 +52,14 @@ func measureTime(f func()) time.Duration {
 // ?? [RECOMMENDED]
 // ??   - checking both urls at the same time
 // ??   - we just only want to know which one comes back first
-func concurrentRace(a, b string) (winner string) {
+func concurrentRace(a, b string) (winner string, err error) {
 	select { // ** similar to Promise.race in Javascript 👍🏻
 	case <-ping(a):
-		return a
+		return a, nil
 	case <-ping(b):
-		return b
+		return b, nil
+	case <-time.After(10 * time.Second): // ** both a and b are racing against a 10s timer
+		return "", fmt.Errorf("timed out waiting for %s and %s", a, b)
 	}
 }
 
