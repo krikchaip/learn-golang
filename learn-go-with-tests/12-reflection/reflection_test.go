@@ -12,7 +12,24 @@ func TestWalk(t *testing.T) {
 		X      any
 		Result []string
 	}{
-		{Name: "simple", X: struct{ Name string }{"Chris"}, Result: []string{"Chris"}},
+		{
+			Name:   "struct with one string field",
+			X:      struct{ Name string }{"Chris"},
+			Result: []string{"Chris"},
+		},
+		{
+			Name:   "struct with multiple string fields",
+			X:      struct{ Name, City string }{"Chris", "London"},
+			Result: []string{"Chris", "London"},
+		},
+		{
+			Name: "struct with non string field",
+			X: struct {
+				Name string
+				Age  int
+			}{"Chris", 33},
+			Result: []string{"Chris"},
+		},
 	}
 
 	for _, test := range cases {
