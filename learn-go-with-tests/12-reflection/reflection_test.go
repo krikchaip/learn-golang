@@ -3,6 +3,7 @@ package reflection_test
 import (
 	reflection "12-reflection"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -92,12 +93,16 @@ func TestWalk(t *testing.T) {
 				"Foo": "Bar",
 				"Baz": "Boz",
 			},
+			// ** [WARNING] this will not always guarantee order
 			Result: []string{"Bar", "Boz"},
+			// Result: []string{"Boz", "Bar"},
 		},
 	}
 
 	for _, test := range cases {
 		t.Run(test.Name, func(t *testing.T) {
+			var comp func(a, b any) (equal bool)
+
 			var got []string
 			want := test.Result
 
@@ -105,9 +110,43 @@ func TestWalk(t *testing.T) {
 				got = append(got, v)
 			})
 
-			if !reflect.DeepEqual(got, want) {
+			switch {
+			case
+				strings.Contains(test.Name, "map"),
+				strings.Contains(test.Name, "chan"):
+				comp = unorderedEqual
+			default:
+				comp = reflect.DeepEqual
+			}
+
+			if equal := comp(got, want); !equal {
 				t.Errorf("got %v want %v", got, want)
 			}
 		})
 	}
+}
+
+// Supported types: []string
+//
+// Complexity: O(n)
+func unorderedEqual(a, b any) bool {
+	as, aOk := a.([]string)
+	bs, bOk := b.([]string)
+
+	if !aOk || !bOk || len(as) != len(bs) {
+		return false
+	}
+
+	set := make(map[string]struct{})
+	for _, s := range as {
+		set[s] = struct{}{}
+	}
+
+	for _, s := range bs {
+		if _, ok := set[s]; !ok {
+			return false
+		}
+	}
+
+	return true
 }
