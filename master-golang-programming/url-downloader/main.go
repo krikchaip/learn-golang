@@ -5,5 +5,13 @@ import (
 )
 
 func main() {
-	lib.DownloadURL("https://www.facebook.com")
+	urls := []string{
+		"https://www.facebook.com",
+		"https://www.google.com",
+		"https://www.medium.com",
+	}
+
+	for _, url := range urls {
+		lib.DownloadURL(url)
+	}
 }
