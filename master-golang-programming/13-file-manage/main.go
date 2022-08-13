@@ -20,7 +20,7 @@ func main() {
 	handleErr(err)
 
 	// ?? OPEN a file to do something (read/write/etc.)
-	filePtr, err = os.OpenFile(public("test.txt"), os.O_APPEND|os.O_CREATE, 0o644)
+	filePtr, err = os.OpenFile(public("test.txt"), os.O_APPEND|os.O_CREATE, 0644)
 	handleErr(err)
 	filePtr.Close()
 
