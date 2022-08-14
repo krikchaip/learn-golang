@@ -12,10 +12,12 @@ func main() {
 	}
 
 	lib.MeasureTime(func() {
+		// ?? sequentially - basic
 		// for _, url := range urls {
 		// 	lib.DownloadURL(url)
 		// }
 
+		// ?? concurrently - using WaitGroup and Mutex
 		lib.Concurrently(urls, lib.DownloadURL)
 	})
 }
