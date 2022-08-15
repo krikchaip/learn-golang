@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"embed"
 	"fmt"
 	"io"
 	"log"
@@ -9,6 +10,32 @@ import (
 	"strconv"
 	"strings"
 )
+
+// ?? READ the whole file using go embed directive (for go >= v1.16)
+//
+//go:embed assets/names.csv
+var names string
+
+// ?? READING multiple files
+//
+//go:embed assets/*
+var assets embed.FS
+
+//go:embed assets/ages.csv assets/names.csv
+var csvs embed.FS
+
+func init() {
+	fmt.Println(names) // Winner,Muimui,Aim,Jane
+
+	file, _ := assets.Open("assets/intro.txt")
+	defer file.Close()
+
+	content, _ := io.ReadAll(file)
+	fmt.Printf("%s\n", content) // Hello, My name is ... I am ... years old. Nice to meet you guys
+
+	ages, _ := csvs.ReadFile("assets/ages.csv")
+	fmt.Printf("%s\n", ages) // 13,16,18,20
+}
 
 func main() {
 	file, err := os.Open(public(".gitkeep"))
