@@ -12,9 +12,10 @@ import (
 func TestServer(t *testing.T) {
 	t.Run("handler responds with a mocked response", func(t *testing.T) {
 		mockedResponse := "Hello, World!"
-		handler := lib.Server(
-			&StoreSpy{response: mockedResponse},
-		)
+		store := &StoreSpy{
+			response: mockedResponse,
+		}
+		handler := lib.Server(store)
 
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -23,6 +24,10 @@ func TestServer(t *testing.T) {
 
 		if w.Body.String() != mockedResponse {
 			t.Errorf("got %q, want %q", w.Body.String(), mockedResponse)
+		}
+
+		if store.canceled {
+			t.Error("it should not have cancelled the store")
 		}
 	})
 
