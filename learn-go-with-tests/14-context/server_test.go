@@ -14,6 +14,7 @@ func TestServer(t *testing.T) {
 		mockedResponse := "Hello, World!"
 		store := &StoreSpy{
 			response: mockedResponse,
+			t:        t,
 		}
 		handler := lib.Server(store)
 
@@ -22,12 +23,10 @@ func TestServer(t *testing.T) {
 
 		handler.ServeHTTP(w, r)
 
+		store.assertNotCancelled()
+
 		if w.Body.String() != mockedResponse {
 			t.Errorf("got %q, want %q", w.Body.String(), mockedResponse)
-		}
-
-		if store.canceled {
-			t.Error("it should not have cancelled the store")
 		}
 	})
 
@@ -36,6 +35,7 @@ func TestServer(t *testing.T) {
 		store := &StoreSpy{
 			response: mockedResponse,
 			delay:    100 * time.Millisecond,
+			t:        t,
 		}
 		handler := lib.Server(store)
 
@@ -45,9 +45,7 @@ func TestServer(t *testing.T) {
 		r = cancelWithin(r, 20*time.Millisecond)
 		handler.ServeHTTP(w, r)
 
-		if !store.canceled {
-			t.Error("store was not told to cancel")
-		}
+		store.assertCancelled()
 	})
 }
 
@@ -55,6 +53,7 @@ type StoreSpy struct {
 	response string // mocked response
 	delay    time.Duration
 	canceled bool
+	t        testing.TB
 }
 
 func (s *StoreSpy) Fetch() string {
@@ -64,6 +63,20 @@ func (s *StoreSpy) Fetch() string {
 
 func (s *StoreSpy) Cancel() {
 	s.canceled = true
+}
+
+func (s *StoreSpy) assertCancelled() {
+	s.t.Helper()
+	if !s.canceled {
+		s.t.Error("store was not told to cancel")
+	}
+}
+
+func (s *StoreSpy) assertNotCancelled() {
+	s.t.Helper()
+	if s.canceled {
+		s.t.Error("it should not have cancelled the store")
+	}
 }
 
 func cancelWithin(r *http.Request, t time.Duration) *http.Request {
