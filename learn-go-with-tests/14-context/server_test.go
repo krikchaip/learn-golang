@@ -1,32 +1,68 @@
 package context_test
 
 import (
-	ctx "14-context"
+	lib "14-context"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
-type StoreStub struct {
-	response string
+func TestServer(t *testing.T) {
+	t.Run("handler responds with a mocked response", func(t *testing.T) {
+		mockedResponse := "Hello, World!"
+		handler := lib.Server(
+			&StoreSpy{response: mockedResponse},
+		)
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+		handler.ServeHTTP(w, r)
+
+		if w.Body.String() != mockedResponse {
+			t.Errorf("got %q, want %q", w.Body.String(), mockedResponse)
+		}
+	})
+
+	t.Run("tells store to cancel work if request is cancelled", func(t *testing.T) {
+		mockedResponse := "Hello, World!"
+		store := &StoreSpy{
+			response: mockedResponse,
+			delay:    100 * time.Millisecond,
+		}
+		handler := lib.Server(store)
+
+		w := httptest.NewRecorder()
+		r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+		r = cancelWithin(r, 20*time.Millisecond)
+		handler.ServeHTTP(w, r)
+
+		if !store.canceled {
+			t.Error("store was not told to cancel")
+		}
+	})
 }
 
-func (s *StoreStub) Fetch() string {
+type StoreSpy struct {
+	response string // mocked response
+	delay    time.Duration
+	canceled bool
+}
+
+func (s *StoreSpy) Fetch() string {
+	time.Sleep(s.delay) // give some time for the user to cancel
 	return s.response
 }
 
-func TestServer(t *testing.T) {
-	mockedResponse := "Hello, World!"
-	handler := ctx.Server(
-		&StoreStub{response: mockedResponse},
-	)
+func (s *StoreSpy) Cancel() {
+	s.canceled = true
+}
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/", nil)
-
-	handler.ServeHTTP(w, r)
-
-	if w.Body.String() != mockedResponse {
-		t.Errorf("got %q, want %q", w.Body.String(), mockedResponse)
-	}
+func cancelWithin(r *http.Request, t time.Duration) *http.Request {
+	newContext, cancel := context.WithCancel(r.Context())
+	time.AfterFunc(t, cancel)
+	return r.Clone(newContext)
 }
