@@ -32,7 +32,7 @@ func main() {
 
 	fmt.Println("Value received:", <-ch1) // 10
 
-	// ?? buffered channel with a capacity of 1
+	// ?? buffered channel with capacity of 1
 	ball := make(chan string, 1)
 
 	fmt.Println("ball's capacity:", cap(ball)) // 1
