@@ -6,35 +6,39 @@ import (
 )
 
 func main() {
-	// ?? declaring a bidirectional channel
+	// ?? declaring a bidirectional channel - unbuffered
 	ch1 := make(chan int)
 
 	fmt.Println(ch1) // 0x... (channel is a pointer)
 
-	// ?? declaring and initilizing a RECEIVE-ONLY channel (unidirectional)
+	// ?? declaring and initilizing a RECEIVE-ONLY channel (unidirectional, unbuffered)
 	ch2 := make(<-chan string)
 
-	// ?? declaring and initilizing a SEND-ONLY channel (unidirectional)
+	// ?? declaring and initilizing a SEND-ONLY channel (unidirectional, unbuffered)
 	ch3 := make(chan<- string)
 
 	fmt.Printf("%T, %T, %T\n", ch1, ch2, ch3) // chan int, <-chan string, chan<- string
 
-	// ** using "send statement" inside the main goroutine will cause a DEADLOCK
+	// ** calling "send statement" on an unbuffered channel
+	// ** inside the main goroutine will result in a DEADLOCK
 	// ch1 <- 10
 
-	// ** as opposed to the "receive expression" that is allowed
-	// ** as long as there's some content inside
+	// ** as opposed to the "receive expression" that is always allowed.
+	// ** it will block until there's some content inside a channel
 	// num := <-ch1
 
-	// ** must call this inside a goroutine !!
+	// ** must call this inside a goroutine (because ch1 is unbuffered) !!
 	go putN(10, ch1)
 
 	fmt.Println("Value received:", <-ch1) // 10
 
-	ball := make(chan string)
+	// ?? buffered channel with a capacity of 1
+	ball := make(chan string, 1)
+
+	fmt.Println("ball's capacity:", cap(ball)) // 1
 
 	// ?? sending a message to "ball"
-	go ping(ball)
+	ping(ball) // ** this will not block the main goroutine 🤩
 
 	// ?? this is like calling "<-ball" continuously
 	for res := range ball {
@@ -50,7 +54,9 @@ func main() {
 }
 
 func putN(n int, c chan int) {
+	fmt.Println("putN started.")
 	c <- n
+	fmt.Println("putN finished.")
 }
 
 func ping(c chan<- string) {
