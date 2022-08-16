@@ -56,9 +56,9 @@ type StoreSpy struct {
 	t        testing.TB
 }
 
-func (s *StoreSpy) Fetch() string {
+func (s *StoreSpy) Fetch(ctx context.Context) (string, error) {
 	time.Sleep(s.delay) // give some time for the user to cancel
-	return s.response
+	return s.response, nil
 }
 
 func (s *StoreSpy) Cancel() {
