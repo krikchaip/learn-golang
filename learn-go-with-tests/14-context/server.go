@@ -24,7 +24,7 @@ func v1(store Store, w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		// fetching data could take some time
-		val, _ := store.Fetch(nil)
+		val, _ := store.Fetch(ctx)
 		data <- val
 	}()
 

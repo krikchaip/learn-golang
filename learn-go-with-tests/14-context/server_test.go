@@ -3,6 +3,7 @@ package context_test
 import (
 	lib "14-context"
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -57,8 +58,33 @@ type StoreSpy struct {
 }
 
 func (s *StoreSpy) Fetch(ctx context.Context) (string, error) {
-	time.Sleep(s.delay) // give some time for the user to cancel
-	return s.response, nil
+	data := make(chan string)
+
+	go func() {
+		var result string
+
+		// appeding each character one by one with a delay
+		// eg. "H...(10ms)...E...(10ms)...L..."
+		for _, char := range s.response {
+			select {
+			case <-ctx.Done(): // stop fetching in the middle
+				fmt.Println("spy store got cancelled")
+				return
+			case <-time.After(s.delay): // give some time for the user to cancel
+				result += string(char)
+			}
+		}
+
+		// puts to "data" after completed
+		data <- result
+	}()
+
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case val := <-data: // await data
+		return val, nil
+	}
 }
 
 func (s *StoreSpy) Cancel() {
