@@ -1,0 +1,16 @@
+#!/bin/bash
+
+NAME="$1"
+
+if [[ -z "$NAME" ]]; then
+  echo "Please enter the name of the module."
+  exit 1
+fi
+
+mkdir "$NAME"
+cd "$NAME" || exit
+
+go mod init "$NAME"
+go work use .
+
+cd ..
