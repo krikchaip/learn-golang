@@ -16,3 +16,5 @@
 
 public/
 !public/.gitkeep
+learn-go-with-tests/**/assets/
+!learn-go-wtih-tests/**/assets/.gitkeep
