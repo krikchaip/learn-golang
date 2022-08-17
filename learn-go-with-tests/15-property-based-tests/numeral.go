@@ -40,3 +40,29 @@ func ConvertToRoman(arabic int) string {
 
 	return result.String()
 }
+
+func ConvertToArabic(roman string) int {
+	var result int
+
+	for i := 0; i < len(roman); {
+		if i+1 < len(roman) && valueOf(roman[i]) < valueOf(roman[i+1]) {
+			result += valueOf(roman[i+1]) - valueOf(roman[i])
+			i += 2
+			continue
+		}
+
+		result += valueOf(roman[i])
+		i++
+	}
+
+	return result
+}
+
+func valueOf(c byte) int {
+	for _, numeral := range allRomanNumerals {
+		if string(c) == numeral.Symbol {
+			return numeral.Value
+		}
+	}
+	return 0
+}
