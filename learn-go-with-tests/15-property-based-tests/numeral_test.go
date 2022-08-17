@@ -4,10 +4,11 @@ import (
 	numeral "15-property-based-tests"
 	"fmt"
 	"testing"
+	"testing/quick"
 )
 
 var table = []struct {
-	Arabic int
+	Arabic uint16
 	Roman  string
 }{
 	{Arabic: 1, Roman: "I"},
@@ -67,5 +68,26 @@ func TestConvertToArabic(t *testing.T) {
 				t.Errorf("got %d, want %d", got, want)
 			}
 		})
+	}
+}
+
+// ?? property-based testing
+func TestPropertyOfConversion(t *testing.T) {
+	assertion := func(arabic uint16) bool {
+		// ?? property exclusion
+		if arabic < 1 || arabic > 3999 {
+			return true
+		}
+
+		roman := numeral.ConvertToRoman(arabic)
+		fromRoman := numeral.ConvertToArabic(roman)
+		return arabic == fromRoman
+	}
+
+	// ?? 1000 samples
+	config := &quick.Config{MaxCount: 1000}
+
+	if err := quick.Check(assertion, config); err != nil {
+		t.Error("failed checks", err)
 	}
 }
