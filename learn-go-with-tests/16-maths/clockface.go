@@ -10,10 +10,19 @@ type Point struct {
 	X, Y float64
 }
 
+// Shift a unit vector p by Origin constants and a specified Length l
+func (p Point) ShiftLength(l float64) Point {
+	p.X = OriginX + l*p.X
+	p.Y = OriginY + l*p.Y
+	return p
+}
+
 const (
 	OriginX          float64 = 150
 	OriginY          float64 = 150
 	SecondHandLength float64 = 90
+	MinuteHandLength float64 = 80
+	HourHandLength   float64 = 40
 )
 
 // SecondHand is the unit vector of the second hand of an analogue clock at time `t`
@@ -21,11 +30,7 @@ const (
 func SecondHand(t time.Time) Point {
 	radian := secondsInRadian(t.Second())
 	unitY, unitX := math.Sincos(radian)
-
-	return Point{
-		OriginX + SecondHandLength*unitX,
-		OriginY + SecondHandLength*unitY,
-	}
+	return Point{unitX, unitY}.ShiftLength(SecondHandLength)
 }
 
 func secondsInRadian(second int) float64 {

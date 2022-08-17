@@ -14,15 +14,13 @@ func TestSecondHand(t *testing.T) {
 	}{
 		{clock(0, 0, 0), clockface.Point{0, -1}},
 		{clock(0, 0, 30), clockface.Point{0, 1}},
+		{clock(0, 0, 45), clockface.Point{-1, 0}},
 	}
 
 	for _, c := range cases {
 		t.Run(testName(c.time), func(t *testing.T) {
 			got := clockface.SecondHand(c.time)
-			want := clockface.Point{
-				clockface.OriginX + clockface.SecondHandLength*c.point.X,
-				clockface.OriginY + clockface.SecondHandLength*c.point.Y,
-			}
+			want := c.point.ShiftLength(clockface.SecondHandLength)
 
 			if got != want {
 				t.Errorf("Got %v, wanted %v", got, want)
