@@ -6,26 +6,35 @@ import (
 	"time"
 )
 
-func TestSecondHandAtMidnight(t *testing.T) {
-	t.Run("at midnight", func(t *testing.T) {
-		tm := time.Date(1337, time.January, 1, 0, 0, 0, 0, time.UTC)
+func TestSecondHand(t *testing.T) {
+	// time -> unit vector
+	cases := []struct {
+		time  time.Time
+		point clockface.Point
+	}{
+		{clock(0, 0, 0), clockface.Point{0, -1}},
+		{clock(0, 0, 30), clockface.Point{0, 1}},
+	}
 
-		got := clockface.SecondHand(tm)
-		want := clockface.Point{X: 150, Y: 60}
+	for _, c := range cases {
+		t.Run(testName(c.time), func(t *testing.T) {
+			got := clockface.SecondHand(c.time)
+			want := clockface.Point{
+				clockface.OriginX + clockface.SecondHandLength*c.point.X,
+				clockface.OriginY + clockface.SecondHandLength*c.point.Y,
+			}
 
-		if got != want {
-			t.Errorf("Got %v, wanted %v", got, want)
-		}
-	})
+			if got != want {
+				t.Errorf("Got %v, wanted %v", got, want)
+			}
+		})
+	}
+}
 
-	t.Run("at 30 seconds", func(t *testing.T) {
-		tm := time.Date(1337, time.January, 1, 0, 0, 30, 0, time.UTC)
+func clock(hour, minute, second int) time.Time {
+	return time.Date(1337, time.January, 1, hour, minute, second, 0, time.UTC)
+}
 
-		got := clockface.SecondHand(tm)
-		want := clockface.Point{X: 150, Y: 240}
-
-		if got != want {
-			t.Errorf("Got %v, wanted %v", got, want)
-		}
-	})
+func testName(t time.Time) string {
+	return t.Format("15:04:05")
 }

@@ -19,7 +19,7 @@ const (
 // SecondHand is the unit vector of the second hand of an analogue clock at time `t`
 // represented as a Point.
 func SecondHand(t time.Time) Point {
-	radian := secondToRadian(t.Second())
+	radian := secondsInRadian(t.Second())
 	unitY, unitX := math.Sincos(radian)
 
 	return Point{
@@ -28,7 +28,7 @@ func SecondHand(t time.Time) Point {
 	}
 }
 
-func secondToRadian(second int) float64 {
+func secondsInRadian(second int) float64 {
 	s := float64(second)
 	return 2*math.Pi*(s/60) - math.Pi/2
 }
