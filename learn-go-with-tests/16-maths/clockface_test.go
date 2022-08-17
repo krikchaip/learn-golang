@@ -22,7 +22,7 @@ func TestSecondHand(t *testing.T) {
 			got := clockface.SecondHand(c.time)
 			want := c.point.ShiftLength(clockface.SecondHandLength)
 
-			if got != want {
+			if !got.RoughlyEqual(want) {
 				t.Errorf("Got %v, wanted %v", got, want)
 			}
 		})

@@ -17,6 +17,14 @@ func (p Point) ShiftLength(l float64) Point {
 	return p
 }
 
+func (a Point) RoughlyEqual(b Point) bool {
+	const threshold = 1e-7
+	eq := func(a, b float64) bool {
+		return math.Abs(a-b) < threshold
+	}
+	return eq(a.X, b.X) && eq(a.Y, b.Y)
+}
+
 const (
 	OriginX          float64 = 150
 	OriginY          float64 = 150
