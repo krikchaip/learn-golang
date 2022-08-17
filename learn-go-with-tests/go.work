@@ -16,4 +16,5 @@ use (
 	./13-sync
 	./14-context
 	./15-property-based-tests
+	./16-maths
 )
