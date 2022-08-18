@@ -1,7 +1,7 @@
 package clockface_test
 
 import (
-	clockface "16-maths"
+	clockface "16-maths/lib"
 	"testing"
 	"time"
 )
