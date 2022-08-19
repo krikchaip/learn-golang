@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	Precision        uint8   = 3
 	OriginX          float64 = 150
 	OriginY          float64 = 150
 	SecondHandLength float64 = 90
@@ -25,18 +26,18 @@ const tag = `
 		version="2.0">
 
 	<!-- bezel -->
-	<circle cx="%.3[1]f" cy="%.3[2]f" r="100" style="fill:#fff;stroke:#000;stroke-width:5px;"/>
+	<circle cx="%.[1]*[2]f" cy="%.[1]*[3]f" r="100" style="fill:#fff;stroke:#000;stroke-width:5px;"/>
 
 	<!-- hour hand -->
-	<!-- <line x1="%.3[1]f" y1="%.3[2]f" x2="" y2=""
+	<!-- <line x1="%.[1]*[2]f" y1="%.[1]*[3]f" x2="" y2=""
 				style="fill:none;stroke:#000;stroke-width:7px;"/> -->
 
 	<!-- minute hand -->
-	<line x1="%.3[1]f" y1="%.3[2]f" x2="%.3[5]f" y2="%.3[6]f"
+	<line x1="%.[1]*[2]f" y1="%.[1]*[3]f" x2="%.[1]*[6]f" y2="%.[1]*[7]f"
 				style="fill:none;stroke:#000;stroke-width:7px;"/>
 
 	<!-- second hand -->
-	<line x1="%.3[1]f" y1="%.3[2]f" x2="%.3[3]f" y2="%.3[4]f"
+	<line x1="%.[1]*[2]f" y1="%.[1]*[3]f" x2="%.[1]*[4]f" y2="%.[1]*[5]f"
 				style="fill:none;stroke:#f00;stroke-width:3px;"/>
 </svg>
 `
@@ -99,6 +100,7 @@ func ClockSVG(t time.Time) string {
 	minuteHand := MinuteHand(t)
 	return fmt.Sprintf(
 		strings.TrimLeft(tag, "\n "),
+		Precision,
 		OriginX, OriginY,
 		secondHand.X, secondHand.Y,
 		minuteHand.X, minuteHand.Y,
