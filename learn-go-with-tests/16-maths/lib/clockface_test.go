@@ -39,19 +39,18 @@ func TestClockSVG(t *testing.T) {
 	// ?? svg = xml.Parse(bytes)
 	xml.Unmarshal(bytes, svg)
 
-	want := clockface.Point{0, -1}.
-		ShiftLength(clockface.SecondHandLength)
+	want := Line{150, 150, 150, 60}
 
 	for _, line := range svg.Line {
-		if line.X2 == want.X && line.Y2 == want.Y {
+		if line == want {
 			return
 		}
 	}
 
 	t.Errorf(
-		"Expected to find the second hand with x2 of %.3f and y2 of %.3f, in the SVG output\n%s",
-		want.X, want.Y,
-		bytes,
+		"Expected to find the second hand line %+v, in the SVG lines %+v",
+		want,
+		svg.Line,
 	)
 }
 
