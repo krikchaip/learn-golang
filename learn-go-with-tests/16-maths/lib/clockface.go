@@ -29,8 +29,8 @@ const tag = `
 	<circle cx="%.[1]*[2]f" cy="%.[1]*[3]f" r="100" style="fill:#fff;stroke:#000;stroke-width:5px;"/>
 
 	<!-- hour hand -->
-	<!-- <line x1="%.[1]*[2]f" y1="%.[1]*[3]f" x2="" y2=""
-				style="fill:none;stroke:#000;stroke-width:7px;"/> -->
+	<line x1="%.[1]*[2]f" y1="%.[1]*[3]f" x2="%.[1]*[8]f" y2="%.[1]*[9]f"
+				style="fill:none;stroke:#000;stroke-width:7px;"/>
 
 	<!-- minute hand -->
 	<line x1="%.[1]*[2]f" y1="%.[1]*[3]f" x2="%.[1]*[6]f" y2="%.[1]*[7]f"
@@ -95,18 +95,19 @@ func clockTimeInRadian(t time.Time) (h, m, s float64) {
 
 	s = float64(t.Second()) / 60
 	m = float64(t.Minute())/60 + s/60
-	h = float64(t.Hour()%12)/12 + m/60
+	h = float64(t.Hour()%12)/12 + m/12
 
 	return
 }
 
 func ClockSVG(t time.Time) string {
-	_, minuteHand, secondHand := MakeHands(t)
+	hourHand, minuteHand, secondHand := MakeHands(t)
 	return fmt.Sprintf(
 		strings.TrimLeft(tag, "\n "),
 		Precision,
 		OriginX, OriginY,
 		secondHand.X, secondHand.Y,
 		minuteHand.X, minuteHand.Y,
+		hourHand.X, hourHand.Y,
 	)
 }

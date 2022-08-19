@@ -56,6 +56,32 @@ func TestMinuteHand(t *testing.T) {
 	}
 }
 
+func TestHourHand(t *testing.T) {
+	// time -> unit vector
+	cases := []struct {
+		time  time.Time
+		point clockface.Point
+	}{
+		{clock(0, 0, 0), degreeToPoint(0)},
+		{clock(0, 30, 0), degreeToPoint(15)},
+		{clock(12, 30, 0), degreeToPoint(15)},
+		{clock(0, 45, 0), degreeToPoint(22.5)},
+		{clock(0, 0, 30), degreeToPoint(.25)},
+		{clock(0, 45, 15), degreeToPoint(22.625)},
+	}
+
+	for _, c := range cases {
+		t.Run(testName(c.time), func(t *testing.T) {
+			got, _, _ := clockface.MakeHands(c.time)
+			want := c.point.ShiftLength(clockface.HourHandLength)
+
+			if !got.RoughlyEqual(want) {
+				t.Errorf("Got %v, wanted %v", got, want)
+			}
+		})
+	}
+}
+
 func TestClockSVG(t *testing.T) {
 	cases := []struct {
 		time       time.Time
