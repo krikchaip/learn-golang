@@ -25,18 +25,18 @@ const tag = `
 		version="2.0">
 
 	<!-- bezel -->
-	<circle cx="%[1]f" cy="%[2]f" r="100" style="fill:#fff;stroke:#000;stroke-width:5px;"/>
+	<circle cx="%.3[1]f" cy="%.3[2]f" r="100" style="fill:#fff;stroke:#000;stroke-width:5px;"/>
 
 	<!-- hour hand -->
-	<!-- <line x1="%[1]f" y1="%[2]f" x2="" y2=""
+	<!-- <line x1="%.3[1]f" y1="%.3[2]f" x2="" y2=""
 				style="fill:none;stroke:#000;stroke-width:7px;"/> -->
 
 	<!-- minute hand -->
-	<!-- <line x1="%[1]f" y1="%[2]f" x2="" y2=""
+	<!-- <line x1="%.3[1]f" y1="%.3[2]f" x2="" y2=""
 				style="fill:none;stroke:#000;stroke-width:7px;"/> -->
 
 	<!-- second hand -->
-	<line x1="%[1]f" y1="%[2]f" x2="%[3]f" y2="%[4]f"
+	<line x1="%.3[1]f" y1="%.3[2]f" x2="%.3[3]f" y2="%.3[4]f"
 				style="fill:none;stroke:#f00;stroke-width:3px;"/>
 </svg>
 `
