@@ -58,27 +58,46 @@ func TestMinuteHand(t *testing.T) {
 
 func TestClockSVG(t *testing.T) {
 	cases := []struct {
-		time time.Time
-		line Line
+		time       time.Time
+		secondHand Line
+		minuteHand Line
 	}{
-		{clock(0, 0, 0), Line{150, 150, 150, 60}},
-		{clock(0, 0, 30), Line{150, 150, 150, 240}},
+		{
+			clock(0, 0, 0),
+			Line{150, 150, 150, 60},
+			Line{150, 150, 150, 70},
+		},
+		// {
+		// 	clock(0, 0, 30),
+		// 	Line{150, 150, 150, 240},
+		// 	Line{150, 150, 150, 240},
+		// },
 	}
 
 	for _, c := range cases {
-		bytes := []byte(clockface.ClockSVG(c.time))
-		svg := &SVG{}
+		t.Run(testName(c.time), func(t *testing.T) {
+			bytes := []byte(clockface.ClockSVG(c.time))
+			svg := &SVG{}
 
-		// ?? svg = xml.Parse(bytes)
-		xml.Unmarshal(bytes, svg)
+			// ?? svg = xml.Parse(bytes)
+			xml.Unmarshal(bytes, svg)
 
-		if !containsLine(c.line, svg.Line) {
-			t.Errorf(
-				"Expected to find the second hand line %+v, in the SVG lines %+v",
-				c.line,
-				svg.Line,
-			)
-		}
+			if !containsLine(c.secondHand, svg.Line) {
+				t.Errorf(
+					"Expected to find the second hand line %+v, in the SVG lines %+v",
+					c.secondHand,
+					svg.Line,
+				)
+			}
+
+			if !containsLine(c.minuteHand, svg.Line) {
+				t.Errorf(
+					"Expected to find the minute hand line %+v, in the SVG lines %+v",
+					c.minuteHand,
+					svg.Line,
+				)
+			}
+		})
 	}
 
 }

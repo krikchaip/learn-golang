@@ -32,8 +32,8 @@ const tag = `
 				style="fill:none;stroke:#000;stroke-width:7px;"/> -->
 
 	<!-- minute hand -->
-	<!-- <line x1="%.3[1]f" y1="%.3[2]f" x2="" y2=""
-				style="fill:none;stroke:#000;stroke-width:7px;"/> -->
+	<line x1="%.3[1]f" y1="%.3[2]f" x2="%.3[5]f" y2="%.3[6]f"
+				style="fill:none;stroke:#000;stroke-width:7px;"/>
 
 	<!-- second hand -->
 	<line x1="%.3[1]f" y1="%.3[2]f" x2="%.3[3]f" y2="%.3[4]f"
@@ -96,9 +96,11 @@ func clockTimeInRadian(t time.Time) (h, m, s float64) {
 
 func ClockSVG(t time.Time) string {
 	secondHand := SecondHand(t)
+	minuteHand := MinuteHand(t)
 	return fmt.Sprintf(
 		strings.TrimLeft(tag, "\n "),
 		OriginX, OriginY,
 		secondHand.X, secondHand.Y,
+		minuteHand.X, minuteHand.Y,
 	)
 }
