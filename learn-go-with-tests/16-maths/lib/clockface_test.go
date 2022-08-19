@@ -64,14 +64,14 @@ func TestClockSVG(t *testing.T) {
 	}{
 		{
 			clock(0, 0, 0),
-			Line{150, 150, 150, 60},
-			Line{150, 150, 150, 70},
+			degreeToLine(0, clockface.SecondHandLength),
+			degreeToLine(0, clockface.MinuteHandLength),
 		},
-		// {
-		// 	clock(0, 0, 30),
-		// 	Line{150, 150, 150, 240},
-		// 	Line{150, 150, 150, 240},
-		// },
+		{
+			clock(0, 0, 30),
+			degreeToLine(180, clockface.SecondHandLength),
+			degreeToLine(3, clockface.MinuteHandLength),
+		},
 	}
 
 	for _, c := range cases {
@@ -140,8 +140,14 @@ func testName(t time.Time) string {
 	return t.Format("15:04:05")
 }
 
+func roundFloat(val float64) float64 {
+	ratio := math.Pow(10, float64(clockface.Precision))
+	return math.Round(val*ratio) / ratio
+}
+
 func containsLine(l Line, ls []Line) bool {
 	for _, line := range ls {
+		l = Line{roundFloat(l.X1), roundFloat(l.Y1), roundFloat(l.X2), roundFloat(l.Y2)}
 		if l == line {
 			return true
 		}
@@ -153,4 +159,14 @@ func degreeToPoint(degree float64) clockface.Point {
 	radian := (math.Pi/180)*math.Mod(degree, 360) - math.Pi/2
 	Y, X := math.Sincos(radian)
 	return clockface.Point{X, Y}
+}
+
+func degreeToLine(degree, length float64) Line {
+	p := degreeToPoint(degree).ShiftLength(length)
+	return Line{
+		clockface.OriginX,
+		clockface.OriginY,
+		p.X,
+		p.Y,
+	}
 }
