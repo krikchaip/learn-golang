@@ -3,6 +3,7 @@ package clockface_test
 import (
 	clockface "16-maths/lib"
 	"encoding/xml"
+	"math"
 	"testing"
 	"time"
 )
@@ -13,9 +14,9 @@ func TestSecondHand(t *testing.T) {
 		time  time.Time
 		point clockface.Point
 	}{
-		{clock(0, 0, 0), clockface.Point{0, -1}},
-		{clock(0, 0, 30), clockface.Point{0, 1}},
-		{clock(0, 0, 45), clockface.Point{-1, 0}},
+		{clock(0, 0, 0), degreeToPoint(0)},
+		{clock(0, 0, 30), degreeToPoint(180)},
+		{clock(0, 0, 45), degreeToPoint(270)},
 	}
 
 	for _, c := range cases {
@@ -36,9 +37,11 @@ func TestMinuteHand(t *testing.T) {
 		time  time.Time
 		point clockface.Point
 	}{
-		{clock(0, 0, 0), clockface.Point{0, -1}},
-		{clock(0, 30, 0), clockface.Point{0, 1}},
-		{clock(0, 45, 0), clockface.Point{-1, 0}},
+		{clock(0, 0, 0), degreeToPoint(0)},
+		{clock(0, 30, 0), degreeToPoint(180)},
+		{clock(0, 45, 0), degreeToPoint(270)},
+		{clock(0, 0, 30), degreeToPoint(3)},
+		{clock(0, 45, 15), degreeToPoint(271.5)},
 	}
 
 	for _, c := range cases {
@@ -125,4 +128,10 @@ func containsLine(l Line, ls []Line) bool {
 		}
 	}
 	return false
+}
+
+func degreeToPoint(degree float64) clockface.Point {
+	radian := (math.Pi/180)*math.Mod(degree, 360) - math.Pi/2
+	Y, X := math.Sincos(radian)
+	return clockface.Point{X, Y}
 }

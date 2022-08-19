@@ -76,9 +76,21 @@ func MinuteHand(t time.Time) Point {
 }
 
 func clockTimeInRadian(t time.Time) (h, m, s float64) {
-	h = 2*math.Pi*(float64(t.Hour()%12)/12) - math.Pi/2
-	m = 2*math.Pi*(float64(t.Minute())/60) - math.Pi/2
-	s = 2*math.Pi*(float64(t.Second())/60) - math.Pi/2
+	radian := func(x float64) float64 {
+		return 2*math.Pi*x - math.Pi/2
+	}
+
+	// convert to radian at the end of the function
+	defer func() {
+		s = radian(s)
+		m = radian(m)
+		h = radian(h)
+	}()
+
+	s = float64(t.Second()) / 60
+	m = float64(t.Minute())/60 + s/60
+	h = float64(t.Hour()%12)/12 + m/60
+
 	return
 }
 
