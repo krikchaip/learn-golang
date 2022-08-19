@@ -68,6 +68,7 @@ func TestHourHand(t *testing.T) {
 		{clock(0, 45, 0), degreeToPoint(22.5)},
 		{clock(0, 0, 30), degreeToPoint(.25)},
 		{clock(0, 45, 15), degreeToPoint(22.625)},
+		{clock(21, 0, 0), degreeToPoint(270)},
 	}
 
 	for _, c := range cases {
@@ -87,16 +88,25 @@ func TestClockSVG(t *testing.T) {
 		time       time.Time
 		secondHand Line
 		minuteHand Line
+		hourHand   Line
 	}{
 		{
 			clock(0, 0, 0),
 			degreeToLine(0, clockface.SecondHandLength),
 			degreeToLine(0, clockface.MinuteHandLength),
+			degreeToLine(0, clockface.HourHandLength),
 		},
 		{
 			clock(0, 0, 30),
 			degreeToLine(180, clockface.SecondHandLength),
 			degreeToLine(3, clockface.MinuteHandLength),
+			degreeToLine(.25, clockface.HourHandLength),
+		},
+		{
+			clock(0, 45, 15),
+			degreeToLine(90, clockface.SecondHandLength),
+			degreeToLine(271.5, clockface.MinuteHandLength),
+			degreeToLine(22.625, clockface.HourHandLength),
 		},
 	}
 
@@ -123,9 +133,16 @@ func TestClockSVG(t *testing.T) {
 					svg.Line,
 				)
 			}
+
+			if !containsLine(c.hourHand, svg.Line) {
+				t.Errorf(
+					"Expected to find the hour hand line %+v, in the SVG lines %+v",
+					c.hourHand,
+					svg.Line,
+				)
+			}
 		})
 	}
-
 }
 
 // ?? generated from https://github.com/miku/zek
