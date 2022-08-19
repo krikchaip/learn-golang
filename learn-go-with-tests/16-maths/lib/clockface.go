@@ -62,18 +62,23 @@ func (a Point) RoughlyEqual(b Point) bool {
 	return eq(a.X, b.X) && eq(a.Y, b.Y)
 }
 
-// SecondHand is the unit vector of the second hand of an analogue clock at time `t`
-// represented as a Point.
-func SecondHand(t time.Time) Point {
-	_, _, radian := clockTimeInRadian(t)
-	unitY, unitX := math.Sincos(radian)
-	return Point{unitX, unitY}.ShiftLength(SecondHandLength)
-}
+func MakeHands(t time.Time) (
+	hourHand Point,
+	minuteHand Point,
+	secondHand Point,
+) {
+	h, m, s := clockTimeInRadian(t)
 
-func MinuteHand(t time.Time) Point {
-	_, radian, _ := clockTimeInRadian(t)
-	unitY, unitX := math.Sincos(radian)
-	return Point{unitX, unitY}.ShiftLength(MinuteHandLength)
+	unitY, unitX := math.Sincos(s)
+	secondHand = Point{unitX, unitY}.ShiftLength(SecondHandLength)
+
+	unitY, unitX = math.Sincos(m)
+	minuteHand = Point{unitX, unitY}.ShiftLength(MinuteHandLength)
+
+	unitY, unitX = math.Sincos(h)
+	hourHand = Point{unitX, unitY}.ShiftLength(HourHandLength)
+
+	return
 }
 
 func clockTimeInRadian(t time.Time) (h, m, s float64) {
@@ -96,8 +101,7 @@ func clockTimeInRadian(t time.Time) (h, m, s float64) {
 }
 
 func ClockSVG(t time.Time) string {
-	secondHand := SecondHand(t)
-	minuteHand := MinuteHand(t)
+	_, minuteHand, secondHand := MakeHands(t)
 	return fmt.Sprintf(
 		strings.TrimLeft(tag, "\n "),
 		Precision,
