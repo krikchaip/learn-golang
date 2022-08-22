@@ -11,16 +11,21 @@ import (
 
 func TestNewBlogPosts(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
+		const (
+			hello_world  = "Title: Post 1\nDescription: Description 1"
+			hello_world2 = "Title: Post 2\nDescription: Description 2"
+		)
+
 		fs := fstest.MapFS{
-			"hello_world.md":  {Data: []byte("Title: Post 1")},
-			"hello_world2.md": {Data: []byte("Title: Post 2")},
+			"hello_world.md":  {Data: []byte(hello_world)},
+			"hello_world2.md": {Data: []byte(hello_world2)},
 		}
 		posts, err := blogposts.NewPostFromFS(fs)
 
 		got := posts
 		want := []blogposts.Post{
-			{Title: "Post 1"},
-			{Title: "Post 2"},
+			{Title: "Post 1", Description: "Description 1"},
+			{Title: "Post 2", Description: "Description 2"},
 		}
 
 		if err != nil {
