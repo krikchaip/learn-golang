@@ -12,8 +12,8 @@ import (
 func TestNewBlogPosts(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
 		const (
-			hello_world  = "Title: Post 1\nDescription: Description 1\nTags: tdd, go"
-			hello_world2 = "Title: Post 2\nDescription: Description 2\nTags: rust, borrow-checker"
+			hello_world  = "Title: Post 1\nDescription: Description 1\nTags: tdd, go\n---\nHello\nWorld"
+			hello_world2 = "Title: Post 2\nDescription: Description 2\nTags: rust, borrow-checker\n---\nB\nL\nM"
 		)
 
 		fs := fstest.MapFS{
@@ -28,10 +28,12 @@ func TestNewBlogPosts(t *testing.T) {
 				Title:       "Post 1",
 				Description: "Description 1",
 				Tags:        []string{"tdd", "go"},
+				Body:        "Hello\nWorld",
 			},
 			{Title: "Post 2",
 				Description: "Description 2",
 				Tags:        []string{"rust", "borrow-checker"},
+				Body:        "B\nL\nM",
 			},
 		}
 

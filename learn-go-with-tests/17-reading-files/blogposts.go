@@ -2,6 +2,7 @@ package blogposts
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"io/fs"
 	"strings"
@@ -11,6 +12,7 @@ type Post struct {
 	Title       string
 	Description string
 	Tags        []string
+	Body        string
 }
 
 func NewPostFromFS(filesystem fs.FS) ([]Post, error) {
@@ -65,6 +67,16 @@ func parsePost(f io.Reader) (Post, error) {
 	Description := readMetaLine(descriptionSeparator)
 	Tags := strings.Split(readMetaLine(tagsSeparator), ", ")
 
-	post := Post{Title, Description, Tags}
+	// ?? ignore a line
+	scanner.Scan()
+
+	var body strings.Builder
+	for scanner.Scan() {
+		// ?? restores \n for each line that was removed by scanner.Scan
+		fmt.Fprintln(&body, scanner.Text())
+	}
+	Body := strings.TrimRight(body.String(), "\n")
+
+	post := Post{Title, Description, Tags, Body}
 	return post, nil
 }
