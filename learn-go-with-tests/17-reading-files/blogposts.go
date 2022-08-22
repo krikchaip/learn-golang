@@ -66,7 +66,13 @@ func parsePost(f io.Reader) (Post, error) {
 	Title := readMetaLine(titleSeparator)
 	Description := readMetaLine(descriptionSeparator)
 	Tags := strings.Split(readMetaLine(tagsSeparator), ", ")
+	Body := readBody(scanner)
 
+	post := Post{Title, Description, Tags, Body}
+	return post, nil
+}
+
+func readBody(scanner *bufio.Scanner) string {
 	// ?? ignore a line
 	scanner.Scan()
 
@@ -75,8 +81,6 @@ func parsePost(f io.Reader) (Post, error) {
 		// ?? restores \n for each line that was removed by scanner.Scan
 		fmt.Fprintln(&body, scanner.Text())
 	}
-	Body := strings.TrimRight(body.String(), "\n")
 
-	post := Post{Title, Description, Tags, Body}
-	return post, nil
+	return strings.TrimRight(body.String(), "\n")
 }
