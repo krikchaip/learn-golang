@@ -11,7 +11,6 @@ type Post struct {
 
 func NewPostFromFS(filesystem fs.FS) ([]Post, error) {
 	dir, err := fs.ReadDir(filesystem, ".")
-
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +18,7 @@ func NewPostFromFS(filesystem fs.FS) ([]Post, error) {
 	var posts []Post
 
 	for _, f := range dir {
-		p, err := getPost(filesystem, f)
+		p, err := getPost(filesystem, f.Name())
 
 		// TODO: needs clarification, should we totally fail
 		// if one file fails? or just ignore?
@@ -33,15 +32,17 @@ func NewPostFromFS(filesystem fs.FS) ([]Post, error) {
 	return posts, nil
 }
 
-func getPost(filesystem fs.FS, f fs.DirEntry) (Post, error) {
-	file, err := filesystem.Open(f.Name())
+func getPost(filesystem fs.FS, filename string) (Post, error) {
+	file, err := filesystem.Open(filename)
 	if err != nil {
 		return Post{}, err
 	}
-
 	defer file.Close()
+	return parsePost(file)
+}
 
-	content, err := io.ReadAll(file)
+func parsePost(f io.Reader) (Post, error) {
+	content, err := io.ReadAll(f)
 	if err != nil {
 		return Post{}, err
 	}

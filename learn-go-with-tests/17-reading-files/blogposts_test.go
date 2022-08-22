@@ -27,9 +27,7 @@ func TestNewBlogPosts(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got %+v, want %+v", got, want)
-		}
+		assertPosts(t, got, want)
 	})
 
 	t.Run("on error", func(t *testing.T) {
@@ -48,4 +46,11 @@ type StubFailingFS struct{}
 // ?? fs.ReadDir will call this method inside
 func (s StubFailingFS) Open(name string) (fs.File, error) {
 	return nil, errors.New("oh no, i always fail")
+}
+
+func assertPosts(t testing.TB, got, want []blogposts.Post) {
+	t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %+v, want %+v", got, want)
+	}
 }
