@@ -12,8 +12,8 @@ import (
 func TestNewBlogPosts(t *testing.T) {
 	t.Run("happy path", func(t *testing.T) {
 		const (
-			hello_world  = "Title: Post 1\nDescription: Description 1"
-			hello_world2 = "Title: Post 2\nDescription: Description 2"
+			hello_world  = "Title: Post 1\nDescription: Description 1\nTags: tdd, go"
+			hello_world2 = "Title: Post 2\nDescription: Description 2\nTags: rust, borrow-checker"
 		)
 
 		fs := fstest.MapFS{
@@ -24,8 +24,15 @@ func TestNewBlogPosts(t *testing.T) {
 
 		got := posts
 		want := []blogposts.Post{
-			{Title: "Post 1", Description: "Description 1"},
-			{Title: "Post 2", Description: "Description 2"},
+			{
+				Title:       "Post 1",
+				Description: "Description 1",
+				Tags:        []string{"tdd", "go"},
+			},
+			{Title: "Post 2",
+				Description: "Description 2",
+				Tags:        []string{"rust", "borrow-checker"},
+			},
 		}
 
 		if err != nil {
