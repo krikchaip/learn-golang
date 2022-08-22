@@ -1,7 +1,7 @@
 package blogposts_test
 
 import (
-	blogposts "17-reading-files"
+	blogposts "17-reading-files/lib"
 	"errors"
 	"io/fs"
 	"reflect"
