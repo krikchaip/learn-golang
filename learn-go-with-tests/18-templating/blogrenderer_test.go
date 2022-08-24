@@ -19,7 +19,7 @@ func TestRender(t *testing.T) {
 
 	t.Run("it converts a single post to HTML", func(t *testing.T) {
 		w := &bytes.Buffer{}
-		err := blogrenderer.Render(w, post)
+		err := blogrenderer.RenderHTML(w, post)
 
 		if err != nil {
 			t.Fatal(err)
