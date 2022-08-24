@@ -5,7 +5,13 @@ import (
 	blogrenderer "18-templating"
 	"bytes"
 	"testing"
+
+	approvals "github.com/approvals/go-approval-tests"
 )
+
+func init() {
+	approvals.UseFolder("snapshots")
+}
 
 func TestRender(t *testing.T) {
 	var (
@@ -19,17 +25,20 @@ func TestRender(t *testing.T) {
 
 	t.Run("it converts a single post to HTML", func(t *testing.T) {
 		w := &bytes.Buffer{}
-		err := blogrenderer.RenderHTML(w, post)
 
-		if err != nil {
+		if err := blogrenderer.RenderHTML(w, post); err != nil {
 			t.Fatal(err)
 		}
 
-		got := w.String()
-		want := `<h1>hello world</h1><p>This is a description</p>Tags: <ul><li>go</li><li>tdd</li></ul>`
+		// ?? will replace this
+		// got := w.String()
+		// want := `<h1>hello world</h1><p>This is a description</p>Tags: <ul><li>go</li><li>tdd</li></ul>`
 
-		if got != want {
-			t.Errorf("got %q want %q", got, want)
-		}
+		// if got != want {
+		// 	t.Errorf("got %q want %q", got, want)
+		// }
+
+		// ?? with snapshot testing
+		approvals.VerifyString(t, w.String())
 	})
 }
