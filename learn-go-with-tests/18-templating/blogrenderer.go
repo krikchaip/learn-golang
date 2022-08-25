@@ -23,10 +23,20 @@ type PostRenderer struct {
 
 // ?? to parse templates only once
 func NewPostRenderer() (*PostRenderer, error) {
-	// ** use io.FS instead
+	// ?? parsing tempalte from a string literal
 	// templ, err := template.New("blog").Parse(postTemplate)
 
-	templ, err := template.ParseFS(postTemplates, "templates/*.gohtml")
+	templ, err := template.New("").
+		// ?? providing template functions
+		Funcs(template.FuncMap{
+			"snakecase": func(s string) string {
+				return strings.ToLower(strings.Replace(s, " ", "-", -1))
+			},
+		}).
+
+		// ?? use io.FS to parse multiple files 👍🏻
+		ParseFS(postTemplates, "templates/*.gohtml")
+
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +55,14 @@ func (pr *PostRenderer) RenderHTML(w io.Writer, post blogposts.Post) error {
 
 	// ?? the safer alternative
 	if err := pr.templ.ExecuteTemplate(w, "base", post); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pr *PostRenderer) RenderIndexHTML(w io.Writer, posts []blogposts.Post) error {
+	if err := pr.templ.ExecuteTemplate(w, "index", posts); err != nil {
 		return err
 	}
 

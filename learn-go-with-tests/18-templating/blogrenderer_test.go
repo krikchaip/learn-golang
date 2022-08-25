@@ -47,6 +47,25 @@ func TestRender(t *testing.T) {
 		// ?? with snapshot testing
 		approvals.VerifyString(t, w.String())
 	})
+
+	t.Run("it renders an index of posts", func(t *testing.T) {
+		w := &bytes.Buffer{}
+		posts := []blogposts.Post{
+			{Title: "Hello World"},
+			{Title: "Hello World 2"},
+		}
+
+		if err := pr.RenderIndexHTML(w, posts); err != nil {
+			t.Fatal(err)
+		}
+
+		got := w.String()
+		want := `<ol><li><a href="/post/hello-world">Hello World</a></li><li><a href="/post/hello-world-2">Hello World 2</a></li></ol>`
+
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+	})
 }
 
 func BenchmarkRender(b *testing.B) {
