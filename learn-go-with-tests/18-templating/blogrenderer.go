@@ -17,15 +17,24 @@ import (
 //go:embed templates/*.gohtml
 var postTemplates embed.FS
 
-func RenderHTML(w io.Writer, post blogposts.Post) error {
+type PostRenderer struct {
+	templ *template.Template
+}
+
+// ?? to parse templates only once
+func NewPostRenderer() (*PostRenderer, error) {
 	// ** use io.FS instead
 	// templ, err := template.New("blog").Parse(postTemplate)
 
 	templ, err := template.ParseFS(postTemplates, "templates/*.gohtml")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	return &PostRenderer{templ}, nil
+}
+
+func (pr *PostRenderer) RenderHTML(w io.Writer, post blogposts.Post) error {
 	// ** be careful with template names when calling templ.Execute with ParseFS.
 	// ** only the first file will be the render output.
 	// ** eg. layout.gohtml, blog.gohtml -> will render blog.gohtml
@@ -35,13 +44,14 @@ func RenderHTML(w io.Writer, post blogposts.Post) error {
 	// }
 
 	// ?? the safer alternative
-	if err := templ.ExecuteTemplate(w, "base", post); err != nil {
+	if err := pr.templ.ExecuteTemplate(w, "base", post); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// ?? basic version
 func Render(w io.Writer, post blogposts.Post) error {
 	_, err := fmt.Fprint(w,
 		tag("h1", post.Title),
