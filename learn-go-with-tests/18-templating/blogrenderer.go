@@ -34,7 +34,7 @@ func RenderHTML(w io.Writer, post blogposts.Post) error {
 	// 	return err
 	// }
 
-	// ?? a safer alternative
+	// ?? the safer alternative
 	if err := templ.ExecuteTemplate(w, "base", post); err != nil {
 		return err
 	}
