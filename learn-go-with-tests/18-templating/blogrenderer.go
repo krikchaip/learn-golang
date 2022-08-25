@@ -26,7 +26,16 @@ func RenderHTML(w io.Writer, post blogposts.Post) error {
 		return err
 	}
 
-	if err := templ.Execute(w, post); err != nil {
+	// ** be careful with template names when calling templ.Execute with ParseFS.
+	// ** only the first file will be the render output.
+	// ** eg. layout.gohtml, blog.gohtml -> will render blog.gohtml
+	// **     _.gohtml, blog.gohtml      -> will render _.gohtml
+	// if err := templ.Execute(w, post); err != nil {
+	// 	return err
+	// }
+
+	// ?? a safer alternative
+	if err := templ.ExecuteTemplate(w, "base", post); err != nil {
 		return err
 	}
 
