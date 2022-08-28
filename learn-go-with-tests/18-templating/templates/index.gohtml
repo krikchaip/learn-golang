@@ -1,3 +1,7 @@
-{{define "index" -}}
-<ol>{{range .}}<li><a href="/post/{{.Title | snakecase}}">{{.Title}}</a></li>{{end}}</ol>
-{{- end}}
+{{template "header" .}}
+      <ol>
+        {{range . -}}
+        <li><a href="/post/{{.Title | snakecase}}">{{.Title}}</a></li>
+        {{- end}}
+      </ol>
+{{- template "footer" . -}}

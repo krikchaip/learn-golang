@@ -59,12 +59,17 @@ func TestRender(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		got := w.String()
-		want := `<ol><li><a href="/post/hello-world">Hello World</a></li><li><a href="/post/hello-world-2">Hello World 2</a></li></ol>`
+		// ?? will replace this
+		// got := w.String()
+		// got := w.String()
+		// want := `<ol><li><a href="/post/hello-world">Hello World</a></li><li><a href="/post/hello-world-2">Hello World 2</a></li></ol>`
 
-		if got != want {
-			t.Errorf("got %q want %q", got, want)
-		}
+		// if got != want {
+		// 	t.Errorf("got %q want %q", got, want)
+		// }
+
+		// ?? with snapshot testing
+		approvals.VerifyString(t, w.String())
 	})
 }
 

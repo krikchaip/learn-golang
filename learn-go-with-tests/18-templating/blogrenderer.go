@@ -28,6 +28,7 @@ func NewPostRenderer() (*PostRenderer, error) {
 
 	templ, err := template.New("").
 		// ?? providing template functions
+		// ** NOT RECOMMENED - no separation of concern (hard to test)
 		Funcs(template.FuncMap{
 			"snakecase": func(s string) string {
 				return strings.ToLower(strings.Replace(s, " ", "-", -1))
@@ -54,7 +55,7 @@ func (pr *PostRenderer) RenderHTML(w io.Writer, post blogposts.Post) error {
 	// }
 
 	// ?? the safer alternative
-	if err := pr.templ.ExecuteTemplate(w, "base", post); err != nil {
+	if err := pr.templ.ExecuteTemplate(w, "blog.gohtml", post); err != nil {
 		return err
 	}
 
@@ -62,7 +63,7 @@ func (pr *PostRenderer) RenderHTML(w io.Writer, post blogposts.Post) error {
 }
 
 func (pr *PostRenderer) RenderIndexHTML(w io.Writer, posts []blogposts.Post) error {
-	if err := pr.templ.ExecuteTemplate(w, "index", posts); err != nil {
+	if err := pr.templ.ExecuteTemplate(w, "index.gohtml", posts); err != nil {
 		return err
 	}
 
