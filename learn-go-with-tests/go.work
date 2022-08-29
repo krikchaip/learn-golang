@@ -20,4 +20,5 @@ use (
 	./17-reading-files
 	./18-templating
 	./19-generics
+	./20-generic-arrays-slices
 )
