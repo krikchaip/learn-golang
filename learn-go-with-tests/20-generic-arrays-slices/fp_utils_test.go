@@ -68,22 +68,24 @@ func TestReduce(t *testing.T) {
 }
 
 func TestBadBank(t *testing.T) {
-	transactions := []Transaction{
-		{
-			From: "Chris",
-			To:   "Riya",
-			Sum:  100,
-		},
-		{
-			From: "Adil",
-			To:   "Chris",
-			Sum:  25,
-		},
+	var (
+		riya  = Account{Name: "Riya", Balance: 100}
+		chris = Account{Name: "Chris", Balance: 75}
+		adil  = Account{Name: "Adil", Balance: 200}
+
+		transactions = []Transaction{
+			NewTransaction(chris, riya, 100),
+			NewTransaction(adil, chris, 25),
+		}
+	)
+
+	balanceFor := func(acc Account) float64 {
+		return NewBalanceFor(acc, transactions).Balance
 	}
 
-	AssertEqual(t, BalanceFor(transactions, "Riya"), 100)
-	AssertEqual(t, BalanceFor(transactions, "Chris"), -75)
-	AssertEqual(t, BalanceFor(transactions, "Adil"), -25)
+	AssertEqual(t, balanceFor(riya), 200)
+	AssertEqual(t, balanceFor(chris), 0)
+	AssertEqual(t, balanceFor(adil), 175)
 }
 
 func AssertEqual[T comparable](t *testing.T, got, want T) {

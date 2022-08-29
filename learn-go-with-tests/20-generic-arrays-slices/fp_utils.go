@@ -36,20 +36,30 @@ func Reduce[T, U any](
 	return result
 }
 
+type Account struct {
+	Name    string
+	Balance float64
+}
+
 type Transaction struct {
 	From, To string
 	Sum      float64
 }
 
-func BalanceFor(trx []Transaction, name string) float64 {
-	type BalanceMap = map[string]float64
-	var bMap = make(BalanceMap)
+func NewTransaction(a, b Account, amount float64) Transaction {
+	return Transaction{a.Name, b.Name, amount}
+}
 
-	bMap = Reduce(trx, bMap, func(acc BalanceMap, curr Transaction) BalanceMap {
-		bMap[curr.From] -= curr.Sum
-		bMap[curr.To] += curr.Sum
+func NewBalanceFor(acc Account, trx []Transaction) Account {
+	return Reduce(trx, acc, func(acc Account, curr Transaction) Account {
+		if curr.From == acc.Name {
+			acc.Balance -= curr.Sum
+		}
+
+		if curr.To == acc.Name {
+			acc.Balance += curr.Sum
+		}
+
 		return acc
 	})
-
-	return bMap[name]
 }
