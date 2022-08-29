@@ -36,6 +36,25 @@ func Reduce[T, U any](
 	return result
 }
 
+type findResult[T any] struct {
+	item  T
+	found bool
+}
+
+func Find[T any](xs []T, pred func(T) bool) (item T, found bool) {
+	result := findResult[T]{item, found}
+
+	result = Reduce(xs, result, func(acc findResult[T], curr T) findResult[T] {
+		if pred(curr) && !acc.found {
+			return findResult[T]{curr, true}
+		} else {
+			return acc
+		}
+	})
+
+	return result.item, result.found
+}
+
 type Account struct {
 	Name    string
 	Balance float64

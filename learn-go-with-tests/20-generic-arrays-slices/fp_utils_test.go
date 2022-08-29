@@ -2,6 +2,7 @@ package fp_utils
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -86,6 +87,37 @@ func TestBadBank(t *testing.T) {
 	AssertEqual(t, balanceFor(riya), 200)
 	AssertEqual(t, balanceFor(chris), 0)
 	AssertEqual(t, balanceFor(adil), 175)
+}
+
+func TestFind(t *testing.T) {
+	t.Run("find first even number", func(t *testing.T) {
+		numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+
+		firstEvenNumber, found := Find(numbers, func(x int) bool {
+			return x%2 == 0
+		})
+		AssertTrue(t, found)
+		AssertEqual(t, firstEvenNumber, 2)
+	})
+
+	t.Run("Find the best programmer", func(t *testing.T) {
+		type Person struct {
+			Name string
+		}
+
+		people := []Person{
+			{"Kent Beck"},
+			{"Martin Fowler"},
+			{"Chris James"},
+		}
+
+		king, found := Find(people, func(p Person) bool {
+			return strings.Contains(p.Name, "Chris")
+		})
+
+		AssertTrue(t, found)
+		AssertEqual(t, king, Person{Name: "Chris James"})
+	})
 }
 
 func AssertEqual[T comparable](t *testing.T, got, want T) {
