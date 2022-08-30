@@ -21,4 +21,5 @@ use (
 	./18-templating
 	./19-generics
 	./20-generic-arrays-slices
+	./21-acceptance-testing
 )
