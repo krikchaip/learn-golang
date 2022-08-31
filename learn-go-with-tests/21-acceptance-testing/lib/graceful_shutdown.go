@@ -2,6 +2,7 @@ package lib
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,7 +14,7 @@ func WrapServer(sv *http.Server) *http.Server {
 	signal.Notify(sig, os.Kill, os.Interrupt)
 
 	go func() {
-		<-sig
+		fmt.Printf("%+v\n", <-sig)
 		sv.Shutdown(context.TODO())
 	}()
 
