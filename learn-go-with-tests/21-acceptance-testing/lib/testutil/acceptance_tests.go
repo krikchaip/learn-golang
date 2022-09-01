@@ -1,12 +1,15 @@
-package lib
+package testutil
 
 import (
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
+
+	"21-acceptance-testing/lib/util"
 )
 
 const (
@@ -14,22 +17,29 @@ const (
 	baseBinName = "21-acceptance-testing/bin/actest"
 )
 
+func SlowHandler(w http.ResponseWriter, r *http.Request) {
+	time.Sleep(2 * time.Second)
+	w.Write([]byte("Hello World!"))
+}
+
 func LaunchTestProgram(port string) (
 	cleanup func(),
 	interupt func(),
 ) {
-	defer catch()
+	defer util.Catch()
 
 	binName := buildBinary()
+	// fmt.Printf("binName: %v\n", binName)
 	cleanup, interupt = runServer(binName, port)
 
 	return
 }
 
 func buildBinary() (name string) {
-	name = baseBinName
+	name = absolutePath(baseBinName)
+	path := absolutePath(modulePath)
 
-	build := exec.Command("go", "build", "-o", name, modulePath)
+	build := exec.Command("go", "build", "-o", name, path)
 	if err := build.Run(); err != nil {
 		panic(fmt.Errorf("cannot build tool %s: %s", name, err))
 	}
@@ -38,7 +48,7 @@ func buildBinary() (name string) {
 }
 
 func runServer(name, port string) (cleanup, interupt func()) {
-	binCmd := absoluteCmd(name)
+	binCmd := exec.Command(name)
 
 	binCmd.Stdout = os.Stdout
 	binCmd.Stderr = os.Stderr
@@ -68,10 +78,11 @@ func runServer(name, port string) (cleanup, interupt func()) {
 	return
 }
 
-func absoluteCmd(name string) *exec.Cmd {
+func absolutePath(name string) string {
 	dir, _ := os.Getwd()
-	cmdpath := filepath.Join(dir, name)
-	return exec.Command(cmdpath)
+	fmt.Printf("dir: %v\n", dir)
+	path := filepath.Join(dir, name)
+	return path
 }
 
 func waitForNetworkResponse(port string) error {

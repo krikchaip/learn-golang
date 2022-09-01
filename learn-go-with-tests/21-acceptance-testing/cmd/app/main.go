@@ -1,18 +1,20 @@
 package main
 
 import (
-	"21-acceptance-testing/lib"
 	"log"
 	"net/http"
+
+	"21-acceptance-testing/lib/gracefulshutdown"
+	"21-acceptance-testing/lib/testutil"
 )
 
 func main() {
 	httpServer := &http.Server{
 		Addr:    ":8080",
-		Handler: http.HandlerFunc(lib.SlowHandler),
+		Handler: http.HandlerFunc(testutil.SlowHandler),
 	}
 
-	server := lib.WrapServer(httpServer)
+	server := gracefulshutdown.NewServer(httpServer)
 
 	if err := server.ListenAndServe(); err != nil {
 		// this will typically happen if our responses aren't
