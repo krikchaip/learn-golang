@@ -13,6 +13,18 @@ func Equal[T comparable](t testing.TB, got, want T) {
 	}
 }
 
+func NoPanic(t testing.TB, fn func()) {
+	t.Helper()
+
+	defer func() {
+		if err := recover(); err != nil {
+			t.Fatalf("didnt expect an err, but got one %v", err)
+		}
+	}()
+
+	fn()
+}
+
 func NoError(t testing.TB, err error) {
 	if err == nil {
 		return
