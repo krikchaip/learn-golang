@@ -17,10 +17,6 @@ func Catch() {
 func FindRoot(start string) (packageRoot string, err error) {
 	var entries []fs.DirEntry
 
-	if start == filepath.FromSlash("/") {
-		return "", fmt.Errorf("go.mod was not found along the path\n")
-	}
-
 	if !filepath.IsAbs(start) {
 		start, _ = filepath.Abs(start)
 	}
@@ -33,6 +29,10 @@ func FindRoot(start string) (packageRoot string, err error) {
 		if ent.Name() == "go.mod" && ent.Type().IsRegular() {
 			return start, nil
 		}
+	}
+
+	if start == filepath.FromSlash("/") {
+		return "", fmt.Errorf("go.mod was not found along the path\n")
 	}
 
 	return FindRoot(filepath.Dir(start))
