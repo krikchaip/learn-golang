@@ -12,7 +12,10 @@ func TestGracefulShutdownServer_ListenAndServe(t *testing.T) {
 	t.Run("wait for interupt, shutdown gracefully", func(t *testing.T) {
 		interrupt := make(chan os.Signal, 1)
 		spyServer := newSpyServer()
-		server := gracefulshutdown.NewServer(spyServer)
+		server := gracefulshutdown.NewServer(
+			spyServer,
+			gracefulshutdown.WithSignal(interrupt),
+		)
 
 		spyServer.listenAndServeFn = func() error {
 			return nil
