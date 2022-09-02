@@ -20,14 +20,16 @@ func TestGracefulShutdown(t *testing.T) {
 	// just check the server works before we shut things down
 	assert.CanGet(t, URL)
 
+	// [will interupt 50ms after firing off the request below]
 	// fire off a request, and before it has a chance to respond send SIGTERM.
 	time.AfterFunc(50*time.Millisecond, func() {
 		assert.NoPanic(t, interupt)
 	})
 
-	// Without graceful shutdown, this would fail
+	// [pending request]
+	// without graceful shutdown, this would fail
 	assert.CanGet(t, URL)
 
-	// // after interrupt, the server should be shutdown, and no more requests will work
-	// assert.CantGet(t, URL)
+	// after interrupt, the server should be shutdown, and no more requests will work
+	assert.CantGet(t, URL)
 }
