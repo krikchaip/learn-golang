@@ -1,6 +1,10 @@
 package gracefulshutdown
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 )
@@ -8,6 +12,7 @@ import (
 type (
 	HttpServer interface {
 		ListenAndServe() error
+		Shutdown(ctx context.Context) error
 	}
 
 	HttpServerOption func(*decoratedServer)
@@ -21,11 +26,6 @@ type (
 
 // returns a decorated server with graceful shutdown
 func NewServer(s HttpServer, options ...HttpServerOption) HttpServer {
-	// go func() {
-	// 	fmt.Printf("%+v\n", <-sig)
-	// 	sv.Shutdown(context.TODO())
-	// }()
-
 	ds := &decoratedServer{
 		server: s,
 		signal: newSignal(),
@@ -47,7 +47,30 @@ func WithSignal(sig <-chan os.Signal) HttpServerOption {
 }
 
 func (ds *decoratedServer) ListenAndServe() error {
-	return ds.server.ListenAndServe()
+	errChan := make(chan error)
+
+	go func() {
+		if err := ds.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errChan <- err
+		}
+	}()
+
+	go func() {
+		// wait for interrupt signals
+		fmt.Println("signal received:", <-ds.signal)
+
+		ctx := context.TODO()
+
+		if err := ds.server.Shutdown(ctx); err != nil {
+			errChan <- err
+		}
+	}()
+
+	return <-errChan
+}
+
+func (ds *decoratedServer) Shutdown(ctx context.Context) error {
+	return ds.server.Shutdown(ctx)
 }
 
 func newSignal() <-chan os.Signal {

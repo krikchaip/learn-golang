@@ -1,6 +1,7 @@
 package gracefulshutdown_test
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -61,7 +62,7 @@ func (s *spyServer) ListenAndServe() error {
 	return s.listenAndServeFn()
 }
 
-func (s *spyServer) Shutdown() error {
+func (s *spyServer) Shutdown(ctx context.Context) error {
 	s.shutdown <- struct{}{}
 	return s.shutdownFn()
 }
