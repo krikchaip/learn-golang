@@ -8,5 +8,9 @@ import (
 
 func main() {
 	handler := http.HandlerFunc(server.PlayerServer)
+
+	// we wrap the call in log.Fatal
+	// just in case if there is a problem with ListenAndServe.
+	// eg. port already being used, etc.
 	log.Fatal(http.ListenAndServe(":3000", handler))
 }
