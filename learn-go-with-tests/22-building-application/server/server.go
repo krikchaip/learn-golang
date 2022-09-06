@@ -21,16 +21,17 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 }
 
 func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
+
 	switch r.Method {
 	case http.MethodGet:
-		s.showScore(w, r)
+		s.showScore(w, player)
 	case http.MethodPost:
-		s.processWin(w, r)
+		s.processWin(w, player)
 	}
 }
 
-func (s *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (s *PlayerServer) showScore(w http.ResponseWriter, player string) {
 	score := s.store.GetPlayerScore(player)
 
 	if score > 0 {
@@ -41,8 +42,7 @@ func (s *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 }
 
-func (s *PlayerServer) processWin(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (s *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	s.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
 }
