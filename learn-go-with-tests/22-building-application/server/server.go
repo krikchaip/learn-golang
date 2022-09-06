@@ -20,6 +20,11 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 }
 
 func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		w.WriteHeader(http.StatusAccepted)
+		return
+	}
+
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 	score := s.store.GetPlayerScore(player)
 
