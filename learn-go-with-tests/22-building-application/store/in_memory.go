@@ -1,10 +1,19 @@
 package store
 
-// TODO: will implement later
-type InMemoryPlayerStore struct{}
-
-func (s *InMemoryPlayerStore) GetPlayerScore(name string) int {
-	return 0
+type InMemoryPlayerStore struct {
+	store map[string]int
 }
 
-func (s *InMemoryPlayerStore) RecordWin(name string) {}
+func NewInMemoryPlayerStore() *InMemoryPlayerStore {
+	return &InMemoryPlayerStore{
+		store: make(map[string]int),
+	}
+}
+
+func (s *InMemoryPlayerStore) GetPlayerScore(name string) int {
+	return s.store[name]
+}
+
+func (s *InMemoryPlayerStore) RecordWin(name string) {
+	s.store[name]++
+}

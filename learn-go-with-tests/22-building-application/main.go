@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	sv := server.NewPlayerServer(&store.InMemoryPlayerStore{})
+	st := store.NewInMemoryPlayerStore()
+	sv := server.NewPlayerServer(st)
 
 	// we wrap the call in log.Fatal
 	// just in case if there is a problem with ListenAndServe.
