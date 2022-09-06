@@ -21,5 +21,12 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 
 func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
-	fmt.Fprint(w, s.store.GetPlayerScore(player))
+	score := s.store.GetPlayerScore(player)
+
+	if score > 0 {
+		fmt.Fprint(w, score)
+		return
+	}
+
+	w.WriteHeader(http.StatusNotFound)
 }
