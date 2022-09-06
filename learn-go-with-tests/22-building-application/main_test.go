@@ -3,6 +3,8 @@ package main_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strconv"
+	"sync"
 	"testing"
 
 	"22-building-application/server"
@@ -26,4 +28,30 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 
 	util.AssertStatus(t, res.Code, http.StatusOK)
 	util.AssertResponseBody(t, res.Body, "3")
+}
+
+func TestConcurrentRecordingWins(t *testing.T) {
+	st := store.NewInMemoryPlayerStore()
+	sv := server.NewPlayerServer(st)
+
+	player := "Pepper"
+	nConcurrent := 1000
+
+	var wg sync.WaitGroup
+	wg.Add(nConcurrent)
+
+	for i := 0; i < nConcurrent; i++ {
+		go func() {
+			sv.ServeHTTP(httptest.NewRecorder(), util.NewPostWinRequest(player))
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	res := httptest.NewRecorder()
+	sv.ServeHTTP(res, util.NewScoreRequest(player))
+
+	util.AssertStatus(t, res.Code, http.StatusOK)
+	util.AssertResponseBody(t, res.Body, strconv.Itoa(nConcurrent))
 }
