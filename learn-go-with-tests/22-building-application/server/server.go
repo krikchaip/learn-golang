@@ -20,11 +20,15 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 }
 
 func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		w.WriteHeader(http.StatusAccepted)
-		return
+	switch r.Method {
+	case http.MethodGet:
+		s.showScore(w, r)
+	case http.MethodPost:
+		s.processWin(w)
 	}
+}
 
+func (s *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 	score := s.store.GetPlayerScore(player)
 
@@ -34,4 +38,9 @@ func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNotFound)
+}
+
+func (s *PlayerServer) processWin(w http.ResponseWriter) {
+
+	w.WriteHeader(http.StatusAccepted)
 }
