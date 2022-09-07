@@ -49,11 +49,11 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 // }
 
 func (s *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
-	// ** serialize struct into JSON object
+	// ** transform a struct into a JSON string and then Write()
 	json.NewEncoder(w).Encode(s.store.GetLeagueTable())
 
-	// // ?? alternative to json.Encoder
-	// bytes, _ := json.Marshal(leagueTable)
+	// // ?? alternative to json.Encoder (using json.Marshal)
+	// bytes, _ := json.Marshal(s.store.GetLeagueTable())
 	// w.Write(bytes)
 
 	w.WriteHeader(http.StatusOK)

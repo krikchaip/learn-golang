@@ -1,7 +1,6 @@
 package server_test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -97,20 +96,9 @@ func TestLeague(t *testing.T) {
 
 		sv.ServeHTTP(res, req)
 
+		got := util.ParseLeagueFromResponse(t, res.Body)
 		util.AssertStatus(t, res.Code, http.StatusOK)
-
-		var got []server.Player
-
-		err := json.NewDecoder(res.Body).Decode(&got)
-		// err := json.Unmarshal(res.Body.Bytes(), &got) // ?? alternative
-
-		if err != nil {
-			t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", res.Body, err)
-		}
-
-		if !reflect.DeepEqual(got, wantedLeague) {
-			t.Errorf("got %v want %v", got, wantedLeague)
-		}
+		util.AssertLeagueTable(t, got, wantedLeague)
 	})
 }
 
