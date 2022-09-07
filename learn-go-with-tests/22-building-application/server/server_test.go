@@ -68,6 +68,20 @@ func TestStoreWins(t *testing.T) {
 	})
 }
 
+func TestLeague(t *testing.T) {
+	store := StubPlayerStore{}
+	server := server.NewPlayerServer(&store)
+
+	t.Run("it returns 200 on /league", func(t *testing.T) {
+		req := util.NewLeagueRequest()
+		res := httptest.NewRecorder()
+
+		server.ServeHTTP(res, req)
+
+		util.AssertStatus(t, res.Code, http.StatusOK)
+	})
+}
+
 // implements: server.PlayerStore
 type StubPlayerStore struct {
 	scores   map[string]int

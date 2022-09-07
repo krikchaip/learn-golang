@@ -21,14 +21,24 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 }
 
 func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+	router := http.NewServeMux()
 
-	switch r.Method {
-	case http.MethodGet:
-		s.showScore(w, player)
-	case http.MethodPost:
-		s.processWin(w, player)
-	}
+	router.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	router.HandleFunc("/players/", func(w http.ResponseWriter, r *http.Request) {
+		player := strings.TrimPrefix(r.URL.Path, "/players/")
+
+		switch r.Method {
+		case http.MethodGet:
+			s.showScore(w, player)
+		case http.MethodPost:
+			s.processWin(w, player)
+		}
+	})
+
+	router.ServeHTTP(w, r)
 }
 
 func (s *PlayerServer) showScore(w http.ResponseWriter, player string) {
