@@ -99,6 +99,7 @@ func TestLeague(t *testing.T) {
 		got := util.ParseLeagueFromResponse(t, res.Body)
 		util.AssertStatus(t, res.Code, http.StatusOK)
 		util.AssertLeagueTable(t, got, wantedLeague)
+		util.AssertContentJSON(t, res.Result().Header)
 	})
 }
 

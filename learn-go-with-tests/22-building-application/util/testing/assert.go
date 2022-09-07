@@ -2,6 +2,7 @@ package testing
 
 import (
 	"bytes"
+	"net/http"
 	"reflect"
 	tt "testing"
 
@@ -12,6 +13,13 @@ func AssertStatus(t tt.TB, got, want int) {
 	t.Helper()
 	if got != want {
 		t.Errorf("did not get correct status, got %d want %d", got, want)
+	}
+}
+
+func AssertContentJSON(t tt.TB, got http.Header) {
+	t.Helper()
+	if got.Get("content-type") != "application/json" {
+		t.Errorf("response did not have content-type of application/json, got %v", got.Get("content-type"))
 	}
 }
 
