@@ -70,10 +70,28 @@ func TestStoreWins(t *testing.T) {
 }
 
 func TestLeague(t *testing.T) {
-	store := StubPlayerStore{}
-	sv := server.NewPlayerServer(&store)
-
 	t.Run("it returns 200 on /league", func(t *testing.T) {
+		store := StubPlayerStore{}
+		sv := server.NewPlayerServer(&store)
+
+		req := util.NewLeagueRequest()
+		res := httptest.NewRecorder()
+
+		sv.ServeHTTP(res, req)
+
+		util.AssertStatus(t, res.Code, http.StatusOK)
+	})
+
+	t.Run("it returns the league table as JSON", func(t *testing.T) {
+		wantedLeague := []server.Player{
+			{"Cleo", 32},
+			{"Chris", 20},
+			{"Tiest", 14},
+		}
+
+		store := StubPlayerStore{league: wantedLeague}
+		sv := server.NewPlayerServer(&store)
+
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
 
@@ -89,6 +107,10 @@ func TestLeague(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", res.Body, err)
 		}
+
+		if !reflect.DeepEqual(got, wantedLeague) {
+			t.Errorf("got %v want %v", got, wantedLeague)
+		}
 	})
 }
 
@@ -96,11 +118,16 @@ func TestLeague(t *testing.T) {
 type StubPlayerStore struct {
 	scores   map[string]int
 	winCalls []string
+	league   []server.Player
 }
 
 func (s *StubPlayerStore) GetPlayerScore(name string) int {
 	score := s.scores[name]
 	return score
+}
+
+func (s *StubPlayerStore) GetLeagueTable() []server.Player {
+	return s.league
 }
 
 func (s *StubPlayerStore) RecordWin(name string) {

@@ -1,7 +1,12 @@
 package store
 
-import "sync"
+import (
+	"sync"
 
+	"22-building-application/server"
+)
+
+// implements: server.PlayerStore
 type InMemoryPlayerStore struct {
 	store map[string]int
 	mut   sync.Mutex
@@ -22,4 +27,10 @@ func (s *InMemoryPlayerStore) RecordWin(name string) {
 	defer s.mut.Unlock()
 
 	s.store[name]++
+}
+
+func (s *InMemoryPlayerStore) GetLeagueTable() []server.Player {
+	return []server.Player{
+		{Name: "Winner", Wins: 100},
+	}
 }

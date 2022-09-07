@@ -14,6 +14,7 @@ type Player struct {
 
 type PlayerStore interface {
 	GetPlayerScore(name string) int
+	GetLeagueTable() []Player
 	RecordWin(name string)
 }
 
@@ -48,12 +49,8 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 // }
 
 func (s *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
-	leagueTable := []Player{
-		{Name: "Chris", Wins: 20},
-	}
-
 	// ** serialize struct into JSON object
-	json.NewEncoder(w).Encode(leagueTable)
+	json.NewEncoder(w).Encode(s.store.GetLeagueTable())
 
 	// // ?? alternative to json.Encoder
 	// bytes, _ := json.Marshal(leagueTable)
