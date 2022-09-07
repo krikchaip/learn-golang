@@ -23,11 +23,26 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	sv.ServeHTTP(httptest.NewRecorder(), util.NewPostWinRequest(player))
 	sv.ServeHTTP(httptest.NewRecorder(), util.NewPostWinRequest(player))
 
-	res := httptest.NewRecorder()
-	sv.ServeHTTP(res, util.NewScoreRequest(player))
+	t.Run("get score", func(t *testing.T) {
+		res := httptest.NewRecorder()
+		sv.ServeHTTP(res, util.NewScoreRequest(player))
 
-	util.AssertStatus(t, res.Code, http.StatusOK)
-	util.AssertResponseBody(t, res.Body, "3")
+		util.AssertStatus(t, res.Code, http.StatusOK)
+		util.AssertResponseBody(t, res.Body, "3")
+	})
+
+	t.Run("get league", func(t *testing.T) {
+		res := httptest.NewRecorder()
+		sv.ServeHTTP(res, util.NewLeagueRequest())
+
+		got := util.ParseLeagueFromResponse(t, res.Body)
+		want := []server.Player{
+			{Name: player, Wins: 3},
+		}
+
+		util.AssertStatus(t, res.Code, http.StatusOK)
+		util.AssertLeagueTable(t, got, want)
+	})
 }
 
 func TestConcurrentRecordingWins(t *testing.T) {

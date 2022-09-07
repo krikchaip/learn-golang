@@ -29,12 +29,10 @@ func (s *InMemoryPlayerStore) RecordWin(name string) {
 	s.store[name]++
 }
 
-func (s *InMemoryPlayerStore) GetLeagueTable() []server.Player {
-	league := make([]server.Player, len(s.store))
-
+func (s *InMemoryPlayerStore) GetLeagueTable() (league []server.Player) {
 	for k, v := range s.store {
 		league = append(league, server.Player{Name: k, Wins: v})
 	}
 
-	return league
+	return
 }
