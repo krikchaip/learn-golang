@@ -1,6 +1,7 @@
 package server_test
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -70,15 +71,24 @@ func TestStoreWins(t *testing.T) {
 
 func TestLeague(t *testing.T) {
 	store := StubPlayerStore{}
-	server := server.NewPlayerServer(&store)
+	sv := server.NewPlayerServer(&store)
 
 	t.Run("it returns 200 on /league", func(t *testing.T) {
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
 
-		server.ServeHTTP(res, req)
+		sv.ServeHTTP(res, req)
 
 		util.AssertStatus(t, res.Code, http.StatusOK)
+
+		var got []server.Player
+
+		err := json.NewDecoder(res.Body).Decode(&got)
+		// err := json.Unmarshal(res.Body.Bytes(), &got) // ?? alternative
+
+		if err != nil {
+			t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", res.Body, err)
+		}
 	})
 }
 

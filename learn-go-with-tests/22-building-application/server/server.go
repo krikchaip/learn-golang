@@ -1,10 +1,16 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 )
+
+type Player struct {
+	Name string
+	Wins int
+}
 
 type PlayerStore interface {
 	GetPlayerScore(name string) int
@@ -15,14 +21,15 @@ type PlayerStore interface {
 type PlayerServer struct {
 	store PlayerStore
 
-	// ** interface embedding
+	// ** interface embedding (like `implements IFoo` in other languages)
 	http.Handler
 
 	// // ?? alternative to interface embedding
-	// router *http.ServeMux // this also implements http.Handler
+	// router *http.ServeMux
 }
 
 func NewPlayerServer(store PlayerStore) *PlayerServer {
+	// this also implements http.Handler
 	router := http.NewServeMux()
 
 	// s := &PlayerServer{store, router}
@@ -41,6 +48,17 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 // }
 
 func (s *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	leagueTable := []Player{
+		{Name: "Chris", Wins: 20},
+	}
+
+	// ** serialize struct into JSON object
+	json.NewEncoder(w).Encode(leagueTable)
+
+	// // ?? alternative to json.Encoder
+	// bytes, _ := json.Marshal(leagueTable)
+	// w.Write(bytes)
+
 	w.WriteHeader(http.StatusOK)
 }
 
