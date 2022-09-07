@@ -14,31 +14,45 @@ type PlayerStore interface {
 // implements: http.Handler
 type PlayerServer struct {
 	store PlayerStore
+
+	// ** interface embedding
+	http.Handler
+
+	// // ?? alternative to interface embedding
+	// router *http.ServeMux // this also implements http.Handler
 }
 
 func NewPlayerServer(store PlayerStore) *PlayerServer {
-	return &PlayerServer{store}
-}
-
-func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	router := http.NewServeMux()
 
-	router.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
+	// s := &PlayerServer{store, router}
+	s := &PlayerServer{store: store}
+	s.Handler = router
 
-	router.HandleFunc("/players/", func(w http.ResponseWriter, r *http.Request) {
-		player := strings.TrimPrefix(r.URL.Path, "/players/")
+	router.HandleFunc("/league", s.leagueHandler)
+	router.HandleFunc("/players/", s.playersHandler)
 
-		switch r.Method {
-		case http.MethodGet:
-			s.showScore(w, player)
-		case http.MethodPost:
-			s.processWin(w, player)
-		}
-	})
+	return s
+}
 
-	router.ServeHTTP(w, r)
+// // ?? alternative to interface embedding
+// func (s *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	s.router.ServeHTTP(w, r)
+// }
+
+func (s *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *PlayerServer) playersHandler(w http.ResponseWriter, r *http.Request) {
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
+
+	switch r.Method {
+	case http.MethodGet:
+		s.showScore(w, player)
+	case http.MethodPost:
+		s.processWin(w, player)
+	}
 }
 
 func (s *PlayerServer) showScore(w http.ResponseWriter, player string) {
