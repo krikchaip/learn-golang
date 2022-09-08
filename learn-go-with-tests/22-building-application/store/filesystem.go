@@ -7,14 +7,15 @@ import (
 
 // implements: server.PlayerStore
 type FileSystemPlayerStore struct {
-	source io.Reader
+	source io.ReadSeeker
 }
 
-func NewFileSystemPlayerStore(source io.Reader) *FileSystemPlayerStore {
+func NewFileSystemPlayerStore(source io.ReadSeeker) *FileSystemPlayerStore {
 	return &FileSystemPlayerStore{source}
 }
 
 func (s *FileSystemPlayerStore) GetLeagueTable() (league []server.Player) {
+	s.source.Seek(0, io.SeekStart)
 	league, _ = server.NewLeague(s.source)
 	return
 }
