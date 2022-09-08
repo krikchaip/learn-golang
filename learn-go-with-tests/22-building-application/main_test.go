@@ -15,7 +15,7 @@ import (
 
 // integration testing of server.PlayerServer & store.InMemoryPlayerStore
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	st := store.NewInMemoryPlayerStore()
+	st := setupStore(t)
 	sv := server.NewPlayerServer(st)
 
 	player := "Pepper"
@@ -47,7 +47,7 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 }
 
 func TestConcurrentRecordingWins(t *testing.T) {
-	st := store.NewInMemoryPlayerStore()
+	st := setupStore(t)
 	sv := server.NewPlayerServer(st)
 
 	player := "Pepper"
@@ -70,4 +70,16 @@ func TestConcurrentRecordingWins(t *testing.T) {
 
 	util.AssertStatus(t, res.Code, http.StatusOK)
 	util.AssertResponseBody(t, res.Body, strconv.Itoa(nConcurrent))
+}
+
+func setupStore(t testing.TB) entity.PlayerStore {
+	t.Helper()
+
+	// st := store.NewInMemoryPlayerStore()
+
+	src, cleanup := util.CreateTempFile(t, "")
+	st := store.NewFileSystemPlayerStore(src)
+	t.Cleanup(cleanup)
+
+	return st
 }

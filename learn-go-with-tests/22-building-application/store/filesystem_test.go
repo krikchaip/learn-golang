@@ -60,6 +60,18 @@ func TestFileSystemStore(t *tt.T) {
 
 		testing.AssertScoreEquals(t, got, want)
 	})
+
+	t.Run("store wins for new players", func(t *tt.T) {
+		src := setupSource(t)
+		store := store.NewFileSystemPlayerStore(src)
+
+		store.RecordWin("Pepper")
+
+		got := store.GetPlayerScore("Pepper")
+		want := 1
+
+		testing.AssertScoreEquals(t, got, want)
+	})
 }
 
 func setupSource(t tt.TB) (src io.ReadWriteSeeker) {
