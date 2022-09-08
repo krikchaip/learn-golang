@@ -72,12 +72,21 @@ func TestConcurrentRecordingWins(t *testing.T) {
 	util.AssertResponseBody(t, res.Body, strconv.Itoa(nConcurrent))
 }
 
+func TestEmptyFileSource(t *testing.T) {
+	src, cleanup := util.CreateTempFile(t, "")
+	t.Cleanup(cleanup)
+
+	util.AssertNoPanic(t, func() {
+		store.NewFileSystemPlayerStore(src)
+	})
+}
+
 func setupStore(t testing.TB) entity.PlayerStore {
 	t.Helper()
 
 	// st := store.NewInMemoryPlayerStore()
 
-	src, cleanup := util.CreateTempFile(t, "")
+	src, cleanup := util.CreateTempFile(t, "[]")
 	st := store.NewFileSystemPlayerStore(src)
 	t.Cleanup(cleanup)
 

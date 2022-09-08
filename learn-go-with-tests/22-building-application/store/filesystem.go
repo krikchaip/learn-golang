@@ -2,6 +2,7 @@ package store
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"sync"
 
@@ -20,7 +21,11 @@ func NewFileSystemPlayerStore(source *os.File) entity.PlayerStore {
 	tape := util.NewTape(source)
 
 	// initialize cache to improve performance
-	cache, _ := entity.NewLeague(tape)
+	cache, err := entity.NewLeague(tape)
+
+	if err != nil {
+		panic(fmt.Errorf("problem loading player store from file %s, %v", source.Name(), err))
+	}
 
 	return &FileSystemPlayerStore{
 		db:    json.NewEncoder(tape),

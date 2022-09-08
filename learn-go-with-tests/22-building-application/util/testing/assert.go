@@ -43,3 +43,15 @@ func AssertScoreEquals(t tt.TB, got, want int) {
 		t.Errorf("got %d want %d", got, want)
 	}
 }
+
+func AssertNoPanic(t tt.TB, f func()) {
+	t.Helper()
+
+	defer func() {
+		if err := recover(); err != nil {
+			t.Fatalf("didn't expect a panic but got one, %v", err)
+		}
+	}()
+
+	f()
+}
