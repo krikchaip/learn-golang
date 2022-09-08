@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -84,4 +85,20 @@ func (s *PlayerServer) showScore(w http.ResponseWriter, player string) {
 func (s *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	s.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func NewLeague(source io.Reader) (league []Player, err error) {
+	// ** reads and parse from source directly
+	err = json.NewDecoder(source).Decode(&league)
+
+	// // ?? alternative to json.Decoder (using json.Unmarshal)
+	// buf := new(bytes.Buffer)
+	// buf.ReadFrom(source)
+	// err = json.Unmarshal(buf.Bytes(), &league)
+
+	if err != nil {
+		err = fmt.Errorf("problem parsing league, %v", err)
+	}
+
+	return
 }

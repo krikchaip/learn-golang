@@ -2,7 +2,6 @@ package store
 
 import (
 	"22-building-application/server"
-	"encoding/json"
 	"io"
 )
 
@@ -16,8 +15,6 @@ func NewFileSystemPlayerStore(source io.Reader) *FileSystemPlayerStore {
 }
 
 func (s *FileSystemPlayerStore) GetLeagueTable() (league []server.Player) {
-	// ** reads and parse from source directly
-	json.NewDecoder(s.source).Decode(&league)
-
-	return league
+	league, _ = server.NewLeague(s.source)
+	return
 }
