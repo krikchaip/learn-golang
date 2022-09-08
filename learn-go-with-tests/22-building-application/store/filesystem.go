@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 
@@ -18,6 +19,8 @@ type FileSystemPlayerStore struct {
 }
 
 func NewFileSystemPlayerStore(source *os.File) entity.PlayerStore {
+	initializeJSONFile(source)
+
 	tape := util.NewTape(source)
 
 	// initialize cache to improve performance
@@ -61,4 +64,19 @@ func (s *FileSystemPlayerStore) RecordWin(name string) {
 	}
 
 	s.db.Encode(s.cache)
+}
+
+func initializeJSONFile(file *os.File) {
+	file.Seek(0, io.SeekStart)
+	defer file.Seek(0, io.SeekStart)
+
+	info, err := file.Stat()
+
+	if err != nil {
+		panic(fmt.Errorf("problem getting file info from file %s, %v", file.Name(), err))
+	}
+
+	if info.Size() == 0 {
+		file.WriteString("[]")
+	}
 }
