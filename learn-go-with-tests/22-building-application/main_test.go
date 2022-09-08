@@ -7,6 +7,7 @@ import (
 	"sync"
 	"testing"
 
+	"22-building-application/entity"
 	"22-building-application/server"
 	"22-building-application/store"
 	util "22-building-application/util/testing"
@@ -36,7 +37,7 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 		sv.ServeHTTP(res, util.NewLeagueRequest())
 
 		got := util.ParseLeagueFromResponse(t, res.Body)
-		want := []server.Player{
+		want := []entity.Player{
 			{Name: player, Wins: 3},
 		}
 

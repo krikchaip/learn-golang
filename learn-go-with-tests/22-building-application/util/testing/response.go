@@ -4,16 +4,16 @@ import (
 	"bytes"
 	tt "testing"
 
-	"22-building-application/server"
+	"22-building-application/entity"
 )
 
 func ParseLeagueFromResponse(
 	t tt.TB,
 	body *bytes.Buffer,
-) (league []server.Player) {
+) (league []entity.Player) {
 	t.Helper()
 
-	league, err := server.NewLeague(body)
+	league, err := entity.NewLeague(body)
 
 	if err != nil {
 		t.Fatalf("Unable to parse response from server %q into slice of Player, '%v'", body, err)

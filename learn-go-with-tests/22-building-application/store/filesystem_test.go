@@ -4,7 +4,7 @@ import (
 	"io"
 	tt "testing"
 
-	"22-building-application/server"
+	"22-building-application/entity"
 	"22-building-application/store"
 	"22-building-application/util/testing"
 )
@@ -15,7 +15,7 @@ func TestFileSystemStore(t *tt.T) {
 		store := store.NewFileSystemPlayerStore(src)
 
 		got := store.GetLeagueTable()
-		want := []server.Player{
+		want := []entity.Player{
 			{Name: "Cleo", Wins: 10},
 			{Name: "Chris", Wins: 33},
 		}
@@ -31,7 +31,7 @@ func TestFileSystemStore(t *tt.T) {
 		store.GetLeagueTable()
 
 		got := store.GetLeagueTable()
-		want := []server.Player{
+		want := []entity.Player{
 			{Name: "Cleo", Wins: 10},
 			{Name: "Chris", Wins: 33},
 		}

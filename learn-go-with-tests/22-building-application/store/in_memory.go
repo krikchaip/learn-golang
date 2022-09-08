@@ -3,7 +3,7 @@ package store
 import (
 	"sync"
 
-	"22-building-application/server"
+	"22-building-application/entity"
 )
 
 // implements: server.PlayerStore
@@ -12,7 +12,7 @@ type InMemoryPlayerStore struct {
 	mut   sync.Mutex
 }
 
-func NewInMemoryPlayerStore() server.PlayerStore {
+func NewInMemoryPlayerStore() entity.PlayerStore {
 	return &InMemoryPlayerStore{
 		store: make(map[string]int),
 	}
@@ -29,9 +29,9 @@ func (s *InMemoryPlayerStore) RecordWin(name string) {
 	s.store[name]++
 }
 
-func (s *InMemoryPlayerStore) GetLeagueTable() (league []server.Player) {
+func (s *InMemoryPlayerStore) GetLeagueTable() (league entity.League) {
 	for k, v := range s.store {
-		league = append(league, server.Player{Name: k, Wins: v})
+		league = append(league, entity.Player{Name: k, Wins: v})
 	}
 
 	return

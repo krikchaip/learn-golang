@@ -3,25 +3,15 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
+
+	"22-building-application/entity"
 )
-
-type Player struct {
-	Name string
-	Wins int
-}
-
-type PlayerStore interface {
-	GetPlayerScore(name string) int
-	GetLeagueTable() []Player
-	RecordWin(name string)
-}
 
 // implements: http.Handler
 type PlayerServer struct {
-	store PlayerStore
+	store entity.PlayerStore
 
 	// ** interface embedding (like `implements IFoo` in other languages)
 	http.Handler
@@ -30,7 +20,7 @@ type PlayerServer struct {
 	// router *http.ServeMux
 }
 
-func NewPlayerServer(store PlayerStore) *PlayerServer {
+func NewPlayerServer(store entity.PlayerStore) *PlayerServer {
 	// this also implements http.Handler
 	router := http.NewServeMux()
 
@@ -85,20 +75,4 @@ func (s *PlayerServer) showScore(w http.ResponseWriter, player string) {
 func (s *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	s.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
-}
-
-func NewLeague(source io.Reader) (league []Player, err error) {
-	// ** reads and parse from source directly
-	err = json.NewDecoder(source).Decode(&league)
-
-	// // ?? alternative to json.Decoder (using json.Unmarshal)
-	// buf := new(bytes.Buffer)
-	// buf.ReadFrom(source)
-	// err = json.Unmarshal(buf.Bytes(), &league)
-
-	if err != nil {
-		err = fmt.Errorf("problem parsing league, %v", err)
-	}
-
-	return
 }

@@ -1,7 +1,7 @@
 package store
 
 import (
-	"22-building-application/server"
+	"22-building-application/entity"
 	"encoding/json"
 	"io"
 )
@@ -11,7 +11,7 @@ type FileSystemPlayerStore struct {
 	source io.ReadWriteSeeker
 }
 
-func NewFileSystemPlayerStore(source io.ReadWriteSeeker) server.PlayerStore {
+func NewFileSystemPlayerStore(source io.ReadWriteSeeker) entity.PlayerStore {
 	return &FileSystemPlayerStore{source}
 }
 
@@ -25,9 +25,9 @@ func (s *FileSystemPlayerStore) GetPlayerScore(name string) int {
 	return 0
 }
 
-func (s *FileSystemPlayerStore) GetLeagueTable() (league []server.Player) {
+func (s *FileSystemPlayerStore) GetLeagueTable() (league entity.League) {
 	s.source.Seek(0, io.SeekStart)
-	league, _ = server.NewLeague(s.source)
+	league, _ = entity.NewLeague(s.source)
 	return
 }
 

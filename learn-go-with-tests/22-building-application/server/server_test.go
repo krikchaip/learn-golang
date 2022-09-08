@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"22-building-application/entity"
 	server "22-building-application/server"
 	util "22-building-application/util/testing"
 )
@@ -82,10 +83,10 @@ func TestLeague(t *testing.T) {
 	})
 
 	t.Run("it returns the league table as JSON", func(t *testing.T) {
-		wantedLeague := []server.Player{
-			{"Cleo", 32},
-			{"Chris", 20},
-			{"Tiest", 14},
+		wantedLeague := entity.League{
+			{Name: "Cleo", Wins: 32},
+			{Name: "Chris", Wins: 20},
+			{Name: "Tiest", Wins: 14},
 		}
 
 		store := StubPlayerStore{league: wantedLeague}
@@ -107,7 +108,7 @@ func TestLeague(t *testing.T) {
 type StubPlayerStore struct {
 	scores   map[string]int
 	winCalls []string
-	league   []server.Player
+	league   entity.League
 }
 
 func (s *StubPlayerStore) GetPlayerScore(name string) int {
@@ -115,7 +116,7 @@ func (s *StubPlayerStore) GetPlayerScore(name string) int {
 	return score
 }
 
-func (s *StubPlayerStore) GetLeagueTable() []server.Player {
+func (s *StubPlayerStore) GetLeagueTable() entity.League {
 	return s.league
 }
 
