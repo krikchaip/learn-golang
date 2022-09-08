@@ -16,8 +16,8 @@ func TestFileSystemStore(t *tt.T) {
 
 		got := store.GetLeagueTable()
 		want := []entity.Player{
-			{Name: "Cleo", Wins: 10},
 			{Name: "Chris", Wins: 33},
+			{Name: "Cleo", Wins: 10},
 		}
 
 		testing.AssertLeagueTable(t, got, want)
@@ -32,8 +32,8 @@ func TestFileSystemStore(t *tt.T) {
 
 		got := store.GetLeagueTable()
 		want := []entity.Player{
-			{Name: "Cleo", Wins: 10},
 			{Name: "Chris", Wins: 33},
+			{Name: "Cleo", Wins: 10},
 		}
 
 		testing.AssertLeagueTable(t, got, want)
@@ -72,25 +72,62 @@ func TestFileSystemStore(t *tt.T) {
 
 		testing.AssertScoreEquals(t, got, want)
 	})
+
+	t.Run("league sorted", func(t *tt.T) {
+		src := setupSource(t, withContent(`[
+			{"Name": "Cleo", "Wins": 10},
+			{"Name": "Winner", "Wins": 100},
+			{"Name": "Chris", "Wins": 33}
+		]`))
+
+		store := store.NewFileSystemPlayerStore(src)
+
+		got := store.GetLeagueTable()
+		want := entity.League{
+			{Name: "Winner", Wins: 100},
+			{Name: "Chris", Wins: 33},
+			{Name: "Cleo", Wins: 10},
+		}
+
+		testing.AssertLeagueTable(t, got, want)
+
+		// read again
+		got = store.GetLeagueTable()
+		testing.AssertLeagueTable(t, got, want)
+	})
 }
 
-func setupSource(t tt.TB) (src *os.File) {
+type setupOption struct{ content string }
+
+func setupSource(t tt.TB, options ...func(*setupOption)) (src *os.File) {
 	t.Helper()
 
+	opts := setupOption{
+		content: `[
+			{ "Name": "Cleo",  "Wins": 10 },
+			{ "Name": "Chris", "Wins": 33 }
+		]`,
+	}
+
+	// apply options
+	for _, fn := range options {
+		fn(&opts)
+	}
+
 	// // ?? does not implement io.Writer() (only io.Reader, io.Seeker)
-	// src := strings.NewReader(`[
-	// 	{ "Name": "Cleo",  "Wins": 10 },
-	// 	{ "Name": "Chris", "Wins": 33 }
-	// ]`)
+	// src := strings.NewReader(opts.content)
 
 	// ?? os.File implements io.ReadWriteSeeker
-	src, cleanup := testing.CreateTempFile(t, `[
-		{ "Name": "Cleo",  "Wins": 10 },
-		{ "Name": "Chris", "Wins": 33 }
-	]`)
+	src, cleanup := testing.CreateTempFile(t, opts.content)
 
 	// ** don't forget to cleanup after tests
 	t.Cleanup(cleanup)
 
 	return
+}
+
+func withContent(content string) func(*setupOption) {
+	return func(so *setupOption) {
+		so.content = content
+	}
 }

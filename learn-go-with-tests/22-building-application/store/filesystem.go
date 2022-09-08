@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"sync"
 
 	"22-building-application/entity"
@@ -46,9 +47,13 @@ func (s *FileSystemPlayerStore) GetPlayerScore(name string) int {
 	return player.Wins
 }
 
-func (s *FileSystemPlayerStore) GetLeagueTable() (league entity.League) {
-	league = s.cache
-	return
+func (s *FileSystemPlayerStore) GetLeagueTable() entity.League {
+	// ** sorting a slice using "sort" package
+	sort.Slice(s.cache, func(i, j int) bool {
+		return s.cache[i].Wins > s.cache[j].Wins
+	})
+
+	return s.cache
 }
 
 func (s *FileSystemPlayerStore) RecordWin(name string) {
