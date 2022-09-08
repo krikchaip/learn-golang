@@ -41,4 +41,13 @@ func TestFileSystemStore(t *tt.T) {
 
 		testing.AssertLeagueTable(t, got, want)
 	})
+
+	t.Run("get player score", func(t *tt.T) {
+		store := store.NewFileSystemPlayerStore(src)
+
+		got := store.GetPlayerScore("Chris")
+		want := 33
+
+		testing.AssertScoreEquals(t, got, want)
+	})
 }

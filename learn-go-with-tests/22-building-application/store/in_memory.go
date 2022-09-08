@@ -12,7 +12,7 @@ type InMemoryPlayerStore struct {
 	mut   sync.Mutex
 }
 
-func NewInMemoryPlayerStore() *InMemoryPlayerStore {
+func NewInMemoryPlayerStore() server.PlayerStore {
 	return &InMemoryPlayerStore{
 		store: make(map[string]int),
 	}

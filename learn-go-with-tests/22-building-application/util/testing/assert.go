@@ -36,3 +36,10 @@ func AssertLeagueTable(t tt.TB, got, want []server.Player) {
 		t.Errorf("got %v want %v", got, want)
 	}
 }
+
+func AssertScoreEquals(t tt.TB, got, want int) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got %d want %d", got, want)
+	}
+}
