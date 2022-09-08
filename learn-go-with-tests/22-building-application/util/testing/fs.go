@@ -1,13 +1,12 @@
 package testing
 
 import (
-	"io"
 	"os"
 	tt "testing"
 )
 
 func CreateTempFile(t tt.TB, content string) (
-	file io.ReadWriteSeeker,
+	file *os.File,
 	removeFile func(),
 ) {
 	t.Helper()

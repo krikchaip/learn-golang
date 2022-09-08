@@ -1,7 +1,7 @@
 package store_test
 
 import (
-	"io"
+	"os"
 	tt "testing"
 
 	"22-building-application/entity"
@@ -74,7 +74,7 @@ func TestFileSystemStore(t *tt.T) {
 	})
 }
 
-func setupSource(t tt.TB) (src io.ReadWriteSeeker) {
+func setupSource(t tt.TB) (src *os.File) {
 	t.Helper()
 
 	// // ?? does not implement io.Writer() (only io.Reader, io.Seeker)

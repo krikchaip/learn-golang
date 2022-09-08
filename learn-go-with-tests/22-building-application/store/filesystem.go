@@ -1,28 +1,30 @@
 package store
 
 import (
-	"22-building-application/entity"
 	"encoding/json"
-	"io"
+	"os"
 	"sync"
+
+	"22-building-application/entity"
+	"22-building-application/util"
 )
 
 // implements: server.PlayerStore
 type FileSystemPlayerStore struct {
-	source io.ReadWriteSeeker
-	cache  entity.League
-	mut    sync.Mutex
+	db    *json.Encoder
+	cache entity.League
+	mut   sync.Mutex
 }
 
-func NewFileSystemPlayerStore(source io.ReadWriteSeeker) entity.PlayerStore {
-	source.Seek(0, io.SeekStart)
+func NewFileSystemPlayerStore(source *os.File) entity.PlayerStore {
+	tape := util.NewTape(source)
 
 	// initialize cache to improve performance
-	cache, _ := entity.NewLeague(source)
+	cache, _ := entity.NewLeague(tape)
 
 	return &FileSystemPlayerStore{
-		source: source,
-		cache:  cache,
+		db:    json.NewEncoder(tape),
+		cache: cache,
 	}
 }
 
@@ -53,9 +55,5 @@ func (s *FileSystemPlayerStore) RecordWin(name string) {
 		s.cache = append(s.cache, entity.Player{Name: name, Wins: 1})
 	}
 
-	// because the file cursor has already reached the end
-	// from calling s.GetLeagueTable()
-	s.source.Seek(0, io.SeekStart)
-
-	json.NewEncoder(s.source).Encode(s.cache)
+	s.db.Encode(s.cache)
 }
