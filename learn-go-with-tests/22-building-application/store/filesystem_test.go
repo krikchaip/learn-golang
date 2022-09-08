@@ -1,6 +1,7 @@
 package store_test
 
 import (
+	"io"
 	tt "testing"
 
 	"22-building-application/server"
@@ -9,22 +10,8 @@ import (
 )
 
 func TestFileSystemStore(t *tt.T) {
-	// // ?? does not implement io.Writer() (only io.Reader, io.Seeker)
-	// src := strings.NewReader(`[
-	// 	{ "Name": "Cleo",  "Wins": 10 },
-	// 	{ "Name": "Chris", "Wins": 33 }
-	// ]`)
-
-	// ?? os.File implements io.ReadWriteSeeker
-	src, cleanup := testing.CreateTempFile(t, `[
-		{ "Name": "Cleo",  "Wins": 10 },
-		{ "Name": "Chris", "Wins": 33 }
-	]`)
-
-	// ** don't forget to cleanup after tests
-	t.Cleanup(cleanup)
-
 	t.Run("league from a reader", func(t *tt.T) {
+		src := setupSource(t)
 		store := store.NewFileSystemPlayerStore(src)
 
 		got := store.GetLeagueTable()
@@ -37,6 +24,7 @@ func TestFileSystemStore(t *tt.T) {
 	})
 
 	t.Run("return the same result on second call", func(t *tt.T) {
+		src := setupSource(t)
 		store := store.NewFileSystemPlayerStore(src)
 
 		// first time calling
@@ -52,6 +40,7 @@ func TestFileSystemStore(t *tt.T) {
 	})
 
 	t.Run("get player score", func(t *tt.T) {
+		src := setupSource(t)
 		store := store.NewFileSystemPlayerStore(src)
 
 		got := store.GetPlayerScore("Chris")
@@ -59,4 +48,37 @@ func TestFileSystemStore(t *tt.T) {
 
 		testing.AssertScoreEquals(t, got, want)
 	})
+
+	t.Run("store wins for existing players", func(t *tt.T) {
+		src := setupSource(t)
+		store := store.NewFileSystemPlayerStore(src)
+
+		store.RecordWin("Chris")
+
+		got := store.GetPlayerScore("Chris")
+		want := 34
+
+		testing.AssertScoreEquals(t, got, want)
+	})
+}
+
+func setupSource(t tt.TB) (src io.ReadWriteSeeker) {
+	t.Helper()
+
+	// // ?? does not implement io.Writer() (only io.Reader, io.Seeker)
+	// src := strings.NewReader(`[
+	// 	{ "Name": "Cleo",  "Wins": 10 },
+	// 	{ "Name": "Chris", "Wins": 33 }
+	// ]`)
+
+	// ?? os.File implements io.ReadWriteSeeker
+	src, cleanup := testing.CreateTempFile(t, `[
+		{ "Name": "Cleo",  "Wins": 10 },
+		{ "Name": "Chris", "Wins": 33 }
+	]`)
+
+	// ** don't forget to cleanup after tests
+	t.Cleanup(cleanup)
+
+	return
 }

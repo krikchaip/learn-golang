@@ -2,6 +2,7 @@ package store
 
 import (
 	"22-building-application/server"
+	"encoding/json"
 	"io"
 )
 
@@ -30,7 +31,24 @@ func (s *FileSystemPlayerStore) GetLeagueTable() (league []server.Player) {
 	return
 }
 
-// TODO: use io.Writer to do something
 func (s *FileSystemPlayerStore) RecordWin(name string) {
-	// s.source.Write()
+	league := s.GetLeagueTable()
+
+	for i, p := range league {
+		if name == p.Name {
+			// ** this will not work because when you `range` over a slice
+			// ** you are returned a COPY OF AN ELEMENT at the current index.
+			// p.Wins++
+
+			// ** For that reason, we need to get the reference of the actual value
+			// ** and then changing that value instead.
+			league[i].Wins++
+		}
+	}
+
+	// because the file cursor has already reached the end
+	// from calling s.GetLeagueTable()
+	s.source.Seek(0, io.SeekStart)
+
+	json.NewEncoder(s.source).Encode(league)
 }
