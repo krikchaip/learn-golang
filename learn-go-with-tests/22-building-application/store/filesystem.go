@@ -7,10 +7,10 @@ import (
 
 // implements: server.PlayerStore
 type FileSystemPlayerStore struct {
-	source io.ReadSeeker
+	source io.ReadWriteSeeker
 }
 
-func NewFileSystemPlayerStore(source io.ReadSeeker) server.PlayerStore {
+func NewFileSystemPlayerStore(source io.ReadWriteSeeker) server.PlayerStore {
 	return &FileSystemPlayerStore{source}
 }
 
@@ -30,6 +30,7 @@ func (s *FileSystemPlayerStore) GetLeagueTable() (league []server.Player) {
 	return
 }
 
+// TODO: use io.Writer to do something
 func (s *FileSystemPlayerStore) RecordWin(name string) {
-
+	// s.source.Write()
 }

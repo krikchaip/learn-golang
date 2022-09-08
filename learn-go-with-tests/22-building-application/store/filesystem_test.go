@@ -1,7 +1,6 @@
 package store_test
 
 import (
-	"strings"
 	tt "testing"
 
 	"22-building-application/server"
@@ -10,10 +9,20 @@ import (
 )
 
 func TestFileSystemStore(t *tt.T) {
-	src := strings.NewReader(`[
+	// // ?? does not implement io.Writer() (only io.Reader, io.Seeker)
+	// src := strings.NewReader(`[
+	// 	{ "Name": "Cleo",  "Wins": 10 },
+	// 	{ "Name": "Chris", "Wins": 33 }
+	// ]`)
+
+	// ?? os.File implements io.ReadWriteSeeker
+	src, cleanup := testing.CreateTempFile(t, `[
 		{ "Name": "Cleo",  "Wins": 10 },
 		{ "Name": "Chris", "Wins": 33 }
 	]`)
+
+	// ** don't forget to cleanup after tests
+	t.Cleanup(cleanup)
 
 	t.Run("league from a reader", func(t *tt.T) {
 		store := store.NewFileSystemPlayerStore(src)
