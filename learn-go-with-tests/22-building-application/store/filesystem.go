@@ -16,13 +16,13 @@ func NewFileSystemPlayerStore(source io.ReadWriteSeeker) entity.PlayerStore {
 }
 
 func (s *FileSystemPlayerStore) GetPlayerScore(name string) int {
-	for _, p := range s.GetLeagueTable() {
-		if name == p.Name {
-			return p.Wins
-		}
+	player := s.GetLeagueTable().Find(name)
+
+	if player == nil {
+		return 0
 	}
 
-	return 0
+	return player.Wins
 }
 
 func (s *FileSystemPlayerStore) GetLeagueTable() (league entity.League) {
@@ -33,17 +33,10 @@ func (s *FileSystemPlayerStore) GetLeagueTable() (league entity.League) {
 
 func (s *FileSystemPlayerStore) RecordWin(name string) {
 	league := s.GetLeagueTable()
+	player := league.Find(name)
 
-	for i, p := range league {
-		if name == p.Name {
-			// ** this will not work because when you `range` over a slice
-			// ** you are returned a COPY OF AN ELEMENT at the current index.
-			// p.Wins++
-
-			// ** For that reason, we need to get the reference of the actual value
-			// ** and then changing that value instead.
-			league[i].Wins++
-		}
+	if player != nil {
+		player.Wins++
 	}
 
 	// because the file cursor has already reached the end
