@@ -8,8 +8,8 @@ import (
 	"runtime"
 
 	"21-acceptance-testing/lib/util"
+	"22-building-application/controller/server"
 	"22-building-application/entity"
-	"22-building-application/server"
 	"22-building-application/store"
 )
 

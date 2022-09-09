@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
+	server "22-building-application/controller/server"
 	"22-building-application/entity"
-	server "22-building-application/server"
 	util "22-building-application/util/testing"
 )
 
