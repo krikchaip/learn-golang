@@ -12,11 +12,11 @@ import (
 )
 
 func TestGETPlayers(t *testing.T) {
-	store := StubPlayerStore{scores: map[string]int{
+	store := util.NewStubPlayerStore(util.WithScores(map[string]int{
 		"Pepper": 20,
 		"Floyd":  10,
-	}}
-	sv := server.NewPlayerServer(&store)
+	}))
+	sv := server.NewPlayerServer(store)
 
 	t.Run("returns Pepper's score", func(t *testing.T) {
 		req := util.NewScoreRequest("Pepper")
@@ -49,8 +49,8 @@ func TestGETPlayers(t *testing.T) {
 }
 
 func TestStoreWins(t *testing.T) {
-	store := StubPlayerStore{scores: map[string]int{}}
-	sv := server.NewPlayerServer(&store)
+	store := util.NewStubPlayerStore()
+	sv := server.NewPlayerServer(store)
 
 	t.Run("it returns accepted on POST", func(t *testing.T) {
 		req := util.NewPostWinRequest("Pepper")
@@ -60,7 +60,7 @@ func TestStoreWins(t *testing.T) {
 
 		util.AssertStatus(t, res.Code, http.StatusAccepted)
 
-		got := store.winCalls
+		got := store.GetWinCalls()
 		want := []string{"Pepper"}
 
 		if !reflect.DeepEqual(got, want) {
@@ -71,8 +71,8 @@ func TestStoreWins(t *testing.T) {
 
 func TestLeague(t *testing.T) {
 	t.Run("it returns 200 on /league", func(t *testing.T) {
-		store := StubPlayerStore{}
-		sv := server.NewPlayerServer(&store)
+		store := util.NewStubPlayerStore()
+		sv := server.NewPlayerServer(store)
 
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
@@ -89,8 +89,8 @@ func TestLeague(t *testing.T) {
 			{Name: "Tiest", Wins: 14},
 		}
 
-		store := StubPlayerStore{league: wantedLeague}
-		sv := server.NewPlayerServer(&store)
+		store := util.NewStubPlayerStore(util.WithLeague(wantedLeague))
+		sv := server.NewPlayerServer(store)
 
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
@@ -102,24 +102,4 @@ func TestLeague(t *testing.T) {
 		util.AssertLeagueTable(t, got, wantedLeague)
 		util.AssertContentJSON(t, res.Result().Header)
 	})
-}
-
-// implements: server.PlayerStore
-type StubPlayerStore struct {
-	scores   map[string]int
-	winCalls []string
-	league   entity.League
-}
-
-func (s *StubPlayerStore) GetPlayerScore(name string) int {
-	score := s.scores[name]
-	return score
-}
-
-func (s *StubPlayerStore) GetLeagueTable() entity.League {
-	return s.league
-}
-
-func (s *StubPlayerStore) RecordWin(name string) {
-	s.winCalls = append(s.winCalls, name)
 }
