@@ -15,8 +15,8 @@ import (
 
 const DB_SOURCE = "assets/game.db.json"
 
-// go run 22-building-application OR
-// cd 22-building-application && go run .
+// go run 22-building-application/cmd/webserver OR
+// cd 22-building-application/cmd/webserver && go run .
 func main() {
 	st := setupStore()
 	sv := server.NewPlayerServer(st)

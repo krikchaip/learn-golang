@@ -55,3 +55,10 @@ func AssertNoPanic(t tt.TB, f func()) {
 
 	f()
 }
+
+func AssertPlayerWin(t tt.TB, got, want []string) {
+	t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("didn't record correct winner, got %v, want %v", got, want)
+	}
+}
