@@ -14,8 +14,9 @@ func main() {
 	fmt.Println("Let's play poker!")
 	fmt.Println(`Type "{Name} wins" to record a win`)
 
-	st := store.SetupFileSystemStore()
-	program := cli.NewPlayerCLI(st, os.Stdin)
+	st, close := store.SetupFileSystemStore()
+	defer close()
 
+	program := cli.NewPlayerCLI(st, os.Stdin)
 	program.PlayPoker()
 }

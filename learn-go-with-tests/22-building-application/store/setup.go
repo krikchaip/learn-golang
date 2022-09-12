@@ -14,7 +14,7 @@ const (
 	DB_SOURCE = "assets/game.db.json"
 )
 
-func SetupFileSystemStore() entity.PlayerStore {
+func SetupFileSystemStore() (store entity.PlayerStore, close func()) {
 	// store := NewInMemoryPlayerStore()
 
 	sourceName := resolvePath(DB_SOURCE)
@@ -25,9 +25,10 @@ func SetupFileSystemStore() entity.PlayerStore {
 		log.Fatalf("problem opening %s %v", sourceName, err)
 	}
 
-	store := NewFileSystemPlayerStore(source)
+	store = NewFileSystemPlayerStore(source)
+	close = func() { source.Close() }
 
-	return store
+	return
 }
 
 func resolvePath(rel string) string {

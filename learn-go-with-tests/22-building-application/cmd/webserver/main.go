@@ -13,7 +13,9 @@ const DB_SOURCE = "assets/game.db.json"
 // go run 22-building-application/cmd/webserver OR
 // cd 22-building-application/cmd/webserver && go run .
 func main() {
-	st := store.SetupFileSystemStore()
+	st, close := store.SetupFileSystemStore()
+	defer close()
+
 	sv := server.NewPlayerServer(st)
 
 	// we wrap the call in log.Fatal
