@@ -8,23 +8,26 @@ import (
 )
 
 type CLI struct {
-	store entity.PlayerStore
-	in    io.Reader
+	store   entity.PlayerStore
+	scanner *bufio.Scanner
 }
 
 func NewPlayerCLI(store entity.PlayerStore, in io.Reader) *CLI {
-	return &CLI{store, in}
+	return &CLI{store, bufio.NewScanner(in)}
 }
 
 func (c *CLI) PlayPoker() {
-	scanner := bufio.NewScanner(c.in)
-
-	scanner.Scan()
-	name, ok := extractWinner(scanner.Text())
+	input := c.readLine()
+	name, ok := extractWinner(input)
 
 	if ok {
 		c.store.RecordWin(name)
 	}
+}
+
+func (c *CLI) readLine() string {
+	c.scanner.Scan()
+	return c.scanner.Text()
 }
 
 func extractWinner(input string) (winner string, ok bool) {
