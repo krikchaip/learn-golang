@@ -15,10 +15,10 @@ func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
 
 // implements: Stringer
 type ScheduleAlert struct {
-	Duration time.Duration // will forward this field to timer.AfterFunc()
-	Amount   int
+	At     time.Duration // will forward this field to timer.AfterFunc()
+	Amount int
 }
 
 func (s ScheduleAlert) String() string {
-	return fmt.Sprintf("%d chips at %v", s.Amount, s.Duration)
+	return fmt.Sprintf("%d chips at %v", s.Amount, s.At)
 }

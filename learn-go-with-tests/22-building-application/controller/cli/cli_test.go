@@ -44,17 +44,17 @@ func TestCLI(t *testing.T) {
 		program.PlayPoker()
 
 		cases := []testutil.ScheduleAlert{
-			{Duration: 0 * time.Second, Amount: 100},
-			{Duration: 10 * time.Minute, Amount: 200},
-			{Duration: 20 * time.Minute, Amount: 300},
-			{Duration: 30 * time.Minute, Amount: 400},
-			{Duration: 40 * time.Minute, Amount: 500},
-			{Duration: 50 * time.Minute, Amount: 600},
-			{Duration: 60 * time.Minute, Amount: 800},
-			{Duration: 70 * time.Minute, Amount: 1000},
-			{Duration: 80 * time.Minute, Amount: 2000},
-			{Duration: 90 * time.Minute, Amount: 4000},
-			{Duration: 100 * time.Minute, Amount: 8000},
+			{At: 0 * time.Second, Amount: 100},
+			{At: 10 * time.Minute, Amount: 200},
+			{At: 20 * time.Minute, Amount: 300},
+			{At: 30 * time.Minute, Amount: 400},
+			{At: 40 * time.Minute, Amount: 500},
+			{At: 50 * time.Minute, Amount: 600},
+			{At: 60 * time.Minute, Amount: 800},
+			{At: 70 * time.Minute, Amount: 1000},
+			{At: 80 * time.Minute, Amount: 2000},
+			{At: 90 * time.Minute, Amount: 4000},
+			{At: 100 * time.Minute, Amount: 8000},
 		}
 
 		for i, want := range cases {

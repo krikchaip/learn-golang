@@ -69,7 +69,7 @@ func AssertScheduledAlert(t tt.TB, got, want ScheduleAlert) {
 		t.Errorf("got amount %d, want %d", got.Amount, want.Amount)
 	}
 
-	if got.Duration != want.Duration {
-		t.Errorf("got scheduled time of %v, want %v", got.Duration, want.Duration)
+	if got.At != want.At {
+		t.Errorf("got scheduled time of %v, want %v", got.At, want.At)
 	}
 }
