@@ -62,3 +62,14 @@ func AssertPlayerWin(t tt.TB, got, want []string) {
 		t.Errorf("didn't record correct winner, got %v, want %v", got, want)
 	}
 }
+
+func AssertScheduledAlert(t tt.TB, got, want ScheduleAlert) {
+	t.Helper()
+	if got.Amount != want.Amount {
+		t.Errorf("got amount %d, want %d", got.Amount, want.Amount)
+	}
+
+	if got.Duration != want.Duration {
+		t.Errorf("got scheduled time of %v, want %v", got.Duration, want.Duration)
+	}
+}

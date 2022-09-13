@@ -1,17 +1,24 @@
 package testing
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type SpyBlindAlerter struct {
-	Alerts []struct {
-		duration time.Duration // will forward this field to timer.AfterFunc()
-		amount   int
-	}
+	Alerts []ScheduleAlert
 }
 
 func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
-	s.Alerts = append(s.Alerts, struct {
-		duration time.Duration
-		amount   int
-	}{duration, amount})
+	s.Alerts = append(s.Alerts, ScheduleAlert{duration, amount})
+}
+
+// implements: Stringer
+type ScheduleAlert struct {
+	Duration time.Duration // will forward this field to timer.AfterFunc()
+	Amount   int
+}
+
+func (s ScheduleAlert) String() string {
+	return fmt.Sprintf("%d chips at %v", s.Amount, s.Duration)
 }
