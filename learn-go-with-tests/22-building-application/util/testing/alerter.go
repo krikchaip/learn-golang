@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// implements: entity.BlindAlerter
 type SpyBlindAlerter struct {
 	Alerts []ScheduleAlert
 }

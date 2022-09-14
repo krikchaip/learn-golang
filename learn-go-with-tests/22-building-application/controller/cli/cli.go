@@ -8,20 +8,16 @@ import (
 	"time"
 )
 
-type BlindAlerter interface {
-	ScheduleAlertAt(duration time.Duration, amount int)
-}
-
 type CLI struct {
 	store   entity.PlayerStore
 	scanner *bufio.Scanner
-	alerter BlindAlerter
+	alerter entity.BlindAlerter
 }
 
 func NewPlayerCLI(
 	store entity.PlayerStore,
 	in io.Reader,
-	alerter BlindAlerter,
+	alerter entity.BlindAlerter,
 ) *CLI {
 	return &CLI{
 		store,
