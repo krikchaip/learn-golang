@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"22-building-application/controller/cli"
+	"22-building-application/entity"
 	"22-building-application/store"
 )
 
@@ -17,6 +18,6 @@ func main() {
 	st, close := store.SetupFileSystemStore()
 	defer close()
 
-	program := cli.NewPlayerCLI(st, os.Stdin)
+	program := cli.NewPlayerCLI(st, os.Stdin, entity.StdOutAlerter)
 	program.PlayPoker()
 }
