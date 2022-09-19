@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -12,35 +13,36 @@ import (
 
 var (
 	dummySpyAlerter = &testutil.SpyBlindAlerter{}
+	dummySpyWriter  = &bytes.Buffer{}
 )
 
 func TestCLI(t *testing.T) {
 	t.Run("record Chris win from user input", func(t *testing.T) {
-		in := strings.NewReader("Chris wins\n")
 		store := testutil.NewStubPlayerStore()
+		in := strings.NewReader("Chris wins\n")
 
-		program := cli.NewPlayerCLI(store, in, dummySpyAlerter)
+		program := cli.NewPlayerCLI(store, in, dummySpyWriter, dummySpyAlerter)
 		program.PlayPoker()
 
 		testutil.AssertPlayerWin(t, store.GetWinCalls(), []string{"Chris"})
 	})
 
 	t.Run("record Cleo win from user input", func(t *testing.T) {
-		in := strings.NewReader("Cleo wins\n")
 		store := testutil.NewStubPlayerStore()
+		in := strings.NewReader("Cleo wins\n")
 
-		program := cli.NewPlayerCLI(store, in, dummySpyAlerter)
+		program := cli.NewPlayerCLI(store, in, dummySpyWriter, dummySpyAlerter)
 		program.PlayPoker()
 
 		testutil.AssertPlayerWin(t, store.GetWinCalls(), []string{"Cleo"})
 	})
 
 	t.Run("it schedules printing of blind values", func(t *testing.T) {
-		in := strings.NewReader("Chris wins\n")
 		store := testutil.NewStubPlayerStore()
+		in := strings.NewReader("Chris wins\n")
 		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, blindAlerter)
+		program := cli.NewPlayerCLI(store, in, dummySpyWriter, blindAlerter)
 		program.PlayPoker()
 
 		cases := []testutil.ScheduleAlert{
@@ -67,6 +69,23 @@ func TestCLI(t *testing.T) {
 				got := blindAlerter.Alerts[i]
 				testutil.AssertScheduledAlert(t, got, want)
 			})
+		}
+	})
+
+	t.Run("it prompts the user to enter the number of players", func(t *testing.T) {
+		store := testutil.NewStubPlayerStore()
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+		blindAlerter := &testutil.SpyBlindAlerter{}
+
+		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
+		program.PlayPoker()
+
+		got := out.String()
+		want := cli.PlayerPrompt
+
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
 		}
 	})
 }
