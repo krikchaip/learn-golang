@@ -18,6 +18,6 @@ func main() {
 	st, close := store.SetupFileSystemStore()
 	defer close()
 
-	program := cli.NewPlayerCLI(st, os.Stdin, entity.StdOutAlerter)
+	program := cli.NewPlayerCLI(st, os.Stdin, os.Stdout, entity.StdOutAlerter)
 	program.PlayPoker()
 }
