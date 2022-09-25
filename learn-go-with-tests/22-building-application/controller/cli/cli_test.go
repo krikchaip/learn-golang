@@ -11,17 +11,14 @@ import (
 	testutil "22-building-application/util/testing"
 )
 
-var (
-	dummySpyAlerter = &testutil.SpyBlindAlerter{}
-	dummySpyWriter  = &bytes.Buffer{}
-)
-
 func TestCLI(t *testing.T) {
 	t.Run("record Chris win from user input", func(t *testing.T) {
 		store := testutil.NewStubPlayerStore()
-		in := strings.NewReader("Chris wins\n")
+		in := strings.NewReader("5\nChris wins\n")
+		out := &bytes.Buffer{}
+		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, dummySpyWriter, dummySpyAlerter)
+		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
 		program.PlayPoker()
 
 		testutil.AssertPlayerWin(t, store.GetWinCalls(), []string{"Chris"})
@@ -29,9 +26,11 @@ func TestCLI(t *testing.T) {
 
 	t.Run("record Cleo win from user input", func(t *testing.T) {
 		store := testutil.NewStubPlayerStore()
-		in := strings.NewReader("Cleo wins\n")
+		in := strings.NewReader("5\nCleo wins\n")
+		out := &bytes.Buffer{}
+		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, dummySpyWriter, dummySpyAlerter)
+		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
 		program.PlayPoker()
 
 		testutil.AssertPlayerWin(t, store.GetWinCalls(), []string{"Cleo"})
@@ -39,10 +38,11 @@ func TestCLI(t *testing.T) {
 
 	t.Run("it schedules printing of blind values", func(t *testing.T) {
 		store := testutil.NewStubPlayerStore()
-		in := strings.NewReader("Chris wins\n")
+		in := strings.NewReader("5\nChris wins\n")
+		out := &bytes.Buffer{}
 		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, dummySpyWriter, blindAlerter)
+		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
 		program.PlayPoker()
 
 		cases := []testutil.ScheduleAlert{
