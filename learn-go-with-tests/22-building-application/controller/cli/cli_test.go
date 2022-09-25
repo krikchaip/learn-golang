@@ -41,5 +41,12 @@ func TestCLI(t *testing.T) {
 		if game.StartCalled {
 			t.Error("game should not have started")
 		}
+
+		gotPrompt := out.String()
+		wantPrompt := cli.PlayerPrompt + cli.BadPlayerInputErrMsg
+
+		if gotPrompt != wantPrompt {
+			t.Errorf("got %q want %q", gotPrompt, wantPrompt)
+		}
 	})
 }
