@@ -8,41 +8,48 @@ import (
 	"time"
 
 	"22-building-application/controller/cli"
+	"22-building-application/entity"
 	testutil "22-building-application/util/testing"
 )
 
 func TestCLI(t *testing.T) {
 	t.Run("record Chris win from user input", func(t *testing.T) {
-		store := testutil.NewStubPlayerStore()
-		in := strings.NewReader("5\nChris wins\n")
+		in := strings.NewReader("1\nChris wins\n")
 		out := &bytes.Buffer{}
-		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
+		alerter := &testutil.SpyBlindAlerter{}
+		store := testutil.NewStubPlayerStore()
+		game := entity.NewGame(alerter, store)
+
+		program := cli.NewPlayerCLI(in, out, game)
 		program.PlayPoker()
 
 		testutil.AssertPlayerWin(t, store.GetWinCalls(), []string{"Chris"})
 	})
 
 	t.Run("record Cleo win from user input", func(t *testing.T) {
-		store := testutil.NewStubPlayerStore()
-		in := strings.NewReader("5\nCleo wins\n")
+		in := strings.NewReader("1\nCleo wins\n")
 		out := &bytes.Buffer{}
-		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
+		alerter := &testutil.SpyBlindAlerter{}
+		store := testutil.NewStubPlayerStore()
+		game := entity.NewGame(alerter, store)
+
+		program := cli.NewPlayerCLI(in, out, game)
 		program.PlayPoker()
 
 		testutil.AssertPlayerWin(t, store.GetWinCalls(), []string{"Cleo"})
 	})
 
 	t.Run("it schedules printing of blind values", func(t *testing.T) {
-		store := testutil.NewStubPlayerStore()
 		in := strings.NewReader("5\nChris wins\n")
 		out := &bytes.Buffer{}
-		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
+		alerter := &testutil.SpyBlindAlerter{}
+		store := testutil.NewStubPlayerStore()
+		game := entity.NewGame(alerter, store)
+
+		program := cli.NewPlayerCLI(in, out, game)
 		program.PlayPoker()
 
 		cases := []testutil.ScheduleAlert{
@@ -62,23 +69,25 @@ func TestCLI(t *testing.T) {
 		for i, want := range cases {
 			t.Run(fmt.Sprint(want), func(t *testing.T) {
 				// this should always greater than the index
-				if len(blindAlerter.Alerts) <= i {
-					t.Fatalf("alert %d was not scheduled %v", i, blindAlerter.Alerts)
+				if len(alerter.Alerts) <= i {
+					t.Fatalf("alert %d was not scheduled %v", i, alerter.Alerts)
 				}
 
-				got := blindAlerter.Alerts[i]
+				got := alerter.Alerts[i]
 				testutil.AssertScheduledAlert(t, got, want)
 			})
 		}
 	})
 
 	t.Run("it prompts the user to enter the number of players", func(t *testing.T) {
-		store := testutil.NewStubPlayerStore()
 		in := strings.NewReader("7\n")
 		out := &bytes.Buffer{}
-		blindAlerter := &testutil.SpyBlindAlerter{}
 
-		program := cli.NewPlayerCLI(store, in, out, blindAlerter)
+		alerter := &testutil.SpyBlindAlerter{}
+		store := testutil.NewStubPlayerStore()
+		game := entity.NewGame(alerter, store)
+
+		program := cli.NewPlayerCLI(in, out, game)
 		program.PlayPoker()
 
 		got := out.String()
@@ -98,11 +107,11 @@ func TestCLI(t *testing.T) {
 		for i, want := range cases {
 			t.Run(fmt.Sprint(want), func(t *testing.T) {
 				// this should always greater than the index
-				if len(blindAlerter.Alerts) <= i {
-					t.Fatalf("alert %d was not scheduled %v", i, blindAlerter.Alerts)
+				if len(alerter.Alerts) <= i {
+					t.Fatalf("alert %d was not scheduled %v", i, alerter.Alerts)
 				}
 
-				got := blindAlerter.Alerts[i]
+				got := alerter.Alerts[i]
 				testutil.AssertScheduledAlert(t, got, want)
 			})
 		}

@@ -18,15 +18,14 @@ type CLI struct {
 }
 
 func NewPlayerCLI(
-	store entity.PlayerStore,
 	in io.Reader,
 	out io.Writer,
-	alerter entity.BlindAlerter,
+	game *entity.Game,
 ) *CLI {
 	return &CLI{
 		in:   bufio.NewScanner(in),
 		out:  out,
-		game: entity.NewGame(alerter, store),
+		game: game,
 	}
 }
 
