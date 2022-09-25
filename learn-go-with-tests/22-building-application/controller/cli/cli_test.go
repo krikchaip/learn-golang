@@ -18,16 +18,8 @@ func TestCLI(t *testing.T) {
 		program := cli.NewPlayerCLI(in, out, game)
 		program.PlayPoker()
 
-		gotPrompt := out.String()
-		wantPrompt := cli.PlayerPrompt
-
-		if gotPrompt != wantPrompt {
-			t.Errorf("got %q want %q", gotPrompt, wantPrompt)
-		}
-
-		if game.StartedWith != 7 {
-			t.Errorf("wanted Start called with 7 but got %d", game.StartedWith)
-		}
+		testutil.AssertMessagesSentToUser(t, out, cli.PlayerPrompt)
+		testutil.AssertGameStartedWith(t, game, 7)
 	})
 
 	t.Run("it prints an error when a non-numeric value is enterd and does not start the game", func(t *testing.T) {
@@ -38,15 +30,7 @@ func TestCLI(t *testing.T) {
 		program := cli.NewPlayerCLI(in, out, game)
 		program.PlayPoker()
 
-		if game.StartCalled {
-			t.Error("game should not have started")
-		}
-
-		gotPrompt := out.String()
-		wantPrompt := cli.PlayerPrompt + cli.BadPlayerInputErrMsg
-
-		if gotPrompt != wantPrompt {
-			t.Errorf("got %q want %q", gotPrompt, wantPrompt)
-		}
+		testutil.AssertGameNotStarted(t, game)
+		testutil.AssertMessagesSentToUser(t, out, cli.PlayerPrompt+cli.BadPlayerInputErrMsg)
 	})
 }

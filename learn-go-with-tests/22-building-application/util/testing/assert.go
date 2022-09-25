@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"reflect"
+	"strings"
 	tt "testing"
 
 	"22-building-application/entity"
@@ -71,5 +72,30 @@ func AssertScheduledAlert(t tt.TB, got, want ScheduleAlert) {
 
 	if got.At != want.At {
 		t.Errorf("got scheduled time of %v, want %v", got.At, want.At)
+	}
+}
+
+func AssertMessagesSentToUser(t tt.TB, out *bytes.Buffer, messages ...string) {
+	t.Helper()
+
+	got := out.String()
+	want := strings.Join(messages, "")
+
+	if got != want {
+		t.Errorf("got %q sent to stdout but expected %+v", got, messages)
+	}
+}
+
+func AssertGameStartedWith(t tt.TB, game *GameSpy, want int) {
+	t.Helper()
+	if game.StartedWith != want {
+		t.Errorf("wanted Start called with %d but got %d", want, game.StartedWith)
+	}
+}
+
+func AssertGameNotStarted(t tt.TB, game *GameSpy) {
+	t.Helper()
+	if game.StartCalled {
+		t.Error("game should not have started")
 	}
 }
