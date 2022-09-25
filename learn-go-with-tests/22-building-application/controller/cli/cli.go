@@ -31,7 +31,11 @@ func NewPlayerCLI(
 
 func (c *CLI) PlayPoker() {
 	fmt.Fprint(c.out, PlayerPrompt)
-	nPlayers, _ := strconv.Atoi(c.readLine())
+
+	nPlayers, err := strconv.Atoi(c.readLine())
+	if err != nil {
+		return
+	}
 
 	c.game.Start(nPlayers)
 
