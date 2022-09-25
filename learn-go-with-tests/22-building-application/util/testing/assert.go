@@ -93,6 +93,13 @@ func AssertGameStartedWith(t tt.TB, game *GameSpy, want int) {
 	}
 }
 
+func AssertFinishCalledWith(t tt.TB, game *GameSpy, want string) {
+	t.Helper()
+	if game.FinishedWith != want {
+		t.Errorf("wanted Finish called with %q but got %q", want, game.FinishedWith)
+	}
+}
+
 func AssertGameNotStarted(t tt.TB, game *GameSpy) {
 	t.Helper()
 	if game.StartCalled {
