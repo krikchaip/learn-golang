@@ -74,7 +74,7 @@ func TestCLI(t *testing.T) {
 
 	t.Run("it prompts the user to enter the number of players", func(t *testing.T) {
 		store := testutil.NewStubPlayerStore()
-		in := &bytes.Buffer{}
+		in := strings.NewReader("7\n")
 		out := &bytes.Buffer{}
 		blindAlerter := &testutil.SpyBlindAlerter{}
 
@@ -86,6 +86,25 @@ func TestCLI(t *testing.T) {
 
 		if got != want {
 			t.Errorf("got %q want %q", got, want)
+		}
+
+		cases := []testutil.ScheduleAlert{
+			{At: 0 * time.Minute, Amount: 100},
+			{At: 12 * time.Minute, Amount: 200},
+			{At: 24 * time.Minute, Amount: 300},
+			{At: 36 * time.Minute, Amount: 400},
+		}
+
+		for i, want := range cases {
+			t.Run(fmt.Sprint(want), func(t *testing.T) {
+				// this should always greater than the index
+				if len(blindAlerter.Alerts) <= i {
+					t.Fatalf("alert %d was not scheduled %v", i, blindAlerter.Alerts)
+				}
+
+				got := blindAlerter.Alerts[i]
+				testutil.AssertScheduledAlert(t, got, want)
+			})
 		}
 	})
 }
