@@ -14,10 +14,10 @@ var (
 	dummyBlindAlerter = &testutil.SpyBlindAlerter{}
 )
 
-func TestGame_Start(t *testing.T) {
+func TestTexasHoldem_Start(t *testing.T) {
 	t.Run("schedules alerts on game start for 5 players", func(t *testing.T) {
 		alerter := &testutil.SpyBlindAlerter{}
-		game := entity.NewGame(alerter, dummyPlayerStore)
+		game := entity.NewTexasHoldem(alerter, dummyPlayerStore)
 
 		game.Start(5)
 
@@ -40,7 +40,7 @@ func TestGame_Start(t *testing.T) {
 
 	t.Run("schedules alerts on game start for 7 players", func(t *testing.T) {
 		alerter := &testutil.SpyBlindAlerter{}
-		game := entity.NewGame(alerter, dummyPlayerStore)
+		game := entity.NewTexasHoldem(alerter, dummyPlayerStore)
 
 		game.Start(7)
 
@@ -55,9 +55,9 @@ func TestGame_Start(t *testing.T) {
 	})
 }
 
-func TestGame_Finish(t *testing.T) {
+func TestTexasHoldem_Finish(t *testing.T) {
 	store := testutil.NewStubPlayerStore()
-	game := entity.NewGame(dummyBlindAlerter, store)
+	game := entity.NewTexasHoldem(dummyBlindAlerter, store)
 
 	winner := "Ruth"
 	game.Finish(winner)

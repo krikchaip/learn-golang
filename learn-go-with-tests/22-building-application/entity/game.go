@@ -2,16 +2,22 @@ package entity
 
 import "time"
 
-type Game struct {
+type Game interface {
+	Start(nPlayers int)
+	Finish(winner string)
+}
+
+// implements: entity.Game
+type TexasHoldem struct {
 	store   PlayerStore
 	alerter BlindAlerter
 }
 
-func NewGame(alerter BlindAlerter, store PlayerStore) *Game {
-	return &Game{store, alerter}
+func NewTexasHoldem(alerter BlindAlerter, store PlayerStore) *TexasHoldem {
+	return &TexasHoldem{store, alerter}
 }
 
-func (p *Game) Start(nPlayers int) {
+func (p *TexasHoldem) Start(nPlayers int) {
 	blindIncrement := time.Duration(5+nPlayers) * time.Minute
 
 	blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000}
@@ -23,6 +29,6 @@ func (p *Game) Start(nPlayers int) {
 	}
 }
 
-func (p *Game) Finish(winner string) {
+func (p *TexasHoldem) Finish(winner string) {
 	p.store.RecordWin(winner)
 }
