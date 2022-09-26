@@ -1,9 +1,13 @@
 package server
 
 import (
+	"21-acceptance-testing/lib/util"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	"22-building-application/entity"
@@ -79,5 +83,17 @@ func (s *PlayerServer) processWin(w http.ResponseWriter, player string) {
 }
 
 func (s *PlayerServer) gameHandler(w http.ResponseWriter, r *http.Request) {
+	_, filename, _, _ := runtime.Caller(0)
+	root, _ := util.FindRoot(filepath.Dir(filename))
+	filepath := filepath.Join(root, "view/game.html")
+
+	tmpl, err := template.ParseFiles(filepath)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("problem loading template %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, nil)
 }

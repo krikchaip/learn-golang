@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Let's play poker</title>
+  </head>
+  <body>
+    <section id="game">
+      <div id="declare-winner">
+        <label for="winner">Winner</label>
+        <input type="text" id="winner" />
+        <button id="winner-button">Declare winner</button>
+      </div>
+    </section>
+  </body>
+  <script type="application/javascript">
+    const winnerInput = document.getElementById('winner')
+    const submitWinnerButton = document.getElementById('winner-button')
+
+    if (window['WebSocket']) {
+      const conn = new WebSocket('ws://' + document.location.host + '/ws')
+
+      submitWinnerButton.onclick = event => {
+        conn.send(winnerInput.value)
+      }
+    }
+  </script>
+</html>
