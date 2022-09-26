@@ -103,3 +103,17 @@ func TestLeague(t *testing.T) {
 		util.AssertContentJSON(t, res.Result().Header)
 	})
 }
+
+func TestGame(t *testing.T) {
+	t.Run("GET /game returns 200", func(t *testing.T) {
+		store := util.NewStubPlayerStore()
+		sv := server.NewPlayerServer(store)
+
+		req := util.NewGameRequest()
+		res := httptest.NewRecorder()
+
+		sv.ServeHTTP(res, req)
+
+		util.AssertStatus(t, res.Code, http.StatusOK)
+	})
+}

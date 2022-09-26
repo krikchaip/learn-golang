@@ -30,6 +30,7 @@ func NewPlayerServer(store entity.PlayerStore) *PlayerServer {
 
 	router.HandleFunc("/league", s.leagueHandler)
 	router.HandleFunc("/players/", s.playersHandler)
+	router.HandleFunc("/game", s.gameHandler)
 
 	return s
 }
@@ -75,4 +76,8 @@ func (s *PlayerServer) showScore(w http.ResponseWriter, player string) {
 func (s *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	s.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func (s *PlayerServer) gameHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

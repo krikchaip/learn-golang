@@ -16,3 +16,7 @@ func NewPostWinRequest(name string) *http.Request {
 func NewLeagueRequest() *http.Request {
 	return httptest.NewRequest(http.MethodGet, "/league", nil)
 }
+
+func NewGameRequest() *http.Request {
+	return httptest.NewRequest(http.MethodGet, "/game", nil)
+}
