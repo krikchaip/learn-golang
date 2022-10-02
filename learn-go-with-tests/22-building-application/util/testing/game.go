@@ -1,5 +1,7 @@
 package testing
 
+import "io"
+
 // implements: entity.Game
 type GameSpy struct {
 	StartCalled bool
@@ -9,7 +11,7 @@ type GameSpy struct {
 	FinishedWith string
 }
 
-func (g *GameSpy) Start(nPlayers int) {
+func (g *GameSpy) Start(dest io.Writer, nPlayers int) {
 	g.StartCalled = true
 	g.StartedWith = nPlayers
 }

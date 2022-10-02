@@ -2,6 +2,7 @@ package testing
 
 import (
 	"fmt"
+	"io"
 	"time"
 )
 
@@ -10,7 +11,7 @@ type SpyBlindAlerter struct {
 	Alerts []ScheduleAlert
 }
 
-func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
+func (s *SpyBlindAlerter) ScheduleAlertAt(to io.Writer, duration time.Duration, amount int) {
 	s.Alerts = append(s.Alerts, ScheduleAlert{duration, amount})
 }
 

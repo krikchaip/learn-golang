@@ -2,7 +2,7 @@ package entity
 
 import (
 	"fmt"
-	"os"
+	"io"
 	"time"
 )
 
@@ -11,7 +11,7 @@ import (
 // ?? it is a common idiom to also expose a MyInterfaceFunc type.
 
 type BlindAlerter interface {
-	ScheduleAlertAt(duration time.Duration, amount int)
+	ScheduleAlertAt(to io.Writer, duration time.Duration, amount int)
 }
 
 // ?? This type will be a func which will also implement your interface.
@@ -19,14 +19,14 @@ type BlindAlerter interface {
 // ?? with just a function; rather than having to create an empty struct type.
 
 // implements: entity.BlindAlerter
-type BlindAlerterFunc func(duration time.Duration, amount int)
+type BlindAlerterFunc func(to io.Writer, duration time.Duration, amount int)
 
-func (f BlindAlerterFunc) ScheduleAlertAt(duration time.Duration, amount int) {
-	f(duration, amount)
+func (f BlindAlerterFunc) ScheduleAlertAt(to io.Writer, duration time.Duration, amount int) {
+	f(to, duration, amount)
 }
 
-var StdOutAlerter = BlindAlerterFunc(func(duration time.Duration, amount int) {
+var Alerter = BlindAlerterFunc(func(to io.Writer, duration time.Duration, amount int) {
 	time.AfterFunc(duration, func() {
-		fmt.Fprintf(os.Stdout, "Blind is now %d\n", amount)
+		fmt.Fprintf(to, "Blind is now %d\n", amount)
 	})
 })

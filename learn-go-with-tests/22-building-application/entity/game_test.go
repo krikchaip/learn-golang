@@ -2,6 +2,7 @@ package entity_test
 
 import (
 	"fmt"
+	"io"
 	"testing"
 	"time"
 
@@ -19,7 +20,8 @@ func TestTexasHoldem_Start(t *testing.T) {
 		alerter := &testutil.SpyBlindAlerter{}
 		game := entity.NewTexasHoldem(alerter, dummyPlayerStore)
 
-		game.Start(5)
+		// ?? io.Discard -> .Write() noop
+		game.Start(io.Discard, 5)
 
 		cases := []testutil.ScheduleAlert{
 			{At: 0 * time.Second, Amount: 100},
@@ -42,7 +44,8 @@ func TestTexasHoldem_Start(t *testing.T) {
 		alerter := &testutil.SpyBlindAlerter{}
 		game := entity.NewTexasHoldem(alerter, dummyPlayerStore)
 
-		game.Start(7)
+		// ?? io.Discard -> .Write() noop
+		game.Start(io.Discard, 7)
 
 		cases := []testutil.ScheduleAlert{
 			{At: 0 * time.Minute, Amount: 100},

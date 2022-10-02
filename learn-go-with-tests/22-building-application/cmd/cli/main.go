@@ -18,7 +18,7 @@ func main() {
 	st, close := store.SetupFileSystemStore()
 	defer close()
 
-	game := entity.NewTexasHoldem(entity.StdOutAlerter, st)
+	game := entity.NewTexasHoldem(entity.Alerter, st)
 	program := cli.NewPlayerCLI(os.Stdin, os.Stdout, game)
 	program.PlayPoker()
 }
