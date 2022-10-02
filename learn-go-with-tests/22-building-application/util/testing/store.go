@@ -1,12 +1,17 @@
 package testing
 
-import "22-building-application/entity"
+import (
+	"22-building-application/entity"
+	"sync"
+)
 
 // implements: entity.PlayerStore
 type StubPlayerStore struct {
 	scores   map[string]int
 	winCalls []string
 	league   entity.League
+
+	mut sync.Mutex
 }
 
 type StubPlayerStoreOption = func(*StubPlayerStore)
@@ -37,12 +42,18 @@ func (s *StubPlayerStore) GetLeagueTable() entity.League {
 }
 
 func (s *StubPlayerStore) RecordWin(name string) {
+	s.mut.Lock()
+	defer s.mut.Unlock()
+
 	s.winCalls = append(s.winCalls, name)
 }
 
 // helper methods
 
 func (s *StubPlayerStore) GetWinCalls() []string {
+	s.mut.Lock()
+	defer s.mut.Unlock()
+
 	return s.winCalls
 }
 

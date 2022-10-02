@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	server "22-building-application/controller/server"
 	"22-building-application/entity"
@@ -131,6 +132,13 @@ func TestGame(t *testing.T) {
 		defer ws.Close()
 
 		writeWSMessage(t, ws, "Winner")
+
+		// ?? There is a delay between our WebSocket connection reading the message
+		// ?? and recording the win and our test finishes before it happens.
+		// ?? You can test this by putting a short time.Sleep before the final assertion.
+
+		// TODO: refactor this
+		time.Sleep(10 * time.Millisecond)
 
 		util.AssertPlayerWin(t, store.GetWinCalls(), []string{"Winner"})
 	})
