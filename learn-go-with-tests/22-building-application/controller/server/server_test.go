@@ -19,7 +19,7 @@ func TestGETPlayers(t *testing.T) {
 		"Pepper": 20,
 		"Floyd":  10,
 	}))
-	sv := server.NewPlayerServer(store)
+	sv := mustMakePlayerServer(t, store)
 
 	t.Run("returns Pepper's score", func(t *testing.T) {
 		req := util.NewScoreRequest("Pepper")
@@ -53,7 +53,7 @@ func TestGETPlayers(t *testing.T) {
 
 func TestStoreWins(t *testing.T) {
 	store := util.NewStubPlayerStore()
-	sv := server.NewPlayerServer(store)
+	sv := mustMakePlayerServer(t, store)
 
 	t.Run("it returns accepted on POST", func(t *testing.T) {
 		req := util.NewPostWinRequest("Pepper")
@@ -75,7 +75,7 @@ func TestStoreWins(t *testing.T) {
 func TestLeague(t *testing.T) {
 	t.Run("it returns 200 on /league", func(t *testing.T) {
 		store := util.NewStubPlayerStore()
-		sv := server.NewPlayerServer(store)
+		sv := mustMakePlayerServer(t, store)
 
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
@@ -93,7 +93,7 @@ func TestLeague(t *testing.T) {
 		}
 
 		store := util.NewStubPlayerStore(util.WithLeague(wantedLeague))
-		sv := server.NewPlayerServer(store)
+		sv := mustMakePlayerServer(t, store)
 
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
@@ -110,7 +110,7 @@ func TestLeague(t *testing.T) {
 func TestGame(t *testing.T) {
 	t.Run("GET /game returns 200", func(t *testing.T) {
 		store := util.NewStubPlayerStore()
-		sv := server.NewPlayerServer(store)
+		sv := mustMakePlayerServer(t, store)
 
 		req := util.NewGameRequest()
 		res := httptest.NewRecorder()
@@ -123,10 +123,8 @@ func TestGame(t *testing.T) {
 	t.Run("when we get a message over a websocket. it is a winner of a game", func(t *testing.T) {
 		t.Skip()
 
-		winner := "Ruth"
-
 		store := util.NewStubPlayerStore()
-		sv := server.NewPlayerServer(store)
+		sv := mustMakePlayerServer(t, store)
 
 		server := httptest.NewServer(sv)
 		defer server.Close()
@@ -139,10 +137,20 @@ func TestGame(t *testing.T) {
 		}
 		defer ws.Close()
 
-		if err := ws.WriteMessage(websocket.TextMessage, []byte(winner)); err != nil {
+		if err := ws.WriteMessage(websocket.TextMessage, []byte("Winner")); err != nil {
 			t.Fatalf("could not send message over ws connection %v", err)
 		}
 
-		util.AssertPlayerWin(t, store.GetWinCalls(), []string{winner})
+		util.AssertPlayerWin(t, store.GetWinCalls(), []string{"Winner"})
 	})
+}
+
+func mustMakePlayerServer(t *testing.T, store entity.PlayerStore) *server.PlayerServer {
+	defer func() {
+		if err := recover(); err != nil {
+			t.Fatal("problem creating player server", err)
+		}
+	}()
+
+	return server.NewPlayerServer(store)
 }
