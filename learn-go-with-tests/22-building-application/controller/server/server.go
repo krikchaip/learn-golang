@@ -1,7 +1,6 @@
 package server
 
 import (
-	"21-acceptance-testing/lib/util"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -10,7 +9,10 @@ import (
 	"runtime"
 	"strings"
 
+	"21-acceptance-testing/lib/util"
 	"22-building-application/entity"
+
+	"github.com/gorilla/websocket"
 )
 
 // implements: http.Handler
@@ -22,21 +24,43 @@ type PlayerServer struct {
 
 	// // ?? alternative to interface embedding
 	// router *http.ServeMux
+
+	template *template.Template
 }
 
 func NewPlayerServer(store entity.PlayerStore) *PlayerServer {
-	// this also implements http.Handler
-	router := http.NewServeMux()
+	// loading a HTML template for /game
+	tmpl, err := loadTemplate()
+	if err != nil {
+		panic(err)
+	}
 
 	// s := &PlayerServer{store, router}
-	s := &PlayerServer{store: store}
+	s := &PlayerServer{store: store, template: tmpl}
+
+	// this also implements http.Handler
+	router := http.NewServeMux()
 	s.Handler = router
 
 	router.HandleFunc("/league", s.leagueHandler)
 	router.HandleFunc("/players/", s.playersHandler)
 	router.HandleFunc("/game", s.gameHandler)
+	router.HandleFunc("/ws", s.wsHandler)
 
 	return s
+}
+
+func loadTemplate() (*template.Template, error) {
+	_, filename, _, _ := runtime.Caller(0)
+	root, _ := util.FindRoot(filepath.Dir(filename))
+	filepath := filepath.Join(root, "view/game.html")
+
+	tmpl, err := template.ParseFiles(filepath)
+	if err != nil {
+		return nil, fmt.Errorf("problem loading template %s", err.Error())
+	}
+
+	return tmpl, nil
 }
 
 // // ?? alternative to interface embedding
@@ -83,17 +107,17 @@ func (s *PlayerServer) processWin(w http.ResponseWriter, player string) {
 }
 
 func (s *PlayerServer) gameHandler(w http.ResponseWriter, r *http.Request) {
-	_, filename, _, _ := runtime.Caller(0)
-	root, _ := util.FindRoot(filepath.Dir(filename))
-	filepath := filepath.Join(root, "view/game.html")
-
-	tmpl, err := template.ParseFiles(filepath)
-
-	if err != nil {
-		http.Error(w, fmt.Sprintf("problem loading template %s", err.Error()), http.StatusInternalServerError)
-		return
-	}
-
 	w.WriteHeader(http.StatusOK)
-	tmpl.Execute(w, nil)
+	s.template.Execute(w, nil)
+}
+
+var wsUpgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+func (s *PlayerServer) wsHandler(w http.ResponseWriter, r *http.Request) {
+	ws, _ := wsUpgrader.Upgrade(w, r, nil)
+	_, msg, _ := ws.ReadMessage()
+	s.store.RecordWin(string(msg))
 }
