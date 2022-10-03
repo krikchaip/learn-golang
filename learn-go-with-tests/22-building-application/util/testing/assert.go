@@ -88,21 +88,24 @@ func AssertMessagesSentToUser(t tt.TB, out *bytes.Buffer, messages ...string) {
 
 func AssertGameStartedWith(t tt.TB, game *GameSpy, want int) {
 	t.Helper()
-	if game.StartedWith != want {
-		t.Errorf("wanted Start called with %d but got %d", want, game.StartedWith)
+	s := game.GetStartedWith()
+	if s != want {
+		t.Errorf("wanted Start called with %d but got %d", want, s)
 	}
 }
 
 func AssertFinishCalledWith(t tt.TB, game *GameSpy, want string) {
 	t.Helper()
-	if game.FinishedWith != want {
-		t.Errorf("wanted Finish called with %q but got %q", want, game.FinishedWith)
+	f := game.GetFinishedWith()
+	if f != want {
+		t.Errorf("wanted Finish called with %q but got %q", want, f)
 	}
 }
 
 func AssertGameNotStarted(t tt.TB, game *GameSpy) {
 	t.Helper()
-	if game.StartCalled {
+	s := game.GetStartCalled()
+	if s {
 		t.Error("game should not have started")
 	}
 }
