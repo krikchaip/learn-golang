@@ -125,9 +125,12 @@ func TestGame(t *testing.T) {
 		util.AssertStatus(t, res.Code, http.StatusOK)
 	})
 
-	t.Run("start a game with 3 players and declare Ruth the winner", func(t *testing.T) {
+	t.Run("start a game with 3 players, send some blind alerts down WS and declare Ruth the winner", func(t *testing.T) {
+		winner := "Ruth"
+		alertWith := "Blind is 100"
+
 		store := util.NewStubPlayerStore()
-		game := &util.GameSpy{}
+		game := util.NewGameSpy(alertWith)
 
 		server := httptest.NewServer(mustMakePlayerServer(t, store, game))
 		defer server.Close()
@@ -136,7 +139,7 @@ func TestGame(t *testing.T) {
 		defer ws.Close()
 
 		writeWSMessage(t, ws, "3")
-		writeWSMessage(t, ws, "Ruth")
+		writeWSMessage(t, ws, winner)
 
 		// ?? There is a delay between our WebSocket connection reading the message
 		// ?? and recording the win and our test finishes before it happens.
@@ -146,7 +149,13 @@ func TestGame(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 
 		util.AssertGameStartedWith(t, game, 3)
-		util.AssertPlayerWin(t, store.GetWinCalls(), []string{"Ruth"})
+		util.AssertPlayerWin(t, store.GetWinCalls(), []string{winner})
+
+		msg := readWSMessage(t, ws)
+
+		if msg != alertWith {
+			t.Errorf("got blind alert %q, want %q", msg, alertWith)
+		}
 	})
 }
 
@@ -168,7 +177,7 @@ func mustDialWS(t *testing.T, url string) *websocket.Conn {
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 
 	if err != nil {
-		t.Fatalf("could not open a ws connection on %s %v", url, err)
+		t.Fatalf("could not open a ws connection on %s %v\n", url, err)
 	}
 
 	return ws
@@ -177,6 +186,17 @@ func mustDialWS(t *testing.T, url string) *websocket.Conn {
 func writeWSMessage(t testing.TB, conn *websocket.Conn, msg string) {
 	t.Helper()
 	if err := conn.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
-		t.Fatalf("could not send message over ws connection %v", err)
+		t.Fatalf("could not send message over ws connection %v\n", err)
 	}
+}
+
+func readWSMessage(t testing.TB, conn *websocket.Conn) string {
+	t.Helper()
+
+	_, msg, err := conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("could not read message from ws connection %v\n", err)
+	}
+
+	return string(msg)
 }

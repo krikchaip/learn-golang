@@ -13,7 +13,13 @@ type GameSpy struct {
 	finishCalled bool
 	finishedWith string
 
+	blindAlert []byte
+
 	mut sync.Mutex
+}
+
+func NewGameSpy(alertWith string) *GameSpy {
+	return &GameSpy{blindAlert: []byte(alertWith)}
 }
 
 // interface methods
@@ -24,6 +30,8 @@ func (g *GameSpy) Start(dest io.Writer, nPlayers int) {
 
 	g.startCalled = true
 	g.startedWith = nPlayers
+
+	dest.Write(g.blindAlert)
 }
 
 func (g *GameSpy) Finish(winner string) {
