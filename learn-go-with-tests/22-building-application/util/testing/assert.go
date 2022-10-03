@@ -8,6 +8,8 @@ import (
 	tt "testing"
 
 	"22-building-application/entity"
+
+	"github.com/gorilla/websocket"
 )
 
 func AssertStatus(t tt.TB, got, want int) {
@@ -107,5 +109,18 @@ func AssertGameNotStarted(t tt.TB, game *GameSpy) {
 	s := game.GetStartCalled()
 	if s {
 		t.Error("game should not have started")
+	}
+}
+
+func AssertWebsocketGotMsg(t *tt.T, conn *websocket.Conn, want string) {
+	t.Helper()
+
+	_, msg, err := conn.ReadMessage()
+	if err != nil {
+		t.Fatalf("could not read message from ws connection %v\n", err)
+	}
+
+	if string(msg) != want {
+		t.Errorf("got blind alert %q, want %q", msg, want)
 	}
 }
