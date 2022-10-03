@@ -13,8 +13,6 @@ import (
 
 	"21-acceptance-testing/lib/util"
 	"22-building-application/entity"
-
-	"github.com/gorilla/websocket"
 )
 
 // implements: http.Handler
@@ -121,20 +119,15 @@ func (s *PlayerServer) gameHandler(w http.ResponseWriter, r *http.Request) {
 	s.template.Execute(w, nil)
 }
 
-var wsUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
-
 func (s *PlayerServer) wsHandler(w http.ResponseWriter, r *http.Request) {
-	ws, _ := wsUpgrader.Upgrade(w, r, nil)
+	ws := newPlayerServerWS(w, r)
 
-	_, msg, _ := ws.ReadMessage()
-	nPlayers, _ := strconv.Atoi(string(msg))
+	msg := ws.WaitForMsg()
+	nPlayers, _ := strconv.Atoi(msg)
 
 	// TODO: replace io.Discard with something else
 	s.game.Start(io.Discard, nPlayers)
 
-	_, msg, _ = ws.ReadMessage()
-	s.store.RecordWin(string(msg))
+	winner := ws.WaitForMsg()
+	s.store.RecordWin(winner)
 }
