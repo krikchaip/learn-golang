@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"22-building-application/controller/server"
+	"22-building-application/entity"
 	"22-building-application/store"
 )
 
@@ -16,7 +17,8 @@ func main() {
 	st, close := store.SetupFileSystemStore()
 	defer close()
 
-	sv := server.NewPlayerServer(st)
+	game := entity.NewTexasHoldem(entity.Alerter, st)
+	sv := server.NewPlayerServer(st, game)
 
 	// we wrap the call in log.Fatal
 	// just in case if there is a problem with ListenAndServe.

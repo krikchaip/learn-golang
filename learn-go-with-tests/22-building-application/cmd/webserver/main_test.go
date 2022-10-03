@@ -16,7 +16,8 @@ import (
 // integration testing of server.PlayerServer & store.InMemoryPlayerStore
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 	st := setupStore(t)
-	sv := server.NewPlayerServer(st)
+	game := entity.NewTexasHoldem(entity.Alerter, st)
+	sv := server.NewPlayerServer(st, game)
 
 	player := "Pepper"
 
@@ -48,7 +49,8 @@ func TestRecordingWinsAndRetrievingThem(t *testing.T) {
 
 func TestConcurrentRecordingWins(t *testing.T) {
 	st := setupStore(t)
-	sv := server.NewPlayerServer(st)
+	game := entity.NewTexasHoldem(entity.Alerter, st)
+	sv := server.NewPlayerServer(st, game)
 
 	player := "Pepper"
 	nConcurrent := 1000
