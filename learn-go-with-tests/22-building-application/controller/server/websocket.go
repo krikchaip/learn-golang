@@ -12,6 +12,7 @@ var wsUpgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// implements: io.Writer
 type playerServerWS struct {
 	ws *websocket.Conn
 }
@@ -25,6 +26,20 @@ func newPlayerServerWS(w http.ResponseWriter, r *http.Request) *playerServerWS {
 
 	return &playerServerWS{ws: ws}
 }
+
+// interface methods
+
+func (this *playerServerWS) Write(p []byte) (n int, err error) {
+	err = this.ws.WriteMessage(websocket.TextMessage, p)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return len(p), nil
+}
+
+// public methods
 
 func (this *playerServerWS) WaitForMsg() string {
 	_, msg, err := this.ws.ReadMessage()

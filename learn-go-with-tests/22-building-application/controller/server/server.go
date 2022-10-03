@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 	"path/filepath"
 	"runtime"
@@ -124,9 +123,7 @@ func (s *PlayerServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 	msg := ws.WaitForMsg()
 	nPlayers, _ := strconv.Atoi(msg)
-
-	// TODO: replace io.Discard with something else
-	s.game.Start(io.Discard, nPlayers)
+	s.game.Start(ws, nPlayers)
 
 	winner := ws.WaitForMsg()
 	s.store.RecordWin(winner)
