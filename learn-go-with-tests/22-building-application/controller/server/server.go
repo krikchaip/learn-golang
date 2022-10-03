@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"21-acceptance-testing/lib/util"
@@ -18,6 +20,7 @@ import (
 // implements: http.Handler
 type PlayerServer struct {
 	store entity.PlayerStore
+	game  entity.Game
 
 	// ** interface embedding (like `implements IFoo` in other languages)
 	http.Handler
@@ -28,7 +31,10 @@ type PlayerServer struct {
 	template *template.Template
 }
 
-func NewPlayerServer(store entity.PlayerStore) *PlayerServer {
+func NewPlayerServer(
+	store entity.PlayerStore,
+	game entity.Game,
+) *PlayerServer {
 	// loading a HTML template for /game
 	tmpl, err := loadTemplate()
 	if err != nil {
@@ -36,7 +42,11 @@ func NewPlayerServer(store entity.PlayerStore) *PlayerServer {
 	}
 
 	// s := &PlayerServer{store, router}
-	s := &PlayerServer{store: store, template: tmpl}
+	s := &PlayerServer{
+		store:    store,
+		game:     game,
+		template: tmpl,
+	}
 
 	// this also implements http.Handler
 	router := http.NewServeMux()
@@ -118,6 +128,13 @@ var wsUpgrader = websocket.Upgrader{
 
 func (s *PlayerServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 	ws, _ := wsUpgrader.Upgrade(w, r, nil)
+
 	_, msg, _ := ws.ReadMessage()
+	nPlayers, _ := strconv.Atoi(string(msg))
+
+	// TODO: replace io.Discard with something else
+	s.game.Start(io.Discard, nPlayers)
+
+	_, msg, _ = ws.ReadMessage()
 	s.store.RecordWin(string(msg))
 }
