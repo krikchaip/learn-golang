@@ -123,6 +123,10 @@ func (s *PlayerServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 	msg := ws.WaitForMsg()
 	nPlayers, _ := strconv.Atoi(msg)
+
+	// ?? io.Discard -> .Write() noop
+	// s.game.Start(io.Discard, nPlayers)
+
 	s.game.Start(ws, nPlayers)
 
 	winner := ws.WaitForMsg()

@@ -151,11 +151,9 @@ func TestGame(t *testing.T) {
 		util.AssertGameStartedWith(t, game, 3)
 		util.AssertPlayerWin(t, store.GetWinCalls(), []string{winner})
 
-		msg := readWSMessage(t, ws)
-
-		if msg != alertWith {
-			t.Errorf("got blind alert %q, want %q", msg, alertWith)
-		}
+		util.Within(t, 3*time.Second, func() {
+			util.AssertWebsocketGotMsg(t, ws, alertWith)
+		})
 	})
 }
 
@@ -188,15 +186,4 @@ func writeWSMessage(t testing.TB, conn *websocket.Conn, msg string) {
 	if err := conn.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
 		t.Fatalf("could not send message over ws connection %v\n", err)
 	}
-}
-
-func readWSMessage(t testing.TB, conn *websocket.Conn) string {
-	t.Helper()
-
-	_, msg, err := conn.ReadMessage()
-	if err != nil {
-		t.Fatalf("could not read message from ws connection %v\n", err)
-	}
-
-	return string(msg)
 }
