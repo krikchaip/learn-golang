@@ -15,12 +15,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var (
+	dummyGame = &util.GameSpy{}
+)
+
 func TestGETPlayers(t *testing.T) {
 	store := util.NewStubPlayerStore(util.WithScores(map[string]int{
 		"Pepper": 20,
 		"Floyd":  10,
 	}))
-	sv := mustMakePlayerServer(t, store)
+	sv := mustMakePlayerServer(t, store, dummyGame)
 
 	t.Run("returns Pepper's score", func(t *testing.T) {
 		req := util.NewScoreRequest("Pepper")
@@ -54,7 +58,7 @@ func TestGETPlayers(t *testing.T) {
 
 func TestStoreWins(t *testing.T) {
 	store := util.NewStubPlayerStore()
-	sv := mustMakePlayerServer(t, store)
+	sv := mustMakePlayerServer(t, store, dummyGame)
 
 	t.Run("it returns accepted on POST", func(t *testing.T) {
 		req := util.NewPostWinRequest("Pepper")
@@ -76,7 +80,7 @@ func TestStoreWins(t *testing.T) {
 func TestLeague(t *testing.T) {
 	t.Run("it returns 200 on /league", func(t *testing.T) {
 		store := util.NewStubPlayerStore()
-		sv := mustMakePlayerServer(t, store)
+		sv := mustMakePlayerServer(t, store, dummyGame)
 
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
@@ -94,7 +98,7 @@ func TestLeague(t *testing.T) {
 		}
 
 		store := util.NewStubPlayerStore(util.WithLeague(wantedLeague))
-		sv := mustMakePlayerServer(t, store)
+		sv := mustMakePlayerServer(t, store, dummyGame)
 
 		req := util.NewLeagueRequest()
 		res := httptest.NewRecorder()
@@ -111,7 +115,7 @@ func TestLeague(t *testing.T) {
 func TestGame(t *testing.T) {
 	t.Run("GET /game returns 200", func(t *testing.T) {
 		store := util.NewStubPlayerStore()
-		sv := mustMakePlayerServer(t, store)
+		sv := mustMakePlayerServer(t, store, dummyGame)
 
 		req := util.NewGameRequest()
 		res := httptest.NewRecorder()
@@ -121,17 +125,18 @@ func TestGame(t *testing.T) {
 		util.AssertStatus(t, res.Code, http.StatusOK)
 	})
 
-	t.Run("when we get a message over a websocket. it is a winner of a game", func(t *testing.T) {
+	t.Run("start a game with 3 players and declare Ruth the winner", func(t *testing.T) {
 		store := util.NewStubPlayerStore()
-		sv := mustMakePlayerServer(t, store)
+		game := &util.GameSpy{}
 
-		server := httptest.NewServer(sv)
+		server := httptest.NewServer(mustMakePlayerServer(t, store, game))
 		defer server.Close()
 
 		ws := mustDialWS(t, "ws"+strings.TrimPrefix(server.URL, "http")+"/ws")
 		defer ws.Close()
 
-		writeWSMessage(t, ws, "Winner")
+		writeWSMessage(t, ws, "3")
+		writeWSMessage(t, ws, "Ruth")
 
 		// ?? There is a delay between our WebSocket connection reading the message
 		// ?? and recording the win and our test finishes before it happens.
@@ -140,18 +145,23 @@ func TestGame(t *testing.T) {
 		// TODO: refactor this
 		time.Sleep(10 * time.Millisecond)
 
-		util.AssertPlayerWin(t, store.GetWinCalls(), []string{"Winner"})
+		util.AssertGameStartedWith(t, game, 3)
+		util.AssertPlayerWin(t, store.GetWinCalls(), []string{"Ruth"})
 	})
 }
 
-func mustMakePlayerServer(t *testing.T, store entity.PlayerStore) *server.PlayerServer {
+func mustMakePlayerServer(
+	t *testing.T,
+	store entity.PlayerStore,
+	game entity.Game,
+) *server.PlayerServer {
 	defer func() {
 		if err := recover(); err != nil {
 			t.Fatal("problem creating player server", err)
 		}
 	}()
 
-	return server.NewPlayerServer(store)
+	return server.NewPlayerServer(store, game)
 }
 
 func mustDialWS(t *testing.T, url string) *websocket.Conn {
