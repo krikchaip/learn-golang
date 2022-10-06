@@ -23,4 +23,5 @@ use (
 	./20-generic-arrays-slices
 	./21-acceptance-testing
 	./22-building-application
+	./23-os-exec
 )
