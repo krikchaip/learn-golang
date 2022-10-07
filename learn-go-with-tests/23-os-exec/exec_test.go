@@ -2,11 +2,18 @@ package osexec_test
 
 import (
 	osexec "23-os-exec"
+	"strings"
 	"testing"
 )
 
 func TestGetData(t *testing.T) {
-	got := osexec.GetData()
+	input := strings.NewReader(`
+		<payload>
+			<message>Happy New Year!</message>
+		</payload>
+	`)
+
+	got := osexec.GetData(input)
 	want := "HAPPY NEW YEAR!"
 
 	if got != want {
