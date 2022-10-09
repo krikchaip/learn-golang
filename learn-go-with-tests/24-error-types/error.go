@@ -6,6 +6,16 @@ import (
 	"net/http"
 )
 
+// implements: error
+type BadStatusError struct {
+	URL    string
+	Status int
+}
+
+func (b BadStatusError) Error() string {
+	return fmt.Sprintf("did not get 200 from %s, got %d", b.URL, b.Status)
+}
+
 // DumbGetter will get the string body of url if it gets a 200
 func DumbGetter(url string) (string, error) {
 	res, err := http.Get(url)
@@ -15,7 +25,7 @@ func DumbGetter(url string) (string, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("did not get 200 from %s, got %d", url, res.StatusCode)
+		return "", BadStatusError{URL: url, Status: res.StatusCode}
 	}
 
 	defer res.Body.Close()
