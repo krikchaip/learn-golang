@@ -25,4 +25,5 @@ use (
 	./22-building-application
 	./23-os-exec
 	./24-error-types
+	./25-context-reader
 )
