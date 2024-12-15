@@ -1,7 +1,17 @@
-package hello
+// to run this file, execute `go run hello.go`
+// NOTE: this is only applicable to the `main` package
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("01-hello:", Hello("Winner", French))
+}
 
 // ?? UppercaseFunction -> public function
-// alternative: `Hello(name string, language string)`
+// alternative to function signature: `func Hello(name string, language string) string`
 func Hello(name, language string) string {
 	if name == "" {
 		name = "World"

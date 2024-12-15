@@ -1,4 +1,5 @@
-package hello
+// to test this file, execute `go test` or `go test 01-hello`
+package main
 
 import "testing"
 
@@ -7,12 +8,15 @@ func TestHello(t *testing.T) {
 	// testing.T (test helper functions) and
 	// testing.B (for benchmark)
 	assertCorrectMessage := func(t testing.TB, got, want string) {
-		// ?? comment the line below, make a test fail and observe the output :)
+		// to tell the test suite that this function is a helper
+		// when it fails, the line number reported will be in our function call
+		// rather than inside our test helper
 		t.Helper()
 
 		// %q -> wraps your values in double quotes
 		// ref: https://pkg.go.dev/fmt#hdr-Printing
 		if got != want {
+			// prints out an error message and fail the test
 			t.Errorf("got %q want %q", got, want)
 		}
 	}
