@@ -40,7 +40,7 @@ func TestSumAll(t *testing.T) {
 		// }
 
 		// ** use this instead
-		// ** WARNING: this method is not typesafe (need manual typecheck)
+		// ** NOTE: using this method requires manual typecheck (due to the `any` params)
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
 		}
