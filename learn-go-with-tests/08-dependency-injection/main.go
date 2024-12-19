@@ -1,8 +1,8 @@
 package main
 
 import (
-	dependency_injection "08-dependency-injection/lib"
-	di "08-dependency-injection/lib" // name is too long :(
+	"08-dependency-injection/lib"    // using a full package name
+	di "08-dependency-injection/lib" // using another alias
 )
 
 func main() {
