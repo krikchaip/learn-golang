@@ -12,7 +12,7 @@ type SecondSleeper struct {
 	Duration int64
 }
 
-func (ss SecondSleeper) Sleep() {
+func (ss *SecondSleeper) Sleep() {
 	time.Sleep(time.Duration(ss.Duration) * time.Second)
 }
 

@@ -5,8 +5,10 @@ import (
 	"io"
 )
 
-const finalWord = "Go!"
-const countdownStart = 3
+const (
+	finalWord      = "Go!"
+	countdownStart = 3
+)
 
 // ?? comment on one of the implementations below and see the test output
 func Countdown(w io.Writer, s Sleeper) {
