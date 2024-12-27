@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // follows the pattern of "host:port"
@@ -15,8 +16,17 @@ func home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello from Snippetbox"))
 }
 
-func snippetView(w http.ResponseWriter, _ *http.Request) {
-	w.Write([]byte("Display a specific snippet..."))
+func snippetView(w http.ResponseWriter, r *http.Request) {
+	// retrieving path param
+	id, err := strconv.Atoi(r.PathValue("id"))
+
+	// field validation
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
 }
 
 func snippetCreate(w http.ResponseWriter, _ *http.Request) {
@@ -34,7 +44,7 @@ func main() {
 	router.HandleFunc("/{$}", home)
 
 	// will match the specified pattern exactly
-	router.HandleFunc("/snippet/view", snippetView)
+	router.HandleFunc("/snippet/view/{id}", snippetView)
 	router.HandleFunc("/snippet/create", snippetCreate)
 
 	// a catch-all handler (subtree path pattern)
