@@ -33,6 +33,10 @@ func snippetCreate(w http.ResponseWriter, _ *http.Request) {
 	w.Write([]byte("Display a form for creating a new snippet..."))
 }
 
+func snippetCreatePost(w http.ResponseWriter, _ *http.Request) {
+	w.Write([]byte("Save a new snippet..."))
+}
+
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello from %q!", r.URL.Path)
 }
@@ -41,11 +45,13 @@ func main() {
 	router := http.NewServeMux()
 
 	// match a single slash, followed by nothing else (exact match)
-	router.HandleFunc("/{$}", home)
+	router.HandleFunc("GET /{$}", home)
 
-	// will match the specified pattern exactly
-	router.HandleFunc("/snippet/view/{id}", snippetView)
-	router.HandleFunc("/snippet/create", snippetCreate)
+	// this will match the specified pattern exactly
+	router.HandleFunc("GET /snippet/view/{id}", snippetView)
+
+	router.HandleFunc("GET /snippet/create", snippetCreate)
+	router.HandleFunc("POST /snippet/create", snippetCreatePost)
 
 	// a catch-all handler (subtree path pattern)
 	// will match "/**", eg. "/foo", "/bar/bax/..."
