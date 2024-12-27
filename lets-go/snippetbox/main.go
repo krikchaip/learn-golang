@@ -13,6 +13,10 @@ import (
 const PORT = ":4000"
 
 func home(w http.ResponseWriter, r *http.Request) {
+	// add a new header key
+	// NOTE: MUST BE executed before any call to WriteHeader() or Write()
+	w.Header().Add("X-App-Env", "development")
+
 	w.Write([]byte("Hello from Snippetbox"))
 }
 
@@ -33,7 +37,11 @@ func snippetCreate(w http.ResponseWriter, _ *http.Request) {
 	w.Write([]byte("Display a form for creating a new snippet..."))
 }
 
-func snippetCreatePost(w http.ResponseWriter, _ *http.Request) {
+func snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	// send a 201 status code.
+	// NOTE: MUST BE executed before any call to Write()
+	w.WriteHeader(http.StatusCreated)
+
 	w.Write([]byte("Save a new snippet..."))
 }
 
