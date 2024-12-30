@@ -56,7 +56,7 @@ func main() {
 
 	// a catch-all handler (subtree path pattern)
 	// will match "/**", eg. "/foo", "/bar/bax/..."
-	// router.HandleFunc("/", defaultHandler)
+	// router.HandleFunc("/", app.defaultHandler)
 
 	// ############# start ##########################
 
