@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -11,7 +13,19 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// NOTE: MUST BE executed before any call to WriteHeader() or Write()
 	w.Header().Add("X-App-Env", "development")
 
-	w.Write([]byte("Hello from Snippetbox"))
+	t, err := template.ParseFiles("ui/html/pages/home.tmpl.html")
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, nil)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
