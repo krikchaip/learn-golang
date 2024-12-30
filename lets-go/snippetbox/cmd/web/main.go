@@ -13,6 +13,9 @@ const PORT = ":4000"
 func main() {
 	router := http.NewServeMux()
 
+	// serve files out of the "./ui/static" directory
+	fileServer := http.FileServer(http.Dir("ui/static"))
+
 	// match a single slash, followed by nothing else (exact match)
 	router.HandleFunc("GET /{$}", home)
 
@@ -21,6 +24,10 @@ func main() {
 
 	router.HandleFunc("GET /snippet/create", snippetCreate)
 	router.HandleFunc("POST /snippet/create", snippetCreatePost)
+
+	// serves static files (subtree path pattern)
+	// will match "/static/**", eg. "/static/css/main.css"
+	router.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
 	// a catch-all handler (subtree path pattern)
 	// will match "/**", eg. "/foo", "/bar/bax/..."
