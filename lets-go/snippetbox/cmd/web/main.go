@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 // follows the pattern of "host:port"
@@ -12,6 +13,16 @@ import (
 // const PORT = ":4000"
 
 func main() {
+	// ############ logger ##########################
+
+	// create a "structured logger" that writes to stdout in plain text
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level:     slog.LevelDebug,
+		AddSource: true,
+	}))
+
+	// ############ flags ###########################
+
 	// define a command-line flag called "addr"
 	addr := flag.String("addr", ":4000", "HTTP network address")
 
@@ -20,6 +31,8 @@ func main() {
 
 	// flag value is actally a pointer
 	PORT := *addr
+
+	// ############# router #########################
 
 	router := http.NewServeMux()
 
@@ -43,9 +56,18 @@ func main() {
 	// will match "/**", eg. "/foo", "/bar/bax/..."
 	// router.HandleFunc("/", defaultHandler)
 
-	log.Printf("starting server on %s", PORT)
+	// ############# start ##########################
+
+	// log.Printf("starting server on %s", PORT)
+
+	// logging with a structured logger (DEBUG > INFO > WARN > ERROR)
+	// logger.Info("starting server", "PORT", PORT)
+	logger.Info("starting server", slog.String("PORT", PORT))
 
 	if err := http.ListenAndServe(PORT, router); err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
+
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 }
