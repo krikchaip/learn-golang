@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 )
@@ -8,9 +9,18 @@ import (
 // follows the pattern of "host:port"
 // the absence of host means that the handler will listen to every host requested
 // on the specific port
-const PORT = ":4000"
+// const PORT = ":4000"
 
 func main() {
+	// define a command-line flag called "addr"
+	addr := flag.String("addr", ":4000", "HTTP network address")
+
+	// NOTE: Must be called after all flags are defined and before flags are accessed
+	flag.Parse()
+
+	// flag value is actally a pointer
+	PORT := *addr
+
 	router := http.NewServeMux()
 
 	// serve files out of the "./ui/static" directory

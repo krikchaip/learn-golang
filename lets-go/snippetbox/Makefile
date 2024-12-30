@@ -1,7 +1,7 @@
 .PHONY: run
 run:
-	@go run ./cmd/web
+	@go run ./cmd/web -addr=:3000
 
 .PHONY: watch
 watch:
-	@gow run ./cmd/web
+	@gow run ./cmd/web -addr=:3000
