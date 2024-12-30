@@ -13,14 +13,6 @@ import (
 // const PORT = ":4000"
 
 func main() {
-	// ############ logger ##########################
-
-	// create a "structured logger" that writes to stdout in plain text
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level:     slog.LevelDebug,
-		AddSource: true,
-	}))
-
 	// ############ flags ###########################
 
 	// define a command-line flag called "addr"
@@ -32,6 +24,16 @@ func main() {
 	// flag value is actally a pointer
 	PORT := *addr
 
+	// ############# dependencies ###################
+
+	app := &application{
+		// create a "structured logger" that writes to stdout in plain text
+		logger: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level:     slog.LevelDebug,
+			AddSource: true,
+		})),
+	}
+
 	// ############# router #########################
 
 	router := http.NewServeMux()
@@ -40,13 +42,13 @@ func main() {
 	fileServer := http.FileServer(http.Dir("ui/static"))
 
 	// match a single slash, followed by nothing else (exact match)
-	router.HandleFunc("GET /{$}", home)
+	router.HandleFunc("GET /{$}", app.home)
 
 	// this will match the specified pattern exactly
-	router.HandleFunc("GET /snippet/view/{id}", snippetView)
+	router.HandleFunc("GET /snippet/view/{id}", app.snippetView)
 
-	router.HandleFunc("GET /snippet/create", snippetCreate)
-	router.HandleFunc("POST /snippet/create", snippetCreatePost)
+	router.HandleFunc("GET /snippet/create", app.snippetCreate)
+	router.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
 	// serves static files (subtree path pattern)
 	// will match "/static/**", eg. "/static/css/main.css"
@@ -62,12 +64,12 @@ func main() {
 
 	// logging with a structured logger (DEBUG > INFO > WARN > ERROR)
 	// logger.Info("starting server", "PORT", PORT)
-	logger.Info("starting server", slog.String("PORT", PORT))
+	app.logger.Info("starting server", slog.String("PORT", PORT))
 
 	if err := http.ListenAndServe(PORT, router); err != nil {
 		// log.Fatal(err)
 
-		logger.Error(err.Error())
+		app.logger.Error(err.Error())
 		os.Exit(1)
 	}
 }
