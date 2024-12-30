@@ -13,14 +13,20 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// NOTE: MUST BE executed before any call to WriteHeader() or Write()
 	w.Header().Add("X-App-Env", "development")
 
-	t, err := template.ParseFiles("ui/html/pages/home.tmpl.html")
+	files := []string{
+		"ui/html/base.tmpl.html", // the base template must be the first file!
+		"ui/html/pages/home.tmpl.html",
+	}
+
+	t, err := template.ParseFiles(files...)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	err = t.Execute(w, nil)
+	// render the 'base' template specified using the "define" tag
+	err = t.ExecuteTemplate(w, "base", nil)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
