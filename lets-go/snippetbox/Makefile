@@ -1,5 +1,6 @@
 .PHONY: setup
 setup:
+	@go mod download
 	@docker compose up -d
 
 .PHONY: run
