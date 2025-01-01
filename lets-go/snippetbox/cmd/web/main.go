@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"krikchaip/snippetbox/internal/models"
 	"log/slog"
 	"net/http"
 	"os"
@@ -26,7 +27,10 @@ func main() {
 	defer db.Close()
 
 	// application instance with all dependencies setup
-	app := &application{logger, db}
+	app := &application{
+		logger:   logger,
+		snippets: models.NewSnippetModel(db),
+	}
 
 	// logging with the default logger
 	// log.Printf("starting server on %s", PORT)
