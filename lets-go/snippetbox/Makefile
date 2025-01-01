@@ -1,3 +1,7 @@
+.PHONY: setup
+setup:
+	@docker compose up -d
+
 .PHONY: run
 run:
 	@go run ./cmd/web -addr=:3000
