@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
+	"krikchaip/snippetbox/internal/models"
 	"net/http"
 	"strconv"
 )
@@ -42,7 +44,20 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
+	snippet, err := app.snippets.Get(id)
+
+	if errors.Is(err, models.ErrNoRecord) {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
+	fmt.Fprintf(w, "%+v", snippet)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, _ *http.Request) {

@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -48,8 +49,24 @@ func (m *SnippetModel) Insert(title, content string, expires int) (id int, err e
 }
 
 // This will return a specific snippet based on its id.
-func (m *SnippetModel) Get(id int) (Snippet, error) {
-	return Snippet{}, nil
+func (m *SnippetModel) Get(id int) (s Snippet, err error) {
+	// errors are deferred until Row's Scan method is called
+	row := m.db.QueryRow(`
+		SELECT id, title, content, created, expires
+		FROM snippets WHERE expires > NOW() AND id = $1
+	`, id)
+
+	err = row.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return Snippet{}, ErrNoRecord
+	}
+
+	if err != nil {
+		return Snippet{}, err
+	}
+
+	return s, nil
 }
 
 // This will return the 10 most recently created snippets.
