@@ -1,3 +1,5 @@
+SET standard_conforming_strings = off;
+
 INSERT INTO snippets (title, content, expires) VALUES (
   'An old silent pond',
   'An old silent pond...\nA frog jumps into the pond,\nsplash! Silence again.\n\n– Matsuo Bashō',
@@ -15,3 +17,5 @@ INSERT INTO snippets (title, content, expires) VALUES (
   'First autumn morning\nthe mirror I stare into\nshows my father''s face.\n\n– Murakami Kijo',
   NOW() + INTERVAL '7 days'
 );
+
+SET standard_conforming_strings = on;
