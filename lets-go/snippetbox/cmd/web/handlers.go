@@ -65,11 +65,23 @@ func (app *application) snippetCreate(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := 7
+
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+
 	// send a 201 status code.
 	// NOTE: MUST BE executed before any call to Write()
-	w.WriteHeader(http.StatusCreated)
+	// w.WriteHeader(http.StatusCreated)
 
-	w.Write([]byte("Save a new snippet..."))
+	// w.Write([]byte("Save a new snippet..."))
 }
 
 func (app *application) defaultHandler(w http.ResponseWriter, r *http.Request) {
