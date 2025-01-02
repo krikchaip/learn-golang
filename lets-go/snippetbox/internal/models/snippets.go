@@ -70,6 +70,39 @@ func (m *SnippetModel) Get(id int) (s Snippet, err error) {
 }
 
 // This will return the 10 most recently created snippets.
-func (m *SnippetModel) Latest() ([]Snippet, error) {
-	return nil, nil
+func (m *SnippetModel) Latest() (snippets []Snippet, err error) {
+	rows, err := m.db.Query(`
+		SELECT id, title, content, created, expires
+		FROM snippets WHERE expires > NOW()
+		ORDER BY id DESC
+		LIMIT 10
+	`)
+	if err != nil {
+		return
+	}
+
+	// this must come *after* you check for an error from the Query()
+	// otherwise, if Query() returns an error, you'll get a panic
+	// trying to close a nil resultset.
+	defer rows.Close()
+
+	// must call this method before each Scan()
+	for rows.Next() {
+		var s Snippet
+
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		if err != nil {
+			return
+		}
+
+		snippets = append(snippets, s)
+	}
+
+	// retrieve any error that was encountered during the iteration
+	if err = rows.Err(); err != nil {
+		snippets = nil
+		return
+	}
+
+	return
 }
