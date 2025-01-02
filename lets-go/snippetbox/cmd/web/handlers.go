@@ -56,8 +56,30 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	files := []string{
+		"ui/html/base.tmpl.html", // the base template must be the first file!
+		"ui/html/partials/nav.tmpl.html",
+		"ui/html/pages/view.tmpl.html",
+	}
+
+	t, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := templateData{
+		Snippet: snippet,
+	}
+
+	err = t.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
 	// fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
-	fmt.Fprintf(w, "%+v", snippet)
+	// fmt.Fprintf(w, "%+v", snippet)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, _ *http.Request) {
