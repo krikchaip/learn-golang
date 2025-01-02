@@ -14,24 +14,34 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// NOTE: MUST BE executed before any call to WriteHeader() or Write()
 	w.Header().Add("X-App-Env", "development")
 
-	files := []string{
-		"ui/html/base.tmpl.html", // the base template must be the first file!
-		"ui/html/partials/nav.tmpl.html",
-		"ui/html/pages/home.tmpl.html",
-	}
-
-	t, err := template.ParseFiles(files...)
+	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	// render the 'base' template specified using the "define" tag
-	err = t.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
+	for _, s := range snippets {
+		fmt.Fprintf(w, "%+v\n", s)
 	}
+
+	// files := []string{
+	// 	"ui/html/base.tmpl.html", // the base template must be the first file!
+	// 	"ui/html/partials/nav.tmpl.html",
+	// 	"ui/html/pages/home.tmpl.html",
+	// }
+	//
+	// t, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.serverError(w, r, err)
+	// 	return
+	// }
+	//
+	// // render the 'base' template specified using the "define" tag
+	// err = t.ExecuteTemplate(w, "base", nil)
+	// if err != nil {
+	// 	app.serverError(w, r, err)
+	// 	return
+	// }
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
