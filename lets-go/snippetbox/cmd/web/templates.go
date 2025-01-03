@@ -9,10 +9,23 @@ import (
 	"time"
 )
 
+// functions that will be used in the template files
+var functions = template.FuncMap{
+	"humanDate": func(t time.Time) string {
+		return t.Format("2 Jan 2006 at 15:04")
+	},
+}
+
 type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
+}
+
+func (app *application) newTemplateData(_ *http.Request) templateData {
+	return templateData{
+		CurrentYear: time.Now().Year(),
+	}
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -24,8 +37,14 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	for _, page := range pages {
+		// for example, "home.tmpl.html" -> "home"
+		name := strings.Split(filepath.Base(page), ".")[0]
+
+		// template functions must be registered before calling template.Parse*()
+		t := template.New(name).Funcs(functions)
+
 		// the base template must be the first file!
-		t, err := template.ParseFiles("ui/html/base.tmpl.html")
+		t, err := t.ParseFiles("ui/html/base.tmpl.html")
 		if err != nil {
 			return nil, err
 		}
@@ -43,18 +62,9 @@ func newTemplateCache() (map[string]*template.Template, error) {
 			return nil, err
 		}
 
-		// for example, "home.tmpl.html" -> "home"
-		name := strings.Split(filepath.Base(page), ".")[0]
-
 		// assign a template cache to the corresponding page name
 		cache[name] = t
 	}
 
 	return cache, nil
-}
-
-func (app *application) newTemplateData(_ *http.Request) templateData {
-	return templateData{
-		CurrentYear: time.Now().Year(),
-	}
 }
