@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/justinas/alice"
+)
 
 func (app *application) routes() http.Handler {
 	router := http.NewServeMux()
@@ -25,7 +29,11 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("GET /snippet/create", app.snippetCreate)
 	router.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
+	// compose a middleware chain using 'alice' package
+	// which will be used for every request our application receives.
+	standard := alice.New(app.recoverPanic, app.logRequest, securityHeaders)
+
 	// wrap ServeMux router with middlewares.
 	// do note that ServeMux also implements the 'http.Handler' interface
-	return app.recoverPanic(app.logRequest(securityHeaders(router)))
+	return standard.Then(router)
 }
