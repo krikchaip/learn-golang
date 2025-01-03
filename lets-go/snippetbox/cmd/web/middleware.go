@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 )
@@ -56,6 +57,27 @@ func (app *application) logRequest(next http.Handler) http.Handler {
 			slog.String("method", method),
 			slog.String("uri", uri),
 		)
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) recoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// run this function after the 'next' middleware is called, and catch an error
+		// with 'recover()' when 'panic()' is called somewhere in the middleware stack
+		defer func() {
+			if err := recover(); err != nil {
+				// makes Go’s HTTP server automatically close
+				// the current connection after a response has been sent
+				w.Header().Set("Connection", "close")
+
+				// converts 'err' to an error object before passing it to 'serverError'
+				err := fmt.Errorf("%s", err)
+
+				app.serverError(w, r, err)
+			}
+		}()
 
 		next.ServeHTTP(w, r)
 	})

@@ -27,5 +27,5 @@ func (app *application) routes() http.Handler {
 
 	// wrap ServeMux router with middlewares.
 	// do note that ServeMux also implements the 'http.Handler' interface
-	return app.logRequest(securityHeaders(router))
+	return app.recoverPanic(app.logRequest(securityHeaders(router)))
 }
