@@ -21,13 +21,21 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	for _, page := range pages {
-		files := []string{
-			"ui/html/base.tmpl.html", // the base template must be the first file!
-			"ui/html/partials/nav.tmpl.html",
-			page,
+		// the base template must be the first file!
+		t, err := template.ParseFiles("ui/html/base.tmpl.html")
+		if err != nil {
+			return nil, err
 		}
 
-		t, err := template.ParseFiles(files...)
+		// Call ParseGlob() *on this template set* to add any partials.
+		t, err = t.ParseGlob("ui/html/partials/*.tmpl.html")
+		if err != nil {
+			return nil, err
+		}
+
+		// parse the page template the last. this is to make sure that
+		// all necessary templates are compiled
+		t, err = t.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
