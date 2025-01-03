@@ -19,9 +19,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, http.StatusOK, "home", templateData{
-		Snippets: snippets,
-	})
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
+
+	app.render(w, r, http.StatusOK, "home", data)
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -49,9 +50,10 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
 	// fmt.Fprintf(w, "%+v", snippet)
 
-	app.render(w, r, http.StatusOK, "view", templateData{
-		Snippet: snippet,
-	})
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
+
+	app.render(w, r, http.StatusOK, "view", data)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, _ *http.Request) {
