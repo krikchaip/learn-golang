@@ -26,10 +26,18 @@ func main() {
 
 	defer db.Close()
 
+	// initialize html template cache
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	// application instance with all dependencies setup
 	app := &application{
-		logger:   logger,
-		snippets: models.NewSnippetModel(db),
+		logger:        logger,
+		snippets:      models.NewSnippetModel(db),
+		templateCache: templateCache,
 	}
 
 	// logging with the default logger
