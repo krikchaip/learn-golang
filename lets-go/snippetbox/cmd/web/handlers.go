@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"krikchaip/snippetbox/internal/models"
 	"net/http"
 	"strconv"
@@ -20,28 +19,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"ui/html/base.tmpl.html", // the base template must be the first file!
-		"ui/html/partials/nav.tmpl.html",
-		"ui/html/pages/home.tmpl.html",
-	}
-
-	t, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	data := templateData{
+	app.render(w, r, http.StatusOK, "home", templateData{
 		Snippets: snippets,
-	}
-
-	// render the 'base' template specified using the "define" tag
-	err = t.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
+	})
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -66,30 +46,12 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"ui/html/base.tmpl.html", // the base template must be the first file!
-		"ui/html/partials/nav.tmpl.html",
-		"ui/html/pages/view.tmpl.html",
-	}
-
-	t, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	data := templateData{
-		Snippet: snippet,
-	}
-
-	err = t.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
 	// fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
 	// fmt.Fprintf(w, "%+v", snippet)
+
+	app.render(w, r, http.StatusOK, "view", templateData{
+		Snippet: snippet,
+	})
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, _ *http.Request) {
