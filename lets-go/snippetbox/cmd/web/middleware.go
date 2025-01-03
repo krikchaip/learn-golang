@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"log/slog"
+	"net/http"
+)
 
 func securityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +35,27 @@ func securityHeaders(next http.Handler) http.Handler {
 		// should be disabled when using CSP headers
 		// ref: https://owasp.org/www-project-secure-headers/#x-xss-protection
 		w.Header().Set("X-XSS-Protection", "0")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var (
+			ip     = r.RemoteAddr
+			proto  = r.Proto
+			method = r.Method
+			uri    = r.URL.RequestURI()
+		)
+
+		app.logger.Info(
+			"received request",
+			slog.String("ip", ip),
+			slog.String("proto", proto),
+			slog.String("method", method),
+			slog.String("uri", uri),
+		)
 
 		next.ServeHTTP(w, r)
 	})

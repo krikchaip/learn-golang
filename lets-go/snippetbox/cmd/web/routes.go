@@ -25,7 +25,7 @@ func (app *application) routes() http.Handler {
 	router.HandleFunc("GET /snippet/create", app.snippetCreate)
 	router.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	// wrap ServeMux router with the 'securityHeaders' middleware.
+	// wrap ServeMux router with middlewares.
 	// do note that ServeMux also implements the 'http.Handler' interface
-	return securityHeaders(router)
+	return app.logRequest(securityHeaders(router))
 }
