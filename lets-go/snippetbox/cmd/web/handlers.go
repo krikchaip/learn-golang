@@ -8,11 +8,11 @@ import (
 	"strconv"
 )
 
-func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	// add a new header key
-	// NOTE: MUST BE executed before any call to WriteHeader() or Write()
-	w.Header().Add("X-App-Env", "development")
+func (app *application) defaultHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello from %q!", r.URL.Path)
+}
 
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, r, err)
@@ -72,14 +72,4 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	}
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
-
-	// send a 201 status code.
-	// NOTE: MUST BE executed before any call to Write()
-	// w.WriteHeader(http.StatusCreated)
-
-	// w.Write([]byte("Save a new snippet..."))
-}
-
-func (app *application) defaultHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello from %q!", r.URL.Path)
 }
