@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"krikchaip/snippetbox/internal/models"
 	"net/http"
+	"slices"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 )
 
 func (app *application) defaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +80,32 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// validation cases:
+	//   - Check that the "title" and "content" fields are not empty
+	//   - Check that the "title" field is not more than 100 characters long
+	//   - Check that the "expires" value exactly matches one of our permitted values (1, 7 or 365 days)
+	fieldErrors := make(map[string]string)
+
+	if strings.TrimSpace(title) == "" {
+		fieldErrors["title"] = "This field cannot be blank"
+	} else if utf8.RuneCountInString(title) > 100 {
+		fieldErrors["title"] = "This field cannot be more than 100 characters long"
+	}
+
+	if strings.TrimSpace(content) == "" {
+		fieldErrors["content"] = "This field cannot be blank"
+	}
+
+	if !slices.Contains([]int{1, 7, 365}, expires) {
+		fieldErrors["expires"] = "This field must equal 1, 7 or 365"
+	}
+
+	// if there are any errors, dump them in a plain text HTTP response
+	if len(fieldErrors) > 0 {
+		fmt.Fprint(w, fieldErrors)
 		return
 	}
 
