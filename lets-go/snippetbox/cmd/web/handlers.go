@@ -66,7 +66,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	// parse form data received from the client.
 	// the parsed data will be put into the r.PostForm and r.Form struct
 	if err := r.ParseForm(); err != nil {
-		app.cilentError(w, http.StatusBadRequest)
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
@@ -76,7 +76,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	// parse "expires" into an interger before using
 	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
 	if err != nil {
-		app.cilentError(w, http.StatusBadRequest)
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
