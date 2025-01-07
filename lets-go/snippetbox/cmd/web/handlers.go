@@ -54,6 +54,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
 
+	// retrieve and delete a flash message of the current request after rendered
+	data.Flash = app.sessionManager.PopString(r.Context(), "flash")
+
 	app.render(w, r, http.StatusOK, "view", data)
 }
 
@@ -141,5 +144,9 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// set 'flash' message of the current request context
+	app.sessionManager.Put(r.Context(), "flash", "Snippet successfully created!")
+
+	// carries the same 'r' instance during redirection
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }

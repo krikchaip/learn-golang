@@ -20,7 +20,8 @@ type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
-	Form        any
+	Form        any    // form value, eg. snippetCreateForm
+	Flash       string // flash message from the current session
 }
 
 func (app *application) newTemplateData(_ *http.Request) templateData {
