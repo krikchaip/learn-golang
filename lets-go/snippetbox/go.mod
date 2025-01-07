@@ -3,6 +3,7 @@ module krikchaip/snippetbox
 go 1.23.4
 
 require (
+	github.com/gorilla/schema v1.4.1
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/justinas/alice v1.2.0
 )

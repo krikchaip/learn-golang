@@ -7,8 +7,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/schema"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
+
+// it is recommended to set a decoder instance as a package global
+// ref: https://github.com/gorilla/schema
+var decoder = schema.NewDecoder()
 
 func main() {
 	// create a "structured logger" that writes to stdout in plain text
@@ -38,6 +43,7 @@ func main() {
 		logger:        logger,
 		snippets:      models.NewSnippetModel(db),
 		templateCache: templateCache,
+		decoder:       decoder,
 	}
 
 	// logging with the default logger
