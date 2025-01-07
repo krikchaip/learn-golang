@@ -2,8 +2,11 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/schema"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -52,4 +55,29 @@ func (app *application) render(
 	// If the template is written to the buffer without any errors
 	// we are safe to go ahead and write the content to the http.ResponseWriter
 	buf.WriteTo(w)
+}
+
+// 'dst' must be a pointer to a struct
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+	// parse form data received from the client.
+	// the parsed data will be put into the r.PostForm and r.Form struct
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	// parse form data using a 3rd party package
+	if err := app.decoder.Decode(dst, r.PostForm); err != nil {
+		// NOTE: errors.As() requires the second parameter to be a pointer
+		var conversionError *schema.ConversionError
+
+		// check for this specific error type and panic()
+		// instead of returning the error to the user
+		if errors.As(err, conversionError) {
+			panic(err)
+		}
+
+		return err
+	}
+
+	return nil
 }
