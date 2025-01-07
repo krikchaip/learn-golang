@@ -4,11 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"krikchaip/snippetbox/internal/models"
+	"krikchaip/snippetbox/internal/validator"
 	"net/http"
-	"slices"
 	"strconv"
-	"strings"
-	"unicode/utf8"
 )
 
 func (app *application) defaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,10 +70,11 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 
 // represents the form data and validation errors for the form fields
 type snippetCreateForm struct {
-	Title       string
-	Content     string
-	Expires     int
-	FieldErrors map[string]string
+	validator.Validator
+
+	Title   string
+	Content string
+	Expires int
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -97,31 +96,31 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		Title:   r.PostForm.Get("title"),
 		Content: r.PostForm.Get("content"),
 		Expires: expires,
-
-		// validation cases:
-		//   - Check that the "title" and "content" fields are not empty
-		//   - Check that the "title" field is not more than 100 characters long
-		//   - Check that the "expires" value exactly matches one of our permitted values (1, 7 or 365 days)
-		FieldErrors: make(map[string]string),
 	}
 
-	if strings.TrimSpace(form.Title) == "" {
-		form.FieldErrors["Title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(form.Title) > 100 {
-		form.FieldErrors["Title"] = "This field cannot be more than 100 characters long"
-	}
+	// validation cases:
+	//   - Check that the "title" and "content" fields are not empty
+	//   - Check that the "title" field is not more than 100 characters long
+	//   - Check that the "expires" value exactly matches one of our permitted values (1, 7 or 365 days)
 
-	if strings.TrimSpace(form.Content) == "" {
-		form.FieldErrors["Content"] = "This field cannot be blank"
-	}
+	form.CheckField(validator.NotBlank(form.Title), "Title", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Content), "Content", "This field cannot be blank")
 
-	if !slices.Contains([]int{1, 7, 365}, form.Expires) {
-		form.FieldErrors["Expires"] = "This field must equal 1, 7 or 365"
-	}
+	form.CheckField(
+		validator.MaxChars(form.Title, 100),
+		"Title",
+		"This field cannot be more than 100 characters long",
+	)
+
+	form.CheckField(
+		validator.PermittedValues(form.Expires, []int{1, 7, 365}),
+		"Expires",
+		"This field must equal 1, 7 or 365",
+	)
 
 	// if there are any errors, rerender the same template,
 	// passing in the FormErrors field
-	if len(form.FieldErrors) > 0 {
+	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
 
