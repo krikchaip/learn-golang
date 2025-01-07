@@ -6,7 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/gorilla/schema"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -38,12 +40,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	// using a 3rd party user session manager
+	// ref: https://github.com/alexedwards/scs
+	sessionManager := scs.New()
+	// sessionManager.Store = ...
+	sessionManager.Lifetime = 12 * time.Hour
+
 	// application instance with all dependencies setup
 	app := &application{
-		logger:        logger,
-		snippets:      models.NewSnippetModel(db),
-		templateCache: templateCache,
-		decoder:       decoder,
+		logger:         logger,
+		snippets:       models.NewSnippetModel(db),
+		templateCache:  templateCache,
+		decoder:        decoder,
+		sessionManager: sessionManager,
 	}
 
 	// logging with the default logger
