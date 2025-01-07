@@ -70,32 +70,38 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 
 // represents the form data and validation errors for the form fields
 type snippetCreateForm struct {
-	validator.Validator
+	validator.Validator `schema:"-"` // ignore this field during FormData population
 
-	Title   string
-	Content string
-	Expires int
+	Title   string `schema:"title"`
+	Content string `schema:"content"`
+	Expires int    `schema:"expires,default:365"`
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	// parse form data received from the client.
-	// the parsed data will be put into the r.PostForm and r.Form struct
-	if err := r.ParseForm(); err != nil {
+	var (
+		form snippetCreateForm
+		err  error
+	)
+
+	// // parse form data received from the client.
+	// // the parsed data will be put into the r.PostForm and r.Form struct
+	// if err = r.ParseForm(); err != nil {
+	// 	app.clientError(w, http.StatusBadRequest)
+	// 	return
+	// }
+
+	// form.Title = r.PostForm.Get("title")
+	// form.Content = r.PostForm.Get("content")
+	//
+	// // parse "expires" into an interger before using
+	// if form.Expires, err = strconv.Atoi(r.PostForm.Get("expires")); err != nil {
+	// 	app.clientError(w, http.StatusBadRequest)
+	// 	return
+	// }
+
+	if err := app.decodePostForm(r, &form); err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
-	}
-
-	// parse "expires" into an interger before using
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
-	form := snippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
 	}
 
 	// validation cases:
