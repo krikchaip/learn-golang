@@ -65,6 +65,14 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "create", data)
 }
 
+// represents the form data and validation errors for the form fields
+type snippetCreateForm struct {
+	Title       string
+	Content     string
+	Expires     int
+	FieldErrors map[string]string
+}
+
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
 	// parse form data received from the client.
 	// the parsed data will be put into the r.PostForm and r.Form struct
@@ -73,9 +81,6 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-
 	// parse "expires" into an interger before using
 	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
 	if err != nil {
@@ -83,33 +88,44 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// validation cases:
-	//   - Check that the "title" and "content" fields are not empty
-	//   - Check that the "title" field is not more than 100 characters long
-	//   - Check that the "expires" value exactly matches one of our permitted values (1, 7 or 365 days)
-	fieldErrors := make(map[string]string)
+	form := snippetCreateForm{
+		Title:   r.PostForm.Get("title"),
+		Content: r.PostForm.Get("content"),
+		Expires: expires,
 
-	if strings.TrimSpace(title) == "" {
-		fieldErrors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
-		fieldErrors["title"] = "This field cannot be more than 100 characters long"
+		// validation cases:
+		//   - Check that the "title" and "content" fields are not empty
+		//   - Check that the "title" field is not more than 100 characters long
+		//   - Check that the "expires" value exactly matches one of our permitted values (1, 7 or 365 days)
+		FieldErrors: make(map[string]string),
 	}
 
-	if strings.TrimSpace(content) == "" {
-		fieldErrors["content"] = "This field cannot be blank"
+	if strings.TrimSpace(form.Title) == "" {
+		form.FieldErrors["Title"] = "This field cannot be blank"
+	} else if utf8.RuneCountInString(form.Title) > 100 {
+		form.FieldErrors["Title"] = "This field cannot be more than 100 characters long"
 	}
 
-	if !slices.Contains([]int{1, 7, 365}, expires) {
-		fieldErrors["expires"] = "This field must equal 1, 7 or 365"
+	if strings.TrimSpace(form.Content) == "" {
+		form.FieldErrors["Content"] = "This field cannot be blank"
 	}
 
-	// if there are any errors, dump them in a plain text HTTP response
-	if len(fieldErrors) > 0 {
-		fmt.Fprint(w, fieldErrors)
+	if !slices.Contains([]int{1, 7, 365}, form.Expires) {
+		form.FieldErrors["Expires"] = "This field must equal 1, 7 or 365"
+	}
+
+	// if there are any errors, rerender the same template,
+	// passing in the FormErrors field
+	if len(form.FieldErrors) > 0 {
+		data := app.newTemplateData(r)
+		data.Form = form
+
+		app.render(w, r, http.StatusUnprocessableEntity, "create", data)
+
 		return
 	}
 
-	id, err := app.snippets.Insert(title, content, expires)
+	id, err := app.snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
