@@ -1,7 +1,7 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"krikchaip/snippetbox/internal/models"
 	"log/slog"
 	"net/http"
@@ -10,7 +10,8 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/gorilla/schema"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 )
 
 // it is recommended to set a decoder instance as a package global
@@ -25,12 +26,16 @@ func main() {
 	}))
 
 	// initialize database connection pool
-	db, err := openDB(DSN)
+	pool, err := openDBPool(DSN)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
+	// converts pgx database pool into a standard sql.DB interface
+	db := stdlib.OpenDBFromPool(pool)
+
+	defer pool.Close()
 	defer db.Close()
 
 	// initialize html template cache
@@ -71,20 +76,22 @@ func main() {
 	}
 }
 
-// wraps sql.Open() function and reutrns a connection pool
-func openDB(dsn string) (*sql.DB, error) {
+// wraps db init functions and returns a connection pool
+func openDBPool(dsn string) (*pgxpool.Pool, error) {
+	ctx := context.Background()
+
 	// initialize a connection pool for future use
 	// (no connections are actually created at this step)
-	db, err := sql.Open("pgx", dsn)
+	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
 		return nil, err
 	}
 
 	// connects to the db and check for errors
-	if err = db.Ping(); err != nil {
-		db.Close()
+	if err := pool.Ping(ctx); err != nil {
+		pool.Close()
 		return nil, err
 	}
 
-	return db, nil
+	return pool, nil
 }
