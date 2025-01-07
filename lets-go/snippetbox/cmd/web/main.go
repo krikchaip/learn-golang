@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/pgxstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/gorilla/schema"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -48,7 +49,7 @@ func main() {
 	// using a 3rd party user session manager
 	// ref: https://github.com/alexedwards/scs
 	sessionManager := scs.New()
-	// sessionManager.Store = ...
+	sessionManager.Store = pgxstore.New(pool)
 	sessionManager.Lifetime = 12 * time.Hour
 
 	// application instance with all dependencies setup
