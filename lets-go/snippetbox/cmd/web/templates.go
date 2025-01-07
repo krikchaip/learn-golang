@@ -24,9 +24,12 @@ type templateData struct {
 	Flash       string // flash message from the current session
 }
 
-func (app *application) newTemplateData(_ *http.Request) templateData {
+func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
+
+		// retrieve and delete a flash message of the current request after rendered
+		Flash: app.sessionManager.PopString(r.Context(), "flash"),
 	}
 }
 

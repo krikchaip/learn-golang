@@ -54,9 +54,6 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
 
-	// retrieve and delete a flash message of the current request after rendered
-	data.Flash = app.sessionManager.PopString(r.Context(), "flash")
-
 	app.render(w, r, http.StatusOK, "view", data)
 }
 
