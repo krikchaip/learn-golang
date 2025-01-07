@@ -9,6 +9,13 @@ import (
 func (app *application) routes() http.Handler {
 	router := http.NewServeMux()
 
+	// compose a middleware chain using 'alice' package
+	// which will be used for every request our application receives.
+	standard := alice.New(app.recoverPanic, app.logRequest, securityHeaders)
+
+	// a middleware that allows only authenticated requests
+	protected := alice.New(app.sessionManager.LoadAndSave)
+
 	// serve files out of the "./ui/static" directory
 	fileServer := http.FileServer(http.Dir("ui/static"))
 
@@ -21,17 +28,13 @@ func (app *application) routes() http.Handler {
 	// router.HandleFunc("/", app.defaultHandler)
 
 	// match a single slash, followed by nothing else (exact match)
-	router.HandleFunc("GET /{$}", app.home)
+	router.Handle("GET /{$}", protected.ThenFunc(app.home))
 
 	// this will match the specified pattern exactly
-	router.HandleFunc("GET /snippet/view/{id}", app.snippetView)
+	router.Handle("GET /snippet/view/{id}", protected.ThenFunc(app.snippetView))
 
-	router.HandleFunc("GET /snippet/create", app.snippetCreate)
-	router.HandleFunc("POST /snippet/create", app.snippetCreatePost)
-
-	// compose a middleware chain using 'alice' package
-	// which will be used for every request our application receives.
-	standard := alice.New(app.recoverPanic, app.logRequest, securityHeaders)
+	router.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
+	router.Handle("POST /snippet/create", protected.ThenFunc(app.snippetCreatePost))
 
 	// wrap ServeMux router with middlewares.
 	// do note that ServeMux also implements the 'http.Handler' interface
