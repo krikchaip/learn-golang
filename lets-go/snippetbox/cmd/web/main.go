@@ -51,6 +51,7 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = pgxstore.New(pool)
 	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true // cookies will only be sent when HTTPs is used
 
 	// application instance with all dependencies setup
 	app := &application{
@@ -79,7 +80,8 @@ func main() {
 	// logger.Info("starting server", "PORT", PORT)
 	logger.Info("starting server", slog.String("PORT", PORT))
 
-	if err := server.ListenAndServe(); err != nil {
+	// be sure to execute 'make gen-cert' before starting the server!
+	if err := server.ListenAndServeTLS("tls/cert.pem", "tls/key.pem"); err != nil {
 		// log.Fatal(err)
 
 		// 'slog' does not have .Fatal(), so we have to do it ourselves
