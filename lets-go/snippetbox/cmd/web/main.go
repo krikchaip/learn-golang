@@ -63,8 +63,13 @@ func main() {
 
 	// initialize a new http.Server struct to replace http.ListenAndServe
 	server := &http.Server{
+		// pass 'Addr' and 'Handler' as with http.ListenAndServe
 		Addr:    PORT,
 		Handler: app.routes(),
+
+		// converts our structured logger (slog) into a *log.Logger
+		// which write log entries at 'Error' level
+		ErrorLog: slog.NewLogLogger(app.logger.Handler(), slog.LevelError),
 	}
 
 	// logging with the default logger
