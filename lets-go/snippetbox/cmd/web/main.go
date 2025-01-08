@@ -61,6 +61,12 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
+	// initialize a new http.Server struct to replace http.ListenAndServe
+	server := &http.Server{
+		Addr:    PORT,
+		Handler: app.routes(),
+	}
+
 	// logging with the default logger
 	// log.Printf("starting server on %s", PORT)
 
@@ -68,7 +74,7 @@ func main() {
 	// logger.Info("starting server", "PORT", PORT)
 	logger.Info("starting server", slog.String("PORT", PORT))
 
-	if err := http.ListenAndServe(PORT, app.routes()); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		// log.Fatal(err)
 
 		// 'slog' does not have .Fatal(), so we have to do it ourselves
