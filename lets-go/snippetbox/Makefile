@@ -1,5 +1,13 @@
+KEY_FILE:=tls/key.pem
+CERT_FILE:=tls/cert.pem
+
+.PHONY: gen-cert
+gen-cert:
+	@openssl req -x509 -nodes -newkey rsa:2048 -days 365 -keyout ${KEY_FILE} -out ${CERT_FILE}
+
 .PHONY: setup
 setup:
+	@[ ! -f "${KEY_FILE}" ] && [ ! -f "${CERT_FILE}" ] && $(MAKE) gen-cert || true
 	@go mod download
 	@docker compose up -d
 
