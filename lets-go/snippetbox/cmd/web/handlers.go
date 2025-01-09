@@ -57,6 +57,15 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "view", data)
 }
 
+// represents the form data and validation errors for the form fields
+type snippetCreateForm struct {
+	validator.Validator `schema:"-"` // ignore this field during FormData population
+
+	Title   string `schema:"title"`
+	Content string `schema:"content"`
+	Expires int    `schema:"expires,default:365"`
+}
+
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 
@@ -66,15 +75,6 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.render(w, r, http.StatusOK, "create", data)
-}
-
-// represents the form data and validation errors for the form fields
-type snippetCreateForm struct {
-	validator.Validator `schema:"-"` // ignore this field during FormData population
-
-	Title   string `schema:"title"`
-	Content string `schema:"content"`
-	Expires int    `schema:"expires,default:365"`
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -148,8 +148,19 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
 
+type userSignupForm struct {
+	validator.Validator `schema:"-"` // ignore this field during FormData population
+
+	Name     string `schema:"name"`
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
+}
+
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display a form for signing up a new user...")
+	data := app.newTemplateData(r)
+	data.Form = userSignupForm{}
+
+	app.render(w, r, http.StatusOK, "signup", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {

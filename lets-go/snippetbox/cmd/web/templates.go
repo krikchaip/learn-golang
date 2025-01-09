@@ -20,7 +20,7 @@ type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
-	Form        any    // form value, eg. snippetCreateForm
+	Form        any    // form value, eg. snippetCreateForm, userSignupForm, ...
 	Flash       string // flash message from the current session
 }
 
