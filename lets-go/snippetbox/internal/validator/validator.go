@@ -1,9 +1,18 @@
 package validator
 
 import (
+	"regexp"
 	"slices"
 	"strings"
 	"unicode/utf8"
+)
+
+// parsing this pattern once at startup and storing the compiled
+// result in a variable is more performant than re-parsing
+// the pattern each time we need it
+// ref: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
+var EmailRegex = regexp.MustCompile(
+	"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
 )
 
 type Validator struct {
@@ -37,10 +46,18 @@ func NotBlank(value string) bool {
 	return strings.TrimSpace(value) != ""
 }
 
+func MinChars(value string, n int) bool {
+	return utf8.RuneCountInString(value) >= n
+}
+
 func MaxChars(value string, n int) bool {
 	return utf8.RuneCountInString(value) <= n
 }
 
 func PermittedValues[T comparable](value T, permittedValues []T) bool {
 	return slices.Contains(permittedValues, value)
+}
+
+func Matches(value string, r *regexp.Regexp) bool {
+	return r.MatchString(value)
 }
