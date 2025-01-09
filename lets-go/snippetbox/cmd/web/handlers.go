@@ -164,6 +164,44 @@ func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
+	var form userSignupForm
+
+	if err := app.decodePostForm(r, &form); err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// validation cases:
+	//   - Check that the provided name, email address and password are not blank.
+	//   - Sanity check the format of the email address.
+	//   - Ensure that the password is at least 8 characters long.
+	//   - Make sure that the email address isn’t already in use.
+
+	form.CheckField(validator.NotBlank(form.Name), "Name", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Email), "Email", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Password), "Password", "This field cannot be blank")
+
+	form.CheckField(
+		validator.Matches(form.Email, validator.EmailRegex),
+		"Email",
+		"This field must be a valid email address",
+	)
+
+	form.CheckField(
+		validator.MinChars(form.Password, 8),
+		"Password",
+		"This field must be at least 8 characters long",
+	)
+
+	data := app.newTemplateData(r)
+
+	if !form.Valid() {
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "signup", data)
+
+		return
+	}
+
 	fmt.Fprintln(w, "Create a new user...")
 }
 
