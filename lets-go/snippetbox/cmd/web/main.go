@@ -55,10 +55,12 @@ func main() {
 	// application instance with all dependencies setup
 	app := &application{
 		logger:         logger,
-		snippets:       models.NewSnippetModel(db),
 		templateCache:  templateCache,
 		decoder:        decoder,
 		sessionManager: sessionManager,
+
+		snippets: models.NewSnippetModel(db),
+		users:    models.NewUserModel(db),
 	}
 
 	// initialize a new http.Server struct to replace http.ListenAndServe

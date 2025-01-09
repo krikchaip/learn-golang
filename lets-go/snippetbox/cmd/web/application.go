@@ -12,8 +12,10 @@ import (
 // the application's dependencies (for dependency injection)
 type application struct {
 	logger         *slog.Logger
-	snippets       *models.SnippetModel
 	templateCache  map[string]*template.Template
 	decoder        *schema.Decoder
 	sessionManager *scs.SessionManager
+
+	snippets *models.SnippetModel
+	users    *models.UserModel
 }
