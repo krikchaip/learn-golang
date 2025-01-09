@@ -2,7 +2,11 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -22,6 +26,34 @@ func NewUserModel(db *sql.DB) *UserModel {
 }
 
 func (m *UserModel) Insert(name, email, password string) error {
+	// a cost of '12' means that 4096 (2^12) bcrypt iterations
+	// will be used to generate the password hash
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return err
+	}
+
+	_, err = m.db.Exec(`
+		INSERT INTO users (name, email, hashed_password)
+		VALUES ($1, $2, $3)
+	`, name, email, string(hashedPassword))
+
+	// the error returned above will have type *pgconn.PgError
+	// ref: https://github.com/jackc/pgx/wiki/Error-Handling
+	var pgError *pgconn.PgError
+
+	// we need to check whether or not the error relates to
+	// violating unique constraint for the 'email' key
+	// ref: https://pkg.go.dev/github.com/jackc/pgconn#PgError
+	if errors.As(err, &pgError) && pgError.Code == "23505" &&
+		pgError.ConstraintName == "users_email_key" {
+		return ErrDuplicateEmail
+	}
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
