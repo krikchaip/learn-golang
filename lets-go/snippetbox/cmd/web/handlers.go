@@ -202,7 +202,26 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, "Create a new user...")
+	err := app.users.Insert(form.Name, form.Email, form.Password)
+
+	// validate email uniqueness and render the same form with 'email' error
+	if errors.Is(err, models.ErrDuplicateEmail) {
+		form.AddFieldError("Email", "Email address is already in use")
+
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "signup", data)
+
+		return
+	}
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
+
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
