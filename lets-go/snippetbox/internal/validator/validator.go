@@ -17,10 +17,13 @@ var EmailRegex = regexp.MustCompile(
 
 type Validator struct {
 	FieldErrors map[string]string
+
+	// hold any validation errors which are not related to a specific form field
+	NonFieldErrors []string
 }
 
 func (v *Validator) Valid() bool {
-	return len(v.FieldErrors) == 0
+	return len(v.FieldErrors) == 0 && len(v.NonFieldErrors) == 0
 }
 
 // adds an error message to the FieldErrors map if not exists
@@ -34,6 +37,10 @@ func (v *Validator) AddFieldError(key, message string) {
 	if _, exists := v.FieldErrors[key]; !exists {
 		v.FieldErrors[key] = message
 	}
+}
+
+func (v *Validator) AddNonFieldError(message string) {
+	v.NonFieldErrors = append(v.NonFieldErrors, message)
 }
 
 func (v *Validator) CheckField(validated bool, key, message string) {
