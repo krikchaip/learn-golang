@@ -239,7 +239,62 @@ func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Authenticate and login the user...")
+	var form userLoginForm
+
+	if err := app.decodePostForm(r, &form); err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// validation cases:
+	//   - Check that the provided email address and password are not blank.
+	//   - Sanity check the format of the email address.
+
+	form.CheckField(validator.NotBlank(form.Email), "Email", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Password), "Password", "This field cannot be blank")
+
+	form.CheckField(
+		validator.Matches(form.Email, validator.EmailRegex),
+		"Email",
+		"This field must be a valid email address",
+	)
+
+	data := app.newTemplateData(r)
+
+	if !form.Valid() {
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "login", data)
+
+		return
+	}
+
+	id, err := app.users.Authenticate(form.Email, form.Password)
+
+	if errors.Is(err, models.ErrInvalidCredentials) {
+		form.AddNonFieldError("Email or password is incorrect")
+
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "login", data)
+
+		return
+	}
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	// NOTE: it is important to renew the session id when the authentication state
+	//  or privilege levels changes for the user (e.g. login and logout operations)
+	if err := app.sessionManager.RenewToken(r.Context()); err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+
+	// Redirect the user to the create snippet page
+	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
