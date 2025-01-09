@@ -36,6 +36,14 @@ func (app *application) routes() http.Handler {
 	router.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
 	router.Handle("POST /snippet/create", protected.ThenFunc(app.snippetCreatePost))
 
+	router.Handle("GET /user/signup", protected.ThenFunc(app.userSignup))
+	router.Handle("POST /user/signup", protected.ThenFunc(app.userSignupPost))
+
+	router.Handle("GET /user/login", protected.ThenFunc(app.userLogin))
+	router.Handle("POST /user/login", protected.ThenFunc(app.userLoginPost))
+
+	router.Handle("POST /user/logout", protected.ThenFunc(app.userLogoutPost))
+
 	// wrap ServeMux router with middlewares.
 	// do note that ServeMux also implements the 'http.Handler' interface
 	return standard.Then(router)
