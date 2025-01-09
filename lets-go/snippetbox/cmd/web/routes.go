@@ -13,8 +13,11 @@ func (app *application) routes() http.Handler {
 	// which will be used for every request our application receives.
 	standard := alice.New(app.recoverPanic, app.logRequest, securityHeaders)
 
-	// a middleware that allows only authenticated requests
-	protected := alice.New(app.sessionManager.LoadAndSave)
+	// unprotected application routes using the "dynamic" middleware chain.
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
+	// a middleware that allows only for authenticated requests
+	protected := dynamic.Append(app.requireAuthentication)
 
 	// serve files out of the "./ui/static" directory
 	fileServer := http.FileServer(http.Dir("ui/static"))
@@ -28,19 +31,19 @@ func (app *application) routes() http.Handler {
 	// router.HandleFunc("/", app.defaultHandler)
 
 	// match a single slash, followed by nothing else (exact match)
-	router.Handle("GET /{$}", protected.ThenFunc(app.home))
+	router.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 
 	// this will match the specified pattern exactly
-	router.Handle("GET /snippet/view/{id}", protected.ThenFunc(app.snippetView))
+	router.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
 
 	router.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
 	router.Handle("POST /snippet/create", protected.ThenFunc(app.snippetCreatePost))
 
-	router.Handle("GET /user/signup", protected.ThenFunc(app.userSignup))
-	router.Handle("POST /user/signup", protected.ThenFunc(app.userSignupPost))
+	router.Handle("GET /user/signup", dynamic.ThenFunc(app.userSignup))
+	router.Handle("POST /user/signup", dynamic.ThenFunc(app.userSignupPost))
 
-	router.Handle("GET /user/login", protected.ThenFunc(app.userLogin))
-	router.Handle("POST /user/login", protected.ThenFunc(app.userLoginPost))
+	router.Handle("GET /user/login", dynamic.ThenFunc(app.userLogin))
+	router.Handle("POST /user/login", dynamic.ThenFunc(app.userLoginPost))
 
 	router.Handle("POST /user/logout", protected.ThenFunc(app.userLogoutPost))
 
