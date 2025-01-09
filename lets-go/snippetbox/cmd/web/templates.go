@@ -17,16 +17,18 @@ var functions = template.FuncMap{
 }
 
 type templateData struct {
-	CurrentYear int
-	Snippet     models.Snippet
-	Snippets    []models.Snippet
-	Form        any    // form value, eg. snippetCreateForm, userSignupForm, ...
-	Flash       string // flash message from the current session
+	CurrentYear     int
+	Snippet         models.Snippet
+	Snippets        []models.Snippet
+	Form            any    // form value, eg. snippetCreateForm, userSignupForm, ...
+	Flash           string // flash message from the current session
+	IsAuthenticated bool
 }
 
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
-		CurrentYear: time.Now().Year(),
+		CurrentYear:     time.Now().Year(),
+		IsAuthenticated: app.isAuthenticated(r),
 
 		// retrieve and delete a flash message of the current request after rendered
 		Flash: app.sessionManager.PopString(r.Context(), "flash"),
