@@ -11,6 +11,9 @@ var PORT string
 // database source name (postgresql)
 var DSN string
 
+// tls certificate and its private key
+var CERT_FILE, KEY_FILE string
+
 func init() {
 	// define a command-line flag called "addr"
 	// addr := flag.String("addr", ":4000", "HTTP network address")
@@ -27,6 +30,9 @@ func init() {
 		"postgresql://web:secret@localhost:5432/snippetbox",
 		"PostgreSQL data source name",
 	)
+
+	flag.StringVar(&CERT_FILE, "cert-file", "tls/cert.pem", "TLS certificate file")
+	flag.StringVar(&KEY_FILE, "key-file", "tls/key.pem", "TLS certificate private key")
 
 	// NOTE: Must be called after all flags are defined and before flags are accessed
 	flag.Parse()

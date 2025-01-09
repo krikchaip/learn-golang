@@ -4,7 +4,6 @@ import (
 	"context"
 	"krikchaip/snippetbox/internal/models"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
@@ -63,15 +62,7 @@ func main() {
 	}
 
 	// initialize a new http.Server struct to replace http.ListenAndServe
-	server := &http.Server{
-		// pass 'Addr' and 'Handler' as with http.ListenAndServe
-		Addr:    PORT,
-		Handler: app.routes(),
-
-		// converts our structured logger (slog) into a *log.Logger
-		// which write log entries at 'Error' level
-		ErrorLog: slog.NewLogLogger(app.logger.Handler(), slog.LevelError),
-	}
+	server := app.newHTTPServer()
 
 	// logging with the default logger
 	// log.Printf("starting server on %s", PORT)
@@ -81,7 +72,7 @@ func main() {
 	logger.Info("starting server", slog.String("PORT", PORT))
 
 	// be sure to execute 'make gen-cert' before starting the server!
-	if err := server.ListenAndServeTLS("tls/cert.pem", "tls/key.pem"); err != nil {
+	if err := server.ListenAndServeTLS(CERT_FILE, KEY_FILE); err != nil {
 		// log.Fatal(err)
 
 		// 'slog' does not have .Fatal(), so we have to do it ourselves
