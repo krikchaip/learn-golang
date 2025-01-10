@@ -72,7 +72,7 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 
 		// check for this specific error type and panic()
 		// instead of returning the error to the user
-		if errors.As(err, conversionError) {
+		if errors.As(err, &conversionError) {
 			panic(err)
 		}
 
