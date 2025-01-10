@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/justinas/nosurf"
 )
 
 // functions that will be used in the template files
@@ -23,12 +25,14 @@ type templateData struct {
 	Form            any    // form value, eg. snippetCreateForm, userSignupForm, ...
 	Flash           string // flash message from the current session
 	IsAuthenticated bool
+	CSRFToken       string
 }
 
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear:     time.Now().Year(),
 		IsAuthenticated: app.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
 
 		// retrieve and delete a flash message of the current request after rendered
 		Flash: app.sessionManager.PopString(r.Context(), "flash"),
