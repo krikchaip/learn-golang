@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -80,6 +81,39 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 				app.serverError(w, r, err)
 			}
 		}()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
+		// skip if the authentication id does not exist in the current session
+		if !app.sessionManager.Exists(ctx, "authenticatedUserID") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		id := app.sessionManager.GetInt(ctx, "authenticatedUserID")
+
+		exists, err := app.users.Exists(id)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		// also skip if the user does not exist, just like the above
+		if !exists {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// rather than checking user authentication status through calling
+		// 'sessionManager' directly, we use r.Context() with the below key instead
+		ctx = context.WithValue(ctx, isAuthenticatedContextKey, true)
+		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 	})
