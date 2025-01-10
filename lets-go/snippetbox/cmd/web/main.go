@@ -4,6 +4,7 @@ import (
 	"context"
 	"krikchaip/snippetbox/internal/models"
 	"log/slog"
+	"net/http"
 	"os"
 	"time"
 
@@ -50,7 +51,13 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = pgxstore.New(pool)
 	sessionManager.Lifetime = 12 * time.Hour
-	sessionManager.Cookie.Secure = true // cookies will only be sent when HTTPs is used
+
+	// cookies will only be sent when HTTPs is used
+	sessionManager.Cookie.Secure = true
+
+	// set this option to 'Strict' if your application will potentially
+	// have other websites linking to it. Otherwise, set it to 'Lax'
+	sessionManager.Cookie.SameSite = http.SameSiteStrictMode
 
 	// application instance with all dependencies setup
 	app := &application{
