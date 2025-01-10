@@ -76,6 +76,13 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 			panic(err)
 		}
 
+		// 'nosurf' middleware requires HTML form to store
+		// an additional 'csrf_token' key for CSRF protection.
+		// we'll skip checking the field
+		if err, ok := err.(schema.MultiError); ok && err["csrf_token"] != nil {
+			return nil
+		}
+
 		return err
 	}
 
