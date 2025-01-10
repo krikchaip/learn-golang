@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 func securityHeaders(next http.Handler) http.Handler {
@@ -96,4 +98,17 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// customized CSRF cookie with the Secure, Path and HttpOnly attributes set
+// ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/",
+	})
+
+	return csrfHandler
 }

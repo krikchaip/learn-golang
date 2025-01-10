@@ -14,7 +14,7 @@ func (app *application) routes() http.Handler {
 	standard := alice.New(app.recoverPanic, app.logRequest, securityHeaders)
 
 	// unprotected application routes using the "dynamic" middleware chain.
-	dynamic := alice.New(app.sessionManager.LoadAndSave)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
 
 	// a middleware that allows only for authenticated requests
 	protected := dynamic.Append(app.requireAuthentication)
