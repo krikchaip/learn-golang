@@ -10,4 +10,4 @@ import "embed"
 //   - the embed FS is _always_ rooted in the directory containing the .go file
 
 //go:embed "static"
-var Files embed.FS
+var StaticFiles embed.FS

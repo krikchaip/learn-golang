@@ -1,6 +1,7 @@
 package main
 
 import (
+	"krikchaip/snippetbox/ui"
 	"net/http"
 
 	"github.com/justinas/alice"
@@ -22,11 +23,15 @@ func (app *application) routes() http.Handler {
 	// serve files out of the "./ui/static" directory
 	// NOTE: we have to use StripPrefix because the incoming request path
 	//       will be prefixed with '/static'
-	serveFilesFromDisk := http.StripPrefix("/static", http.FileServer(http.Dir("ui/static")))
+	// serveFilesFromDisk := http.StripPrefix("/static", http.FileServer(http.Dir("ui/static")))
+
+	// in this case, we no longer need to strip the prefix from the request URL --
+	// any requests that start with /static/ can just be passed directly to the file server
+	serveFilesEmbed := http.FileServerFS(ui.StaticFiles)
 
 	// serves static files (subtree path pattern)
 	// will match "/static/**", eg. "/static/css/main.css"
-	router.Handle("GET /static/", serveFilesFromDisk)
+	router.Handle("GET /static/", serveFilesEmbed)
 
 	// a catch-all handler (subtree path pattern)
 	// will match "/**", eg. "/foo", "/bar/bax/..."
