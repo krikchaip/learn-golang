@@ -18,3 +18,7 @@ run:
 .PHONY: watch
 watch:
 	@gow run ./cmd/web -addr=:3000
+
+.PHONY: test
+test:
+	@gow test -v ./cmd/web
