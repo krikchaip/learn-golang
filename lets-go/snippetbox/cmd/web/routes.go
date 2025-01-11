@@ -20,11 +20,13 @@ func (app *application) routes() http.Handler {
 	protected := dynamic.Append(app.requireAuthentication)
 
 	// serve files out of the "./ui/static" directory
-	fileServer := http.FileServer(http.Dir("ui/static"))
+	// NOTE: we have to use StripPrefix because the incoming request path
+	//       will be prefixed with '/static'
+	serveFilesFromDisk := http.StripPrefix("/static", http.FileServer(http.Dir("ui/static")))
 
 	// serves static files (subtree path pattern)
 	// will match "/static/**", eg. "/static/css/main.css"
-	router.Handle("GET /static/", http.StripPrefix("/static", fileServer))
+	router.Handle("GET /static/", serveFilesFromDisk)
 
 	// a catch-all handler (subtree path pattern)
 	// will match "/**", eg. "/foo", "/bar/bax/..."
