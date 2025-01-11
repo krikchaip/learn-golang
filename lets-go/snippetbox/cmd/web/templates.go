@@ -2,7 +2,9 @@ package main
 
 import (
 	"html/template"
+	"io/fs"
 	"krikchaip/snippetbox/internal/models"
+	"krikchaip/snippetbox/ui"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -42,7 +44,8 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := make(map[string]*template.Template)
 
-	pages, err := filepath.Glob("ui/html/pages/*.tmpl.html")
+	// pages, err := filepath.Glob("ui/html/pages/*.tmpl.html")
+	pages, err := fs.Glob(ui.TemplateFiles, "html/pages/*.tmpl.html")
 	if err != nil {
 		return nil, err
 	}
@@ -55,20 +58,23 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		t := template.New(name).Funcs(functions)
 
 		// the base template must be the first file!
-		t, err := t.ParseFiles("ui/html/base.tmpl.html")
+		// t, err := t.ParseFiles("ui/html/base.tmpl.html")
+		t, err := t.ParseFS(ui.TemplateFiles, "html/base.tmpl.html")
 		if err != nil {
 			return nil, err
 		}
 
 		// Call ParseGlob() *on this template set* to add any partials.
-		t, err = t.ParseGlob("ui/html/partials/*.tmpl.html")
+		// t, err = t.ParseGlob("ui/html/partials/*.tmpl.html")
+		t, err = t.ParseFS(ui.TemplateFiles, "html/partials/*.tmpl.html")
 		if err != nil {
 			return nil, err
 		}
 
 		// parse the page template the last. this is to make sure that
 		// all necessary templates are compiled
-		t, err = t.ParseFiles(page)
+		// t, err = t.ParseFiles(page)
+		t, err = t.ParseFS(ui.TemplateFiles, page)
 		if err != nil {
 			return nil, err
 		}

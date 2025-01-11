@@ -11,3 +11,6 @@ import "embed"
 
 //go:embed "static"
 var StaticFiles embed.FS
+
+//go:embed "html/*"
+var TemplateFiles embed.FS
