@@ -14,7 +14,7 @@ var DSN string
 // tls certificate and its private key
 var CERT_FILE, KEY_FILE string
 
-func init() {
+func initializeFlags() {
 	// define a command-line flag called "addr"
 	// addr := flag.String("addr", ":4000", "HTTP network address")
 

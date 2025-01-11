@@ -20,6 +20,12 @@ import (
 var decoder = schema.NewDecoder()
 
 func main() {
+	// I was trying to define the CLI flags in the init() function,
+	// but it seemed not getting along with the 'go test' command
+	// ref: https://stackoverflow.com/questions/64704124/flag-provided-but-not-defined-error-in-go-test-despite-the-flag-being-defined
+	//      https://stackoverflow.com/questions/29699982/go-test-flag-flag-provided-but-not-defined
+	initializeFlags()
+
 	// create a "structured logger" that writes to stdout in plain text
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level:     slog.LevelDebug,
