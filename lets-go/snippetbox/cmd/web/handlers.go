@@ -13,6 +13,10 @@ func (app *application) defaultHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello from %q!", r.URL.Path)
 }
 
+func healthz(w http.ResponseWriter, _ *http.Request) {
+	w.Write([]byte("OK"))
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	snippets, err := app.snippets.Latest()
 	if err != nil {
