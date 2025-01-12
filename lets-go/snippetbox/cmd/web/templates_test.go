@@ -1,6 +1,7 @@
 package main
 
 import (
+	"krikchaip/snippetbox/internal/assert"
 	"testing"
 	"time"
 )
@@ -40,9 +41,7 @@ func TestHumanDate(t *testing.T) {
 			got := humanDate(c.input)
 			want := c.want
 
-			if got != want {
-				t.Errorf("got %q; want %q", got, want)
-			}
+			assert.Equal(t, got, want)
 		})
 	}
 }
