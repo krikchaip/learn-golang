@@ -21,4 +21,4 @@ watch:
 
 .PHONY: test
 test:
-	@gow test -v ./cmd/web
+	@gow test -v "./..."
