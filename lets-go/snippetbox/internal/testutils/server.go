@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
 )
@@ -13,10 +14,26 @@ type testServer struct {
 	*httptest.Server
 }
 
-func NewTestServer(h http.Handler) *testServer {
+func NewTestServer(t *testing.T, h http.Handler) *testServer {
 	// this starts up a HTTPS server which listens on a
 	// randomly-chosen port of your local machine
 	server := httptest.NewTLSServer(h)
+
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// add the cookie jar to the test server client. Any response cookies will
+	// now be stored and sent with subsequent requests when using this client
+	server.Client().Jar = jar
+
+	// disable redirect-following for the test server client,
+	// returning a http.ErrUseLastResponse error forces the client
+	// to immediately return the received response
+	server.Client().CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
 
 	return &testServer{server}
 }

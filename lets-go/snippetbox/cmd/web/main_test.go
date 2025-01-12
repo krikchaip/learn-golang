@@ -12,7 +12,7 @@ import (
 
 func TestHealthzE2E(t *testing.T) {
 	app := newTestApplication()
-	server := testutils.NewTestServer(app.routes())
+	server := testutils.NewTestServer(t, app.routes())
 
 	// must call Close() so that the server is shutdown when the test finishes
 	defer server.Close()
