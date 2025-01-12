@@ -16,7 +16,11 @@ import (
 // functions that will be used in the template files
 var functions = template.FuncMap{
 	"humanDate": func(t time.Time) string {
-		return t.Format("2 Jan 2006 at 15:04")
+		if t.IsZero() {
+			return ""
+		}
+
+		return t.UTC().Format("2 Jan 2006 at 15:04")
 	},
 }
 
