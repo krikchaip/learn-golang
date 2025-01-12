@@ -41,6 +41,8 @@ func (app *application) routes() http.Handler {
 	router.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 
 	// this will match the specified pattern exactly
+	router.HandleFunc("GET /healthz", healthz)
+
 	router.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
 
 	router.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
