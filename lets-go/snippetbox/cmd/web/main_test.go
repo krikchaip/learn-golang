@@ -8,6 +8,7 @@ import (
 	"krikchaip/snippetbox/internal/testutils"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
@@ -87,6 +88,123 @@ func TestSnippetViewE2E(t *testing.T) {
 	}
 }
 
+func TestUserSignupE2E(t *testing.T) {
+	app := newTestApplication(t)
+	server := testutils.NewTestServer(t, app.routes())
+
+	// must call Close() so that the server is shutdown when the test finishes
+	defer server.Close()
+
+	// make the GET request and then extract the CSRF token from the response body
+	_, _, body := server.Get(t, "/user/signup")
+	csrfToken := testutils.ExtractCSRFToken(t, body)
+
+	// log the token specifically in our test output, an alternative to fmt.Printf()
+	t.Logf("CSRD token is: %q", csrfToken)
+
+	formTag := `<form action="/user/signup" method="POST" novalidate>`
+
+	cases := []struct {
+		name         string
+		userName     string
+		userEmail    string
+		userPassword string
+		csrfToken    string
+		wantCode     int
+		wantFormTag  string
+	}{
+		{
+			name:         "Valid submission",
+			userName:     mocks.MockUser.Name,
+			userEmail:    mocks.MockUser.Email,
+			userPassword: mocks.MockUser.Password,
+			csrfToken:    csrfToken,
+			wantCode:     http.StatusSeeOther,
+		},
+		{
+			name:         "Invalid CSRF Token",
+			userName:     mocks.MockUser.Name,
+			userEmail:    mocks.MockUser.Email,
+			userPassword: mocks.MockUser.Password,
+			csrfToken:    "wrongToken",
+			wantCode:     http.StatusBadRequest,
+		},
+		{
+			name:         "Empty name",
+			userName:     "",
+			userEmail:    mocks.MockUser.Email,
+			userPassword: mocks.MockUser.Password,
+			csrfToken:    csrfToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Empty email",
+			userName:     mocks.MockUser.Name,
+			userEmail:    "",
+			userPassword: mocks.MockUser.Password,
+			csrfToken:    csrfToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Empty password",
+			userName:     mocks.MockUser.Name,
+			userEmail:    mocks.MockUser.Email,
+			userPassword: "",
+			csrfToken:    csrfToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Invalid email",
+			userName:     mocks.MockUser.Name,
+			userEmail:    "bob@example.",
+			userPassword: mocks.MockUser.Password,
+			csrfToken:    csrfToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Short password",
+			userName:     mocks.MockUser.Name,
+			userEmail:    mocks.MockUser.Email,
+			userPassword: "pa$$",
+			csrfToken:    csrfToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Duplicate email",
+			userName:     mocks.MockUser.Name,
+			userEmail:    mocks.DupeEmail,
+			userPassword: mocks.MockUser.Password,
+			csrfToken:    csrfToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			data := url.Values{}
+
+			data.Add("name", c.userName)
+			data.Add("email", c.userEmail)
+			data.Add("password", c.userPassword)
+			data.Add("csrf_token", c.csrfToken)
+
+			statusCode, _, body := server.PostForm(t, "/user/signup", data)
+
+			assert.Equal(t, statusCode, c.wantCode)
+
+			if c.wantFormTag != "" {
+				assert.StringContains(t, body, c.wantFormTag)
+			}
+		})
+	}
+}
+
 func newTestApplication(t *testing.T) *application {
 	// will discard anything written to io.Discard
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -100,7 +218,6 @@ func newTestApplication(t *testing.T) *application {
 
 	// if no store is set, the SCS package will default to using a transient in-memory store
 	sessionManager := scs.New()
-	sessionManager.Store = nil
 	sessionManager.Lifetime = 12 * time.Hour
 	sessionManager.Cookie.Secure = true
 
