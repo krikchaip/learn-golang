@@ -3,11 +3,11 @@ package mocks
 import "krikchaip/snippetbox/internal/models"
 
 var (
-	dupeEmail = "dupe@example.com"
-	mockUser  = struct {
-		id              int
-		email, password string
-	}{1, "alice@example.com", "pa$$word"}
+	DupeEmail = "dupe@example.com"
+	MockUser  = struct {
+		Id                    int
+		Name, Email, Password string
+	}{1, "alice", "alice@example.com", "pa$$word"}
 )
 
 type UserModel struct{}
@@ -18,7 +18,7 @@ func NewUserModel() *UserModel {
 
 func (m *UserModel) Insert(name, email, password string) error {
 	switch email {
-	case dupeEmail:
+	case DupeEmail:
 		return models.ErrDuplicateEmail
 	default:
 		return nil
@@ -26,8 +26,8 @@ func (m *UserModel) Insert(name, email, password string) error {
 }
 
 func (m *UserModel) Authenticate(email, password string) (int, error) {
-	if email == mockUser.email && password == mockUser.password {
-		return mockUser.id, nil
+	if email == MockUser.Email && password == MockUser.Password {
+		return MockUser.Id, nil
 	}
 
 	return 0, models.ErrInvalidCredentials
@@ -35,7 +35,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 
 func (m *UserModel) Exists(id int) (bool, error) {
 	switch id {
-	case mockUser.id:
+	case MockUser.Id:
 		return true, nil
 	default:
 		return false, nil
