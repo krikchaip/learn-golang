@@ -16,6 +16,6 @@ type application struct {
 	decoder        *schema.Decoder
 	sessionManager *scs.SessionManager
 
-	snippets *models.SnippetModel
-	users    *models.UserModel
+	snippets models.SnippetModelInterface
+	users    models.UserModelInterface
 }

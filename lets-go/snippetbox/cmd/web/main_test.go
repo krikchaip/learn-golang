@@ -4,6 +4,7 @@ package main
 import (
 	"io"
 	"krikchaip/snippetbox/internal/assert"
+	"krikchaip/snippetbox/internal/models/mocks"
 	"krikchaip/snippetbox/internal/testutils"
 	"log/slog"
 	"net/http"
@@ -50,6 +51,10 @@ func newTestApplication(t *testing.T) *application {
 		templateCache:  templateCache,
 		decoder:        decoder,
 		sessionManager: sessionManager,
+
+		// mocked database layer
+		snippets: mocks.NewSnippetModel(),
+		users:    mocks.NewUserModel(),
 	}
 
 	return app
