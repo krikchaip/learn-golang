@@ -8,10 +8,14 @@ import (
 	"log/slog"
 	"net/http"
 	"testing"
+	"time"
+
+	"github.com/alexedwards/scs/v2"
+	"github.com/gorilla/schema"
 )
 
 func TestHealthzE2E(t *testing.T) {
-	app := newTestApplication()
+	app := newTestApplication(t)
 	server := testutils.NewTestServer(t, app.routes())
 
 	// must call Close() so that the server is shutdown when the test finishes
@@ -23,11 +27,29 @@ func TestHealthzE2E(t *testing.T) {
 	assert.Equal(t, body, "OK")
 }
 
-func newTestApplication() *application {
+func newTestApplication(t *testing.T) *application {
+	// will discard anything written to io.Discard
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	decoder = schema.NewDecoder()
+
+	// if no store is set, the SCS package will default to using a transient in-memory store
+	sessionManager := scs.New()
+	sessionManager.Store = nil
+	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true
+
 	// mock dependencies
 	app := &application{
-		// will discard anything written to io.Discard
-		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+		logger:         logger,
+		templateCache:  templateCache,
+		decoder:        decoder,
+		sessionManager: sessionManager,
 	}
 
 	return app
