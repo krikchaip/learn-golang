@@ -30,6 +30,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "home", data)
 }
 
+func (app *application) about(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "about", data)
+}
+
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	// retrieving path param
 	id, err := strconv.Atoi(r.PathValue("id"))

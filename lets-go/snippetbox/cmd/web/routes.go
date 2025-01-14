@@ -39,6 +39,7 @@ func (app *application) routes() http.Handler {
 
 	// match a single slash, followed by nothing else (exact match)
 	router.Handle("GET /{$}", dynamic.ThenFunc(app.home))
+	router.Handle("GET /about/{$}", dynamic.ThenFunc(app.about))
 
 	// this will match the specified pattern exactly
 	router.HandleFunc("GET /healthz", healthz)
