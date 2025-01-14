@@ -320,10 +320,17 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	redirectPathAfterLogin := "/snippet/create"
+
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
 
+	// use the PopString() method to retrieve and remove a value from the session data in one step
+	if path := app.sessionManager.PopString(r.Context(), "redirectPathAfterLogin"); path != "" {
+		redirectPathAfterLogin = path
+	}
+
 	// Redirect the user to the create snippet page
-	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
+	http.Redirect(w, r, redirectPathAfterLogin, http.StatusSeeOther)
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
