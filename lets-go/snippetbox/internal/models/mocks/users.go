@@ -60,3 +60,15 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 		return nil, models.ErrNoRecord
 	}
 }
+
+func (m *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
+	if id != MockUser.Id {
+		return models.ErrNoRecord
+	}
+
+	if currentPassword != MockUser.Password {
+		return models.ErrInvalidCredentials
+	}
+
+	return nil
+}
