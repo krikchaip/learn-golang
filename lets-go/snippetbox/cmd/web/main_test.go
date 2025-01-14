@@ -88,6 +88,39 @@ func TestSnippetViewE2E(t *testing.T) {
 	}
 }
 
+func TestSnippetCreateE2E(t *testing.T) {
+	app := newTestApplication(t)
+	server := testutils.NewTestServer(t, app.routes())
+
+	// must call Close() so that the server is shutdown when the test finishes
+	defer server.Close()
+
+	t.Run("Unauthenticated", func(t *testing.T) {
+		code, header, _ := server.Get(t, "/snippet/create")
+
+		assert.Equal(t, code, http.StatusSeeOther)
+		assert.Equal(t, header.Get("Location"), "/user/login")
+	})
+
+	t.Run("Authenticated", func(t *testing.T) {
+		_, _, body := server.Get(t, "/user/login")
+
+		csrfToken := testutils.ExtractCSRFToken(t, body)
+		t.Logf("CSRF token is: %q", csrfToken)
+
+		data := url.Values{}
+		data.Add("email", mocks.MockUser.Email)
+		data.Add("password", mocks.MockUser.Password)
+		data.Add("csrf_token", csrfToken)
+
+		server.PostForm(t, "/user/login", data)
+		code, _, body := server.Get(t, "/snippet/create")
+
+		assert.Equal(t, code, http.StatusOK)
+		assert.StringContains(t, body, `<form action="/snippet/create" method="POST">`)
+	})
+}
+
 func TestUserSignupE2E(t *testing.T) {
 	app := newTestApplication(t)
 	server := testutils.NewTestServer(t, app.routes())
@@ -100,7 +133,7 @@ func TestUserSignupE2E(t *testing.T) {
 	csrfToken := testutils.ExtractCSRFToken(t, body)
 
 	// log the token specifically in our test output, an alternative to fmt.Printf()
-	t.Logf("CSRD token is: %q", csrfToken)
+	t.Logf("CSRF token is: %q", csrfToken)
 
 	formTag := `<form action="/user/signup" method="POST" novalidate>`
 
