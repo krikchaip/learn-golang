@@ -405,11 +405,32 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 		"Passwords do not match",
 	)
 
-	if !form.Valid() {
-		data := app.newTemplateData(r)
-		data.Form = form
+	data := app.newTemplateData(r)
 
+	if !form.Valid() {
+		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, "password", data)
+
 		return
 	}
+
+	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+	err := app.users.PasswordUpdate(id, form.CurrentPassword, form.NewPassword)
+
+	if errors.Is(err, models.ErrInvalidCredentials) {
+		form.AddFieldError("CurrentPassword", "Current password is incorrect")
+
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "password", data)
+
+		return
+	}
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Put(r.Context(), "flash", "Your password has been updated!")
+	http.Redirect(w, r, "/account/view", http.StatusSeeOther)
 }
