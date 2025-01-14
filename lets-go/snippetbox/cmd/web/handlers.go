@@ -348,3 +348,68 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	// Redirect the user to the create snippet page
 	http.Redirect(w, r, redirectPathAfterLogin, http.StatusSeeOther)
 }
+
+type accountPasswordUpdateForm struct {
+	validator.Validator `schema:"-"`
+
+	CurrentPassword         string `schema:"currentPassword"`
+	NewPassword             string `schema:"newPassword"`
+	NewPasswordConfirmation string `schema:"newPasswordConfirmation"`
+}
+
+func (app *application) accountPasswordUpdate(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = accountPasswordUpdateForm{}
+
+	app.render(w, r, http.StatusOK, "password", data)
+}
+
+func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http.Request) {
+	var form accountPasswordUpdateForm
+
+	if err := app.decodePostForm(r, &form); err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	// validation cases:
+	//   - All three fields are required
+	//   - The newPassword value must be at least 8 characters long
+	//   - The newPassword and newPasswordConfirmation values must match
+
+	form.CheckField(
+		validator.NotBlank(form.CurrentPassword),
+		"CurrentPassword",
+		"This field cannot be blank",
+	)
+	form.CheckField(
+		validator.NotBlank(form.NewPassword),
+		"NewPassword",
+		"This field cannot be blank",
+	)
+	form.CheckField(
+		validator.NotBlank(form.NewPasswordConfirmation),
+		"NewPasswordConfirmation",
+		"This field cannot be blank",
+	)
+
+	form.CheckField(
+		validator.MinChars(form.NewPassword, 8),
+		"NewPassword",
+		"This field must be at least 8 characters long",
+	)
+
+	form.CheckField(
+		form.NewPassword == form.NewPasswordConfirmation,
+		"NewPasswordConfirmation",
+		"Passwords do not match",
+	)
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+
+		app.render(w, r, http.StatusUnprocessableEntity, "password", data)
+		return
+	}
+}

@@ -59,6 +59,12 @@ func (app *application) routes() http.Handler {
 
 	router.Handle("GET /account/view", protected.ThenFunc(app.accountView))
 
+	router.Handle("GET /account/password/update", protected.ThenFunc(app.accountPasswordUpdate))
+	router.Handle(
+		"POST /account/password/update",
+		protected.ThenFunc(app.accountPasswordUpdatePost),
+	)
+
 	// wrap ServeMux router with middlewares.
 	// do note that ServeMux also implements the 'http.Handler' interface
 	return standard.Then(router)
