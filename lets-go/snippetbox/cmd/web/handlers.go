@@ -66,6 +66,26 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, "view", data)
 }
 
+func (app *application) accountView(w http.ResponseWriter, r *http.Request) {
+	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+
+	user, err := app.users.Get(id)
+
+	if errors.Is(err, models.ErrNoRecord) {
+		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+	}
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	data := app.newTemplateData(r)
+	data.User = *user
+
+	app.render(w, r, http.StatusOK, "account", data)
+}
+
 // represents the form data and validation errors for the form fields
 type snippetCreateForm struct {
 	validator.Validator `schema:"-"` // ignore this field during FormData population

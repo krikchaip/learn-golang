@@ -25,13 +25,16 @@ var functions = template.FuncMap{
 }
 
 type templateData struct {
-	CurrentYear     int
-	Snippet         models.Snippet
-	Snippets        []models.Snippet
 	Form            any    // form value, eg. snippetCreateForm, userSignupForm, ...
 	Flash           string // flash message from the current session
 	IsAuthenticated bool
 	CSRFToken       string
+
+	CurrentYear int
+
+	Snippet  models.Snippet
+	Snippets []models.Snippet
+	User     models.User
 }
 
 func (app *application) newTemplateData(r *http.Request) templateData {

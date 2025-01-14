@@ -57,6 +57,8 @@ func (app *application) routes() http.Handler {
 
 	router.Handle("POST /user/logout", protected.ThenFunc(app.userLogoutPost))
 
+	router.Handle("GET /account/view", protected.ThenFunc(app.accountView))
+
 	// wrap ServeMux router with middlewares.
 	// do note that ServeMux also implements the 'http.Handler' interface
 	return standard.Then(router)

@@ -1,6 +1,9 @@
 package mocks
 
-import "krikchaip/snippetbox/internal/models"
+import (
+	"krikchaip/snippetbox/internal/models"
+	"time"
+)
 
 var (
 	DupeEmail = "dupe@example.com"
@@ -39,5 +42,21 @@ func (m *UserModel) Exists(id int) (bool, error) {
 		return true, nil
 	default:
 		return false, nil
+	}
+}
+
+func (m *UserModel) Get(id int) (*models.User, error) {
+	user := models.User{
+		ID:      mockSnippet.ID,
+		Name:    MockUser.Name,
+		Email:   MockUser.Email,
+		Created: time.Now(),
+	}
+
+	switch id {
+	case MockUser.Id:
+		return &user, nil
+	default:
+		return nil, models.ErrNoRecord
 	}
 }
