@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/gorilla/schema"
 )
@@ -13,10 +14,23 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 	var (
 		method = r.Method
 		uri    = r.URL.RequestURI()
+
+		// capture a stack trace up until this point of calling
+		trace = string(debug.Stack())
 	)
 
 	app.logger.Error(err.Error(), "method", method, "uri", uri)
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+	var errMsg string
+
+	// display full stack trace upon response when 'debug' mode is enabled
+	if app.debug {
+		errMsg = trace
+	} else {
+		errMsg = http.StatusText(http.StatusInternalServerError)
+	}
+
+	http.Error(w, errMsg, http.StatusInternalServerError)
 }
 
 func (app *application) clientError(w http.ResponseWriter, statusCode int) {

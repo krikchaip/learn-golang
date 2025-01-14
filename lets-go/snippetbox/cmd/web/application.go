@@ -11,6 +11,8 @@ import (
 
 // the application's dependencies (for dependency injection)
 type application struct {
+	debug bool // whether the debug mode is enabled
+
 	logger         *slog.Logger
 	templateCache  map[string]*template.Template
 	decoder        *schema.Decoder

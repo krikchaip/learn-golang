@@ -67,6 +67,8 @@ func main() {
 
 	// application instance with all dependencies setup
 	app := &application{
+		debug: DEBUG,
+
 		logger:         logger,
 		templateCache:  templateCache,
 		decoder:        decoder,
