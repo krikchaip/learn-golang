@@ -1,13 +1,32 @@
 package main
 
 import (
-	"fmt"
+	"krikchaip/quiz-game/internal"
 	"krikchaip/quiz-game/internal/options"
+	"log"
+	"os"
 )
 
 func main() {
 	// parse command line options for the quiz game
 	options.Parse()
 
-	fmt.Printf("%#v", options.Values)
+	// initiate quiz game instance
+	g := game.New()
+
+	problems := readProblemFile()
+	defer problems.Close()
+
+	if err := g.ParseReader(problems); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func readProblemFile() *os.File {
+	problems, err := os.Open(options.Values.CSV)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return problems
 }
