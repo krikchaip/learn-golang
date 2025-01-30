@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"krikchaip/quiz-game/internal/options"
+)
 
 func main() {
-	fmt.Println("winner")
+	// parse command line options for the quiz game
+	options.Parse()
+
+	fmt.Printf("%#v", options.Values)
 }
