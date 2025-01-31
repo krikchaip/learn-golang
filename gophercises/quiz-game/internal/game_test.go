@@ -11,16 +11,7 @@ func TestParseReader(t *testing.T) {
 		var in, out bytes.Buffer
 		g := New(&in, &out)
 
-		file := bytes.NewBufferString(`
-			1+1,2
-			2+2,4
-			10*2,20`)
-
-		quizzes := []quiz{
-			{"1+1", "2"},
-			{"2+2", "4"},
-			{"10*2", "20"},
-		}
+		file, quizzes := generateTestSample()
 
 		if err := g.ParseReader(file); err != nil {
 			t.Fatal(err)
@@ -39,16 +30,7 @@ func TestParseReader(t *testing.T) {
 		var in, out bytes.Buffer
 		g := New(&in, &out, WithShuffle(true))
 
-		file := bytes.NewBufferString(`
-			1+1,2
-			2+2,4
-			10*2,20`)
-
-		quizzes := []quiz{
-			{"1+1", "2"},
-			{"2+2", "4"},
-			{"10*2", "20"},
-		}
+		file, quizzes := generateTestSample()
 
 		if err := g.ParseReader(file); err != nil {
 			t.Fatal(err)
@@ -65,4 +47,19 @@ func TestParseReader(t *testing.T) {
 }
 
 func TestStart(t *testing.T) {
+}
+
+func generateTestSample() (file *bytes.Buffer, quizzes []quiz) {
+	file = bytes.NewBufferString(`
+		1+1,2
+		2+2,4
+		10*2,20`)
+
+	quizzes = []quiz{
+		{"1+1", "2"},
+		{"2+2", "4"},
+		{"10*2", "20"},
+	}
+
+	return
 }
