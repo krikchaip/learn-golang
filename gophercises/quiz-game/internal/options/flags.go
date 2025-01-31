@@ -16,6 +16,13 @@ func defineFlags() {
 		30,
 		"the time limit for the quiz in seconds",
 	)
+
+	flag.BoolVar(
+		&Values.Shuffle,
+		"shuffle",
+		false,
+		"shuffle the quiz order",
+	)
 }
 
 func Parse() {
