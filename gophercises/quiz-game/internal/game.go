@@ -48,23 +48,44 @@ func (g *game) ParseReader(r io.Reader) error {
 	return nil
 }
 
-func (g *game) Start() error {
-	for i, q := range g.quizzes {
-		fmt.Fprintf(g.output, "Problem #%d: %s = ", i+1, q.question)
+func (g *game) Start() (err error) {
+	select {
+	case <-time.After(g.timeout):
+		fmt.Fprintln(g.output)
+	case err = <-g.play():
+	}
 
-		line, err := g.readLine()
-		if err != nil {
-			return err
-		}
-
-		if line == q.answer {
-			g.scores++
-		}
+	if err != nil {
+		return err
 	}
 
 	fmt.Fprintf(g.output, "You scored %d out of %d.", g.scores, len(g.quizzes))
 
 	return nil
+}
+
+func (g *game) play() <-chan error {
+	sig := make(chan error)
+
+	go func() {
+		for i, q := range g.quizzes {
+			fmt.Fprintf(g.output, "Problem #%d: %s = ", i+1, q.question)
+
+			line, err := g.readLine()
+			if err != nil {
+				sig <- err
+				break
+			}
+
+			if line == q.answer {
+				g.scores++
+			}
+		}
+
+		close(sig)
+	}()
+
+	return sig
 }
 
 func (g *game) readLine() (string, error) {
