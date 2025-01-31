@@ -12,12 +12,17 @@ func main() {
 	options.Parse()
 
 	// initiate quiz game instance
-	g := game.New()
+	g := game.New(os.Stdin, os.Stdout)
 
 	problems := readProblemFile()
 	defer problems.Close()
 
 	if err := g.ParseReader(problems); err != nil {
+		log.Fatal(err)
+	}
+
+	// game start
+	if err := g.Start(); err != nil {
 		log.Fatal(err)
 	}
 }

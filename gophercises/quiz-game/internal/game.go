@@ -1,20 +1,28 @@
 package game
 
 import (
+	"bufio"
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"io"
+	"strings"
 )
 
 type quiz struct{ question, answer string }
 
 type game struct {
+	input  *bufio.Scanner
+	output io.Writer
+
 	quizzes []quiz
 	scores  uint
 }
 
-func New() *game {
-	return &game{}
+func New(r io.Reader, w io.Writer) *game {
+	input := bufio.NewScanner(r)
+
+	return &game{input: input, output: w}
 }
 
 func (g *game) ParseReader(r io.Reader) error {
@@ -35,4 +43,31 @@ func (g *game) ParseReader(r io.Reader) error {
 	}
 
 	return nil
+}
+
+func (g *game) Start() error {
+	for i, q := range g.quizzes {
+		fmt.Fprintf(g.output, "Problem #%d: %s = ", i+1, q.question)
+
+		line, err := g.readLine()
+		if err != nil {
+			return err
+		}
+
+		if line == q.answer {
+			g.scores++
+		}
+	}
+
+	fmt.Fprintf(g.output, "You scored %d out of %d.", g.scores, len(g.quizzes))
+
+	return nil
+}
+
+func (g *game) readLine() (string, error) {
+	if ok, err := g.input.Scan(), g.input.Err(); !ok && err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(g.input.Text()), nil
 }
