@@ -64,7 +64,10 @@ func (g *game) ParseReader(r io.Reader) error {
 			return err
 		}
 
-		g.quizzes = append(g.quizzes, quiz{record[0], record[1]})
+		g.quizzes = append(g.quizzes, quiz{
+			strings.TrimSpace(record[0]),
+			strings.TrimSpace(record[1]),
+		})
 	}
 
 	if g.shuffle {
