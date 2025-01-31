@@ -21,11 +21,25 @@ type game struct {
 	scores  uint
 }
 
-func New(r io.Reader, w io.Writer, limit uint) *game {
+func New(r io.Reader, w io.Writer, options ...gameOption) *game {
 	input := bufio.NewScanner(r)
-	timeout := time.Duration(limit) * time.Second
 
-	return &game{input: input, output: w, timeout: timeout}
+	g := &game{input: input, output: w}
+
+	// apply options
+	for _, o := range options {
+		o(g)
+	}
+
+	return g
+}
+
+type gameOption = func(*game)
+
+func WithLimit(limit uint) gameOption {
+	return func(g *game) {
+		g.timeout = time.Duration(limit) * time.Second
+	}
 }
 
 func (g *game) ParseReader(r io.Reader) error {

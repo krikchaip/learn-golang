@@ -12,7 +12,10 @@ func main() {
 	options.Parse()
 
 	// initiate quiz game instance
-	g := game.New(os.Stdin, os.Stdout, options.Values.Limit)
+	g := game.New(
+		os.Stdin, os.Stdout,
+		game.WithLimit(options.Values.Limit),
+	)
 
 	problems := readProblemFile()
 	defer problems.Close()
