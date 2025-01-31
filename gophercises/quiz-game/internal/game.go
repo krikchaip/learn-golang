@@ -7,22 +7,25 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 )
 
 type quiz struct{ question, answer string }
 
 type game struct {
-	input  *bufio.Scanner
-	output io.Writer
+	input   *bufio.Scanner
+	output  io.Writer
+	timeout time.Duration
 
 	quizzes []quiz
 	scores  uint
 }
 
-func New(r io.Reader, w io.Writer) *game {
+func New(r io.Reader, w io.Writer, limit uint) *game {
 	input := bufio.NewScanner(r)
+	timeout := time.Duration(limit) * time.Second
 
-	return &game{input: input, output: w}
+	return &game{input: input, output: w, timeout: timeout}
 }
 
 func (g *game) ParseReader(r io.Reader) error {
