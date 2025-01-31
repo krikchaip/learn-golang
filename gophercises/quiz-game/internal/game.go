@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -64,6 +65,12 @@ func (g *game) ParseReader(r io.Reader) error {
 		}
 
 		g.quizzes = append(g.quizzes, quiz{record[0], record[1]})
+	}
+
+	if g.shuffle {
+		rand.Shuffle(len(g.quizzes), func(i, j int) {
+			g.quizzes[i], g.quizzes[j] = g.quizzes[j], g.quizzes[i]
+		})
 	}
 
 	return nil
