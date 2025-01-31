@@ -15,6 +15,7 @@ func main() {
 	g := game.New(
 		os.Stdin, os.Stdout,
 		game.WithLimit(options.Values.Limit),
+		game.WithShuffle(options.Values.Shuffle),
 	)
 
 	problems := readProblemFile()

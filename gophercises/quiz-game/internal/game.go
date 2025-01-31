@@ -16,6 +16,7 @@ type game struct {
 	input   *bufio.Scanner
 	output  io.Writer
 	timeout time.Duration
+	shuffle bool
 
 	quizzes []quiz
 	scores  uint
@@ -39,6 +40,12 @@ type gameOption = func(*game)
 func WithLimit(limit uint) gameOption {
 	return func(g *game) {
 		g.timeout = time.Duration(limit) * time.Second
+	}
+}
+
+func WithShuffle(enable bool) gameOption {
+	return func(g *game) {
+		g.shuffle = enable
 	}
 }
 
