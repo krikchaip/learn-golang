@@ -7,20 +7,20 @@ import (
 )
 
 func TestParseReader(t *testing.T) {
-	file := bytes.NewBufferString(`
-		1+1,2
-		2+2,4
-		10*2,20`)
-
-	quizzes := []quiz{
-		{"1+1", "2"},
-		{"2+2", "4"},
-		{"10*2", "20"},
-	}
-
 	t.Run("parse CSV file", func(t *testing.T) {
 		var in, out bytes.Buffer
 		g := New(&in, &out)
+
+		file := bytes.NewBufferString(`
+			1+1,2
+			2+2,4
+			10*2,20`)
+
+		quizzes := []quiz{
+			{"1+1", "2"},
+			{"2+2", "4"},
+			{"10*2", "20"},
+		}
 
 		if err := g.ParseReader(file); err != nil {
 			t.Fatal(err)
@@ -36,6 +36,31 @@ func TestParseReader(t *testing.T) {
 	})
 
 	t.Run("shuffle quizzes order", func(t *testing.T) {
+		var in, out bytes.Buffer
+		g := New(&in, &out, WithShuffle(true))
+
+		file := bytes.NewBufferString(`
+			1+1,2
+			2+2,4
+			10*2,20`)
+
+		quizzes := []quiz{
+			{"1+1", "2"},
+			{"2+2", "4"},
+			{"10*2", "20"},
+		}
+
+		if err := g.ParseReader(file); err != nil {
+			t.Fatal(err)
+		}
+
+		if got, want := len(g.quizzes), len(quizzes); got != want {
+			t.Errorf("got quizzes length of %d; want %d", got, want)
+		}
+
+		if slices.Equal(g.quizzes, quizzes) {
+			t.Errorf("the results order are expected to be shuffled")
+		}
 	})
 }
 
