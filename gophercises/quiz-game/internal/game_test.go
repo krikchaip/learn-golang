@@ -47,6 +47,46 @@ func TestParseReader(t *testing.T) {
 }
 
 func TestStart(t *testing.T) {
+	testCases := []struct {
+		name   string
+		input  string
+		scores uint
+	}{
+		{name: "finish the game successfully", input: "2\n4\n20\n", scores: 3},
+		{name: "got only 2 scores", input: "2\n\n20\n", scores: 2},
+		{name: "skip answers", input: "\n\n\n", scores: 0},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var in, out bytes.Buffer
+			g := New(&in, &out, WithLimit(10))
+
+			file, _ := generateTestSample()
+
+			if err := g.ParseReader(file); err != nil {
+				t.Fatal(err)
+			}
+
+			// start the quiz game asynchronously
+			finished := make(chan error)
+			go func() {
+				finished <- g.Start()
+				close(finished)
+			}()
+
+			// write quiz answers
+			in.WriteString(tc.input)
+
+			if err := <-finished; err != nil {
+				t.Fatal(err)
+			}
+
+			if got, want := g.scores, tc.scores; got != want {
+				t.Errorf("got scores %d; want %d", got, want)
+			}
+		})
+	}
 }
 
 func generateTestSample() (file *bytes.Buffer, quizzes []quiz) {
