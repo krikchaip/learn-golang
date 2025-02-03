@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +11,13 @@ import (
 )
 
 const ADDR = ":8000"
+
+var FILE string
+
+func init() {
+	flag.StringVar(&FILE, "file", "", "an optional .yaml file for YAMLHandler")
+	flag.Parse()
+}
 
 func main() {
 	URLShortener := YAMLHandler([]byte(`
