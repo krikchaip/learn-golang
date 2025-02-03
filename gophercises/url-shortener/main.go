@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	fp "path/filepath"
 	"slices"
 
 	"gopkg.in/yaml.v3"
@@ -20,12 +22,12 @@ func init() {
 }
 
 func main() {
-	URLShortener := YAMLHandler([]byte(`
+	URLShortener := YAMLHandlerFile(FILE).then(YAMLHandlerBlob([]byte(`
     - path: /urlshort
       url: https://github.com/gophercises/urlshort
     - path: /urlshort-final
       url: https://github.com/gophercises/urlshort/tree/solution
-  `)).then(MapHandler(map[string]string{
+  `))).then(MapHandler(map[string]string{
 		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
 		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
 		"/github":         "https://github.com/krikchaip",
@@ -58,7 +60,7 @@ type URLPathYAML struct {
 	Url  string
 }
 
-func YAMLHandler(blob []byte) Middleware {
+func YAMLHandlerBlob(blob []byte) Middleware {
 	var urlPaths []URLPathYAML
 
 	if err := yaml.Unmarshal(blob, &urlPaths); err != nil {
@@ -66,6 +68,52 @@ func YAMLHandler(blob []byte) Middleware {
 	}
 
 	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			i := slices.IndexFunc(urlPaths, func(rec URLPathYAML) bool {
+				return rec.Path == r.URL.Path
+			})
+
+			if i != -1 {
+				url := urlPaths[i].Url
+
+				log.Println(r.URL.Path, "->", url)
+				http.Redirect(w, r, url, http.StatusMovedPermanently)
+
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func YAMLHandlerFile(file string) Middleware {
+	var urlPaths []URLPathYAML
+
+	return func(next http.Handler) http.Handler {
+		// skip this middleware if no file is present
+		if file == "" {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next.ServeHTTP(w, r)
+			})
+		}
+
+		filepath, err := fp.Abs(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		f, err := os.Open(filepath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+
+		decoder := yaml.NewDecoder(f)
+		if err := decoder.Decode(&urlPaths); err != nil {
+			log.Fatal(err)
+		}
+
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			i := slices.IndexFunc(urlPaths, func(rec URLPathYAML) bool {
 				return rec.Path == r.URL.Path
