@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -27,7 +28,12 @@ func main() {
       url: https://github.com/gophercises/urlshort
     - path: /urlshort-final
       url: https://github.com/gophercises/urlshort/tree/solution
-  `))).then(MapHandler(map[string]string{
+  `))).then(JSONHandlerBlob([]byte(`
+		[
+			{ "path": "/justjson", "url": "https://www.facebook.com" },
+			{ "path": "/justyolo", "url": "https://youtube.com" }
+		]
+	`))).then(MapHandler(map[string]string{
 		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
 		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
 		"/github":         "https://github.com/krikchaip",
@@ -116,6 +122,38 @@ func YAMLHandlerFile(file string) Middleware {
 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			i := slices.IndexFunc(urlPaths, func(rec URLPathYAML) bool {
+				return rec.Path == r.URL.Path
+			})
+
+			if i != -1 {
+				url := urlPaths[i].Url
+
+				log.Println(r.URL.Path, "->", url)
+				http.Redirect(w, r, url, http.StatusMovedPermanently)
+
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+type URLPathJSON struct {
+	Path string
+	Url  string
+}
+
+func JSONHandlerBlob(blob []byte) Middleware {
+	var urlPaths []URLPathJSON
+
+	if err := json.Unmarshal(blob, &urlPaths); err != nil {
+		log.Fatal(err)
+	}
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			i := slices.IndexFunc(urlPaths, func(rec URLPathJSON) bool {
 				return rec.Path == r.URL.Path
 			})
 
