@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -10,6 +12,7 @@ import (
 	fp "path/filepath"
 	"slices"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"gopkg.in/yaml.v3"
 )
 
@@ -37,7 +40,7 @@ func main() {
 		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
 		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
 		"/github":         "https://github.com/krikchaip",
-	}))
+	})).then(DatabaseHandler())
 
 	http.ListenAndServe(ADDR, URLShortener(FallbackHandler))
 }
@@ -57,6 +60,42 @@ func MapHandler(urlPaths map[string]string) Middleware {
 			}
 
 			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func DatabaseHandler() Middleware {
+	DSN := "postgresql://postgres:postgres@localhost:5432/postgres"
+
+	db, err := sql.Open("pgx", DSN)
+	if err != nil {
+		log.Printf("can't connect to %q\n", DSN)
+		return NoopMiddleware
+	}
+
+	if err := db.Ping(); err != nil {
+		log.Printf("can't ping to %q\n", DSN)
+		db.Close()
+
+		return NoopMiddleware
+	}
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var url string
+
+			err := db.QueryRow(`
+				SELECT url FROM url_maps
+				WHERE path = $1
+			`, r.URL.Path).Scan(&url)
+
+			if errors.Is(err, sql.ErrNoRows) {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			log.Println(r.URL.Path, "->", url)
+			http.Redirect(w, r, url, http.StatusMovedPermanently)
 		})
 	}
 }
