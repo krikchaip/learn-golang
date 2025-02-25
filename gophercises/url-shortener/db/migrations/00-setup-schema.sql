@@ -1,0 +1,4 @@
+CREATE TABLE url_maps (
+  path VARCHAR(255) PRIMARY KEY,
+  url VARCHAR(255) NOT NULL
+);
