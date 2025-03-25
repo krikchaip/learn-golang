@@ -9,6 +9,7 @@ import (
 
 type Args struct {
 	Port     uint
+	Addr     string
 	Filepath string
 }
 
@@ -25,6 +26,8 @@ func init() {
 
 	flag.Parse()
 	flag.Usage = help
+
+	args.Addr = fmt.Sprintf(":%d", args.Port)
 
 	if args.Filepath = flag.Arg(0); args.Filepath == "" {
 		flag.Usage()
