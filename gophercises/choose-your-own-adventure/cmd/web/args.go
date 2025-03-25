@@ -22,12 +22,13 @@ var args Args = Args{
 func init() {
 	var usage string
 
+	flag.Usage = help
+
 	usage = "Specify the web server's port."
 	flag.UintVar(&args.Port, "port", args.Port, usage)
 	flag.UintVar(&args.Port, "p", args.Port, usage)
 
 	flag.Parse()
-	flag.Usage = help
 
 	args.Addr = fmt.Sprintf(":%d", args.Port)
 
