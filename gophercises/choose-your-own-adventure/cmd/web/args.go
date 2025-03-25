@@ -11,10 +11,12 @@ type Args struct {
 	Port     uint
 	Addr     string
 	Filepath string
+	Root     string
 }
 
 var args Args = Args{
 	Port: 3000,
+	Root: "/intro",
 }
 
 func init() {
