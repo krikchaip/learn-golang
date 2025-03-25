@@ -13,7 +13,18 @@ func load(path string) (stories model.Stories) {
 		log.Fatal(err)
 	}
 
-	json.Unmarshal(data, &stories)
+	if err = json.Unmarshal(data, &stories); err != nil {
+		log.Fatal(err)
+	}
 
 	return stories
+}
+
+func toJSON(v any) string {
+	bs, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		log.Println(err)
+	}
+
+	return string(bs)
 }
