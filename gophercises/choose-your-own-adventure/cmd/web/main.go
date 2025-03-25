@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	stories := load(args.Filepath)
+	stories := loadJSON(args.Filepath)
 
 	http.HandleFunc("/{$}", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, args.Root, http.StatusSeeOther)

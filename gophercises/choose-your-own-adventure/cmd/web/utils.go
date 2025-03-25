@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func load(path string) (stories model.Stories) {
+func loadJSON(path string) (stories model.Stories) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatal(err)
